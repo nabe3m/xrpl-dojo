@@ -9,7 +9,7 @@ sidebar:
 
 方法は主に2種類ありますので、順に紹介します。
 
-## アドレスを指定して取得する
+## アドレスを指定して取得する場合
 
 以下のサイトではアドレスを指定して取得することができます。
 
@@ -21,15 +21,19 @@ sidebar:
 
 - [xrpl.org](https://xrpl.org/resources/dev-tools/xrp-faucets/)
 
-## node-fetchのインストール
+## コードで取得する場合
 
-fetchはブラウザに組み込まれていますが、Node.js環境ではnode-fetchモジュールをインストールする必要があります。
+効率と利便性を考慮するとツールを使用した方が便利ですが、コードベースで発行する方法もあります。
+
+### node-fetchのインストール
+
+fetch APIはブラウザに組み込まれていますが、Node.js環境ではnode-fetchモジュールをインストールする必要があります。
 
 ```bash
 npm install node-fetch
 ```
 
-## スクリプトの作成
+### スクリプトの作成
 
 ```javascript
 const fetch = require('node-fetch');
@@ -60,5 +64,28 @@ async function faucet() {
   }
 }
 
-requestXRP();
+faucet();
 ```
+
+## スクリプトの実行
+
+1. コマンドラインで以下のコマンドを実行して、スクリプトを実行します。
+
+    ```bash
+    node create_wallet.js
+    ```
+
+    成功すれば、コンソールに以下が表示されます。
+
+    ```Object
+    data: {
+        account: {
+        xAddress: 'XVBX4Scdqqvh8WukxJjvoNCSQ5CvZPCvZUPuaXaqZ2JuxH9',
+            address: 'rDt3T3ifG96eKS4pkZyUxhYt8rTSpPDauf', // アドレス
+            classicAddress: 'rDt3T3ifG96eKS4pkZyUxhYt8rTSpPDauf'
+        },
+        amount: 100, // 100XRPが取得できました
+        transactionHash: '6FBE1C1215B8B3D0765D3CEC2FD48EE2BBC073DB8A960A92CA0485986CFE226C',
+        seed: 'sEdTYR4byoAWLJUqFCGQsZsAX6ni9tc' // シークレットキー
+    }
+    ```

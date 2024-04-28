@@ -7,7 +7,7 @@ export default defineConfig({
     starlight({
       title: 'XRPL DOJO',
       logo: {
-        src: './src/assets/logo-xrpl-dojo.webp',
+        src: './src/assets/images/logo-xrpl-dojo.webp',
       },
       defaultLocale: 'root',
       locales: {
@@ -19,6 +19,17 @@ export default defineConfig({
       social: {
         // github: 'https://github.com/withastro/starlight',
       },
+      head: [
+        // Fathomのアナリティクススクリプトタグを追加する例。
+        {
+          tag: 'script',
+          attrs: {
+            src: '/script.js',
+            'data-site': 'MY-FATHOM-ID',
+            defer: true,
+          },
+        },
+      ],
       sidebar: [
         {
           label: 'スタートガイド',
