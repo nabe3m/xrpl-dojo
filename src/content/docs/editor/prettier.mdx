@@ -1,0 +1,64 @@
+---
+title: Prettierを導入する
+description: VS CodeにPrettierを導入する方法をご紹介いたします。
+sidebar:
+  order: 2
+---
+
+## VS CodeにPrettierをインストールする方法
+
+このドキュメントでは、Visual Studio Code (VS Code) にPrettierプラグインをインストールする手順を説明します。
+
+Prettierは、コードを自動的に整形してくれるツールで、読みやすいコードを保つのに役立ちます。
+
+## 前提条件
+
+- Visual Studio Codeがインストールされていること。
+- Node.jsとnpmがインストールされていること。
+
+## ステップ 1: Prettier 拡張機能のインストール
+
+1. VS Codeを開きます。
+2. 左サイドバーの拡張機能アイコン（四角が重なった形のアイコン）をクリックします。
+3. 検索バーに「Prettier」と入力します。
+4. 検索結果から「Prettier - Code formatter」を見つけ、インストールボタンをクリックします。
+
+## ステップ 2: VS CodeでPrettierを使う
+
+ファイルを開いて、右クリックメニューから「ドキュメントのフォーマット」を選択するか、ショートカットShift + Alt + F（Windowsの場合）またはShift + Option + F（Macの場合）を使用します。
+
+整形機能を有効にするには、VS Codeの設定（Ctrl + ,またはCmd + ,）を開き、`editor.defaultFormatter`を検索して、`Prettier Code formatter`を選択してください。
+
+ファイル保存時に自動的にコードフォーマッティングを実行する場合は、VS Code の設定画面から`editor.formatOnSave`と検索し、`Format On Save`項目にチェックを付けます。
+
+これで、VS CodeにPrettierが設定され、使用する準備が整いました。コードを保存するたびに自動的にフォーマットされるようになります。
+
+## 番外編: Prettierをプロジェクトに設定する
+
+Prettierは、プロジェクトにインストールして利用することができます。
+
+その場合は以下を
+
+1. プロジェクトのルートディレクトリで、以下のコマンドを実行してPrettierをインストールします：
+
+```
+npm install -D prettier
+```
+
+2. プロジェクトのルートに`.prettierrc`ファイルを作成し、Prettierの設定を記述します。例えば、以下のような内容で設定できます。
+
+```json
+{
+  "semi": false,
+  "singleQuote": true
+}
+```
+
+この設定では、セミコロンを使用せず、シングルクォートを使用するように設定しています。
+
+`.prettierignore`ファイルを作成し、Prettierの適用を除外するファイルやディレクトリを指定することも可能です。
+
+```
+node_modules
+dist
+```

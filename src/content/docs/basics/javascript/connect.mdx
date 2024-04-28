@@ -1,0 +1,50 @@
+---
+title: テストネットに接続してみよう
+description: XRPLのJavaScript向けライブラリであるxrpl.jsのインストール方法について紹介します。
+sidebar:
+  order: 3
+---
+
+XRPL ではテストネット
+
+## 接続用のスクリプトを作成
+
+1. プロジェクトディレクトリに`connect.js`という新しいファイルを作成します。
+2. 以下のコードを`connect.js`に貼り付けます。
+
+   ```javascript
+   const xrpl = require('xrpl'); // xrplライブラリを読み込みます。
+
+   async function main() {
+     // async
+     // Testnetサーバーに接続します。Testnetは、XRP Ledgerの開発用テストネットワークです。
+     // xrpl.Clientクラスを使って、XRP LedgerのTestnetサーバーに接続するためのクライアントを作成します。
+     const client = new xrpl.Client('wss://s.altnet.rippletest.net:51233');
+
+     // client.connect()メソッドを呼び出して、サーバーに接続します。
+     // awaitを使って、接続が完了するまで待機します。
+     await client.connect();
+
+     // 接続が成功したら、コンソールにメッセージを出力します。
+     console.log('Connected to the XRP Ledger Testnet');
+
+     // client.disconnect()メソッドを呼び出して、サーバーとの接続を切断します。
+     client.disconnect();
+   }
+
+   main().catch(console.error);
+   // main関数を呼び出して、プログラムを開始します。
+   // catch(console.error)を使って、エラーが発生した場合はコンソールにエラーメッセージを出力します。
+   ```
+
+   このスクリプトは XRP Ledger の Testnet に接続し、成功したことをコンソールに表示後、接続を閉じるだけのシンプルな処理です。
+
+## スクリプトの実行
+
+1. コマンドラインで以下のコマンドを実行して、スクリプトを実行します。
+
+   ```bash
+   node connect.js
+   ```
+
+   成功すれば、コンソールに`Connected to the XRP Ledger Testnet`と表示されます。

@@ -1,0 +1,68 @@
+---
+title: XRPを送信する
+description: JavaScriptでXRPを送信する方法を紹介します。
+sidebar:
+  order: 5
+---
+
+1. プロジェクトディレクトリに`send_xrp.js`という新しいファイルを作成します。
+2. 以下のコードを`create_wallet.js`に貼り付けます。
+
+    ```javascript
+    const xrpl = require('xrpl')
+
+    async function main() {
+    // Testnetサーバーに接続
+    const client = new xrpl.Client("wss://s.altnet.rippletest.net:51233")
+    await client.connect()
+
+    // 生成したウォレットからの送信用のウォレット情報を設定
+    // これは示例であり、実際の秘密鍵やアドレスを使用する場合は注意が必要です
+    const sender = xrpl.Wallet.fromSeed("your_wallet_seed_here")
+
+    // 送信先アドレスと送金額を設定
+    const recipient = "recipient_address_here"
+    const amount = "22000000" // 送信するXRPの量（滴単位で記載）
+
+    // トランザクションの準備
+    const prepared = await client.autofill({
+        "TransactionType": "Payment",
+        "Account": sender.address,
+        "Amount": xrpl.xrpToDrops(amount), // XRPを滴に変換
+        "Destination": recipient
+    })
+    console.log("Prepared transaction:", prepared)
+
+    // トランザクションの署名
+    const signed = sender.sign(prepared)
+    console.log("Signed transaction:", signed)
+
+    // トランザクションの送信
+    const result = await client.submitAndWait(signed.tx_blob)
+    console.log("Transaction result:", result)
+
+    // 接続を閉じる
+    client.disconnect()
+    }
+
+    main().catch(console.error)
+    ```
+
+    このスクリプトは、新しいXRPウォレットを生成し、そのアドレスと秘密鍵（シークレット）を表示する処理です。
+
+## スクリプトの実行
+
+1. コマンドラインで以下のコマンドを実行して、スクリプトを実行します。
+
+    ```bash
+    node create_wallet.js
+    ```
+    
+    成功すれば、コンソールに以下が表示されます。
+
+    ```bash
+    New wallet address: rHjHkeRJ7PMQXbghGKYL9NkTvk********
+    Secret: sEdTcmvRqeoJeHQGKf2Pz6B********
+    ```
+
+2. 表示されたアドレスとシークレットキーをテキストファイルとしてメモしておきましょう。

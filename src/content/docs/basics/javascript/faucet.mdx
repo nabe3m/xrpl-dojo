@@ -1,0 +1,64 @@
+---
+title: テスト用のXRPの取得
+description: Node.jsを用いたテスト用のXRPの取得方法について紹介します。
+sidebar:
+  order: 5
+---
+
+テストネットでは開発用としての、ネイティブトークンであるXRPを取得することができます。
+
+方法は主に2種類ありますので、順に紹介します。
+
+## アドレスを指定して取得する
+
+以下のサイトではアドレスを指定して取得することができます。
+
+先ほどコードベースで作成したアカウントアドレスに送信したい場合は、bithomb.comのツールを使用すると良いでしょう。
+
+- [test.bithomp.com](https://test.bithomp.com/faucet/)
+
+アドレスを作成しつつ、取得したい場合は以下でアカウントを取得しましょう。
+
+- [xrpl.org](https://xrpl.org/resources/dev-tools/xrp-faucets/)
+
+## node-fetchのインストール
+
+fetchはブラウザに組み込まれていますが、Node.js環境ではnode-fetchモジュールをインストールする必要があります。
+
+```bash
+npm install node-fetch
+```
+
+## スクリプトの作成
+
+```javascript
+const fetch = require('node-fetch');
+
+async function faucet() {
+  try {
+    // XRPL Testnet Faucet URL
+    const faucetUrl = 'https://faucet.altnet.rippletest.net/accounts';
+
+    // Fetch APIを使用してPOSTリクエストを送信
+    const response = await fetch(faucetUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    console.log('Wallet Address:', data.account.address);
+    console.log('Secret:', data.account.secret);
+    console.log('Balance:', data.balance); // テストネットで付与されるXRPの量を表示
+  } catch (error) {
+    console.error('Error requesting XRP:', error.message);
+  }
+}
+
+requestXRP();
+```

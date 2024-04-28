@@ -1,0 +1,69 @@
+---
+title: ウォレットの生成
+description: ウォレットの生成
+sidebar:
+  order: 4
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+## スクリプトを作成
+
+1. プロジェクトディレクトリに`create_wallet.js`という新しいファイルを作成します。
+2. 以下のコードを`create_wallet.js`に貼り付けます。
+
+    ```javascript
+    const xrpl = require('xrpl');
+
+    async function main() {
+    // Testnetサーバーに接続
+    const client = new xrpl.Client('wss://s.altnet.rippletest.net:51233');
+    await client.connect();
+
+    // 新しいウォレットを生成
+    const wallet = xrpl.Wallet.generate();
+    console.log('New wallet address:', wallet.address);
+    console.log('Secret:', wallet.seed);
+
+    // 接続を閉じる
+    client.disconnect();
+    }
+
+    main().catch(console.error);
+    ```
+
+    このスクリプトは、新しいXRPウォレットを生成し、そのアドレスと秘密鍵（シークレットキー）を表示する処理です。
+
+## スクリプトの実行
+
+1. コマンドラインで以下のコマンドを実行して、スクリプトを実行します。
+
+    ```bash
+    node create_wallet.js
+    ```
+    
+    成功すれば、コンソールに以下が表示されます。
+
+    ```bash
+    New wallet address: rHjHkeRJ7PMQXbghGKYL9NkTvk********
+    Secret: sEdTcmvRqeoJeHQGKf2Pz6B********
+    ```
+
+    このように、XRPLでは簡単に新規アドレスを発行することが可能です。
+
+    アドレスは銀行口座番号のような役割を果たし、秘密鍵はアカウント管理や署名に使用する大事な役割となります。
+
+    <Aside type="caution" title="Caution">
+    テストネットで作成した秘密鍵（シークレットキー）はクラウドなどに保管しても特に問題はありませんが、メインネットの場合は手元の紙にメモするなど、厳重な管理が必要となります。  
+    秘密鍵さえ知っていれば、資産を自由に動かすことができてしまうからです。
+    </Aside>
+
+
+2. 作成したアドレスを引き続き開発で使用したい場合は、表示されたアドレスと秘密鍵をテキストファイルやメモツールにメモしておきましょう。
+
+<Aside title="アドレスについて">
+実はこのままでは上記で作成したアドレスを使用することができません。XRPLでは有効化が必要であり、1アドレスあたり10XRP（2024/04/28現在）が必要となります。  
+メインネットでは、取引所などで暗号資産であるXRPを購入する必要がありますが、テストネットでは開発用トークンを取得することができるので、無料で開発を進めることが可能となっています。
+</Aside>
+
+次の章では、テストネット用のアドレスに開発用トークンを取得する方法について紹介します。
