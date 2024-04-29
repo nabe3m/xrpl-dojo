@@ -5,9 +5,11 @@ sidebar:
   order: 4
 ---
 
-import { Aside } from '@astrojs/starlight/components';
+import { Aside, Steps } from '@astrojs/starlight/components';
 
 ## スクリプトを作成
+
+<Steps>
 
 1. プロジェクトディレクトリに`create_wallet.js`という新しいファイルを作成します。
 2. 以下のコードを`create_wallet.js`に貼り付けます。
@@ -34,7 +36,11 @@ import { Aside } from '@astrojs/starlight/components';
 
     このスクリプトは、新しいXRPウォレットを生成し、そのアドレスと秘密鍵（シークレットキー）を表示する処理です。
 
+</Steps>
+
 ## スクリプトの実行
+
+<Steps>
 
 1. コマンドラインで以下のコマンドを実行して、スクリプトを実行します。
 
@@ -58,8 +64,11 @@ import { Aside } from '@astrojs/starlight/components';
     秘密鍵さえ知っていれば、資産を自由に動かすことができてしまうからです。
     </Aside>
 
-
 2. 作成したアドレスを引き続き開発で使用したい場合は、表示されたアドレスと秘密鍵をテキストファイルやメモツールにメモしておきましょう。
+
+</Steps>
+
+## 備考
 
 <Aside title="アドレスについて">
 実はこのままでは上記で作成したアドレスを使用することができません。XRPLでは有効化が必要であり、1アドレスあたり10XRP（2024/04/28現在）が必要となります。  

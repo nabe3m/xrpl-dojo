@@ -5,6 +5,8 @@ sidebar:
   order: 2
 ---
 
+import { Steps } from '@astrojs/starlight/components';
+
 このガイドでは、`xrpl.js`ライブラリを使用してXRP Ledgerに接続し、基本的なトランザクションを行うプロジェクトの作成方法を説明します。
 
 ## 必要なツール
@@ -12,7 +14,9 @@ sidebar:
 - テキストエディタ（VS Codeが推奨）
 - Node.jsのインストール
 
-## ステップ 1: プロジェクトのセットアップ
+## プロジェクトのセットアップ
+
+<Steps>
 
 1. 新しいディレクトリを作成し、そのディレクトリ内で以下のコマンドを実行して、新しいNode.jsプロジェクトを初期化します。
 
@@ -24,6 +28,7 @@ sidebar:
     ```bash
     npm install xrpl
     ```
+</Steps>
 
 
 

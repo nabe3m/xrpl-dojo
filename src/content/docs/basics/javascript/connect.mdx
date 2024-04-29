@@ -5,9 +5,15 @@ sidebar:
   order: 3
 ---
 
-XRPL ではテストネット
+import { Steps } from '@astrojs/starlight/components';
 
-## 接続用のスクリプトを作成
+XRPLには、テストネットが用意されています。
+
+`wss://s.altnet.rippletest.net:51233`
+
+## スクリプトを作成
+
+<Steps>
 
 1. プロジェクトディレクトリに`connect.js`という新しいファイルを作成します。
 2. 以下のコードを`connect.js`に貼り付けます。
@@ -39,12 +45,20 @@ XRPL ではテストネット
 
    このスクリプトは XRP Ledger の Testnet に接続し、成功したことをコンソールに表示後、接続を閉じるだけのシンプルな処理です。
 
+</Steps>
+
 ## スクリプトの実行
 
+<Steps>
 1. コマンドラインで以下のコマンドを実行して、スクリプトを実行します。
 
    ```bash
    node connect.js
    ```
 
-   成功すれば、コンソールに`Connected to the XRP Ledger Testnet`と表示されます。
+2. 成功すれば、コンソールに以下が表示されます。
+
+   ```bash
+   Connected to the XRP Ledger Testnet
+   ```
+</Steps>

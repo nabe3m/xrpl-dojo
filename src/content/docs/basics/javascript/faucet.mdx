@@ -5,6 +5,8 @@ sidebar:
   order: 5
 ---
 
+import {Steps } from '@astrojs/starlight/components';
+
 テストネットでは開発用としての、ネイティブトークンであるXRPを取得することができます。
 
 方法は主に2種類ありますので、順に紹介します。
@@ -69,13 +71,15 @@ faucet();
 
 ## スクリプトの実行
 
+<Steps>
+
 1. コマンドラインで以下のコマンドを実行して、スクリプトを実行します。
 
     ```bash
     node create_wallet.js
     ```
 
-    成功すれば、コンソールに以下が表示されます。
+2. 成功すれば、コンソールに以下が表示されます。
 
     ```Object
     data: {
@@ -89,3 +93,4 @@ faucet();
         seed: 'sEdTYR4byoAWLJUqFCGQsZsAX6ni9tc' // シークレットキー
     }
     ```
+</Steps>
