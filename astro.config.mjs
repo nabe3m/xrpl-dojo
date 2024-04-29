@@ -6,8 +6,8 @@ export default defineConfig({
   site: 'https://xrpldojo.dev',
   integrations: [
     starlight({
-      title: 'XRPL道場',
-      favicon: '/images/favicon.png',
+      title: 'XRPL道場 -DOJO-',
+      favicon: './src/assets/images/favicon.png',
       logo: {
         src: './src/assets/images/logo-xrpl-dojo.webp',
       },
