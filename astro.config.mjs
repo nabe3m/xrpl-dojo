@@ -5,7 +5,7 @@ import starlight from '@astrojs/starlight';
 export default defineConfig({
   integrations: [
     starlight({
-      title: 'XRPL DOJO',
+      title: 'XRPL道場',
       logo: {
         src: './src/assets/images/logo-xrpl-dojo.webp',
       },
