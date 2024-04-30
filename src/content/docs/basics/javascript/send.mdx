@@ -13,7 +13,7 @@ import { Steps } from '@astrojs/starlight/components';
 <Steps>
 
 1. プロジェクトディレクトリに`send_xrp.js`という新しいファイルを作成します。
-2. 以下のコードを`create_wallet.js`に貼り付けます。
+2. 以下のコードを`send_xrp.js`に貼り付けます。
 
    ```javascript
    const xrpl = require('xrpl');
@@ -60,6 +60,8 @@ import { Steps } from '@astrojs/starlight/components';
 </Steps>
 
 ## スクリプトの実行
+
+<Steps>
 
 1. コマンドラインで以下のコマンドを実行して、スクリプトを実行します。
 
@@ -158,6 +160,7 @@ import { Steps } from '@astrojs/starlight/components';
     ```
 
     今度は、`TransactionResult: 'tesSUCCESS'`とレスポンスが返ってきており、送金が成功していることを確認できました。
+</Steps>
 
 ## さいごに
 
