@@ -178,6 +178,27 @@ declare module 'astro:content' {
   collection: "docs";
   data: InferEntrySchema<"docs">
 } & { render(): Render[".mdx"] };
+"beginners/javascript/index.mdx": {
+	id: "beginners/javascript/index.mdx";
+  slug: "beginners/javascript";
+  body: string;
+  collection: "docs";
+  data: InferEntrySchema<"docs">
+} & { render(): Render[".mdx"] };
+"beginners/javascript/payment-token.mdx": {
+	id: "beginners/javascript/payment-token.mdx";
+  slug: "beginners/javascript/payment-token";
+  body: string;
+  collection: "docs";
+  data: InferEntrySchema<"docs">
+} & { render(): Render[".mdx"] };
+"beginners/javascript/trustline.mdx": {
+	id: "beginners/javascript/trustline.mdx";
+  slug: "beginners/javascript/trustline";
+  body: string;
+  collection: "docs";
+  data: InferEntrySchema<"docs">
+} & { render(): Render[".mdx"] };
 "editor/install.mdx": {
 	id: "editor/install.mdx";
   slug: "editor/install";

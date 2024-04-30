@@ -7,7 +7,7 @@ export default defineConfig({
   integrations: [
     starlight({
       title: 'XRPL道場 -DOJO-',
-      favicon: './src/assets/images/favicon.png',
+      favicon: '/favicon.png',
       logo: {
         src: './src/assets/images/logo-xrpl-dojo.webp',
       },
@@ -37,6 +37,10 @@ export default defineConfig({
         {
           label: '入門編',
           autogenerate: { directory: 'basics' },
+        },
+        {
+          label: '初級編',
+          autogenerate: { directory: 'beginners' },
         },
         {
           label: 'チュートリアル',
