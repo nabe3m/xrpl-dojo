@@ -19,8 +19,20 @@ export default defineConfig({
         },
       },
       social: {
-        // github: 'https://github.com/withastro/starlight',
+        github: 'https://github.com/Nabe3m/',
+        'x.com': 'https://x.com/astrodotbuild',
       },
+      head: [
+        // Fathomのアナリティクススクリプトタグを追加する例。
+        {
+          tag: 'script',
+          attrs: {
+            src: '/script.js',
+            'data-site': 'MY-FATHOM-ID',
+            defer: true,
+          },
+        },
+      ],
       sidebar: [
         {
           label: 'スタートガイド',
