@@ -20,7 +20,7 @@ export default defineConfig({
       },
       social: {
         github: 'https://github.com/Nabe3m/',
-        'x.com': 'https://x.com/astrodotbuild',
+        'x.com': 'https://twitter.com/nabe3_m',
       },
       head: [
         // Fathomのアナリティクススクリプトタグを追加する例。
