@@ -8,7 +8,7 @@ sidebar:
 
 import { Steps } from '@astrojs/starlight/components';
 
-XRPLでは、トラストラインを設定したアカウントとユーザー間であれば、即時にトークンを送金することができるようになります。
+XRPLでは、トラストラインを設定したアカウントとユーザー間であれば、即座にトークンを送金することができるようになります。
 
 先ほどの章で、アリスはチャーリーが発行元となる`DOJ`トークンを`10,000`ほど受領する権利を得ましたので、チャーリーからアリスに`10 DOJ`を送信してみます。
 
@@ -32,47 +32,45 @@ XRPLでは、トラストラインを設定したアカウントとユーザー�
     const xrpl = require('xrpl');
 
     async function paymentToken() {
-    // Testnetサーバーに接続します。Testnetは、XRP Ledgerの開発用テストネットワークです。
-    const client = new xrpl.Client('wss://s.altnet.rippletest.net:51233');
-    await client.connect();
+        // Testnetサーバーに接続します
+        const client = new xrpl.Client('wss://s.altnet.rippletest.net:51233');
+        await client.connect();
 
-    // トークン発行者のウォレットを設定（チャーリー）
-    const issuerWallet = xrpl.Wallet.fromSeed('charlie_wallet_seed_here');
+        // トークン発行者のウォレットを設定（チャーリー）
+        const issuerWallet = xrpl.Wallet.fromSeed('charlie_wallet_seed_here');
 
-    // トークン受領者のウォレットを設定（アリス）
-    const recipientWallet = xrpl.Wallet.fromSeed(
-        'alice_wallet_seed_here'
-    );
+        // トークン受領者のウォレットアドレスを設定（アリス）
+        const recipientWalletAddress = 'alice_wallet_address_here';
 
-    const currencyCode = 'DOJ'; // トークンの通貨コード
-    const amount = '10'; // 送金するトークンの量
+        const currencyCode = 'DOJ'; // トークンの通貨コード
+        const amount = '10'; // 送金するトークンの量
 
-    const result = await client.submitAndWait(
-        {
-        TransactionType: 'Payment', // 支払い
-        Account: issuerWallet.address, // チャーリーのアドレス（トークン発行者）
-        Destination: recipientWallet.address, // アリスのアドレス
-        Amount: {
-            issuer: issuerWallet.address, // チャーリーのアドレス（トークン発行者）
-            currency: currencyCode, // DOJ
-            value: amount, // 10
-        },
-        },
-        { wallet: issuerWallet } // チャーリー（トークン発行者）のウォレットで認証
-    );
+        const result = await client.submitAndWait(
+            {
+            TransactionType: 'Payment', // 支払い
+            Account: issuerWallet.address, // チャーリーのアドレス（トークン発行者）
+            Destination: recipientWallet.address, // アリスのアドレス
+            Amount: {
+                issuer: issuerWallet.address, // チャーリーのアドレス（トークン発行者）
+                currency: currencyCode, // DOJ
+                value: amount, // 10
+            },
+            },
+            { wallet: issuerWallet } // チャーリー（トークン発行者）のウォレットで認証
+        );
 
-    // コンソールに結果を出力します。
-    console.log(result);
+        // コンソールに結果を出力します
+        console.log(result);
 
-    // client.disconnect()メソッドを呼び出して、サーバーとの接続を切断します。
-    client.disconnect();
+        // client.disconnect()メソッドを呼び出して、サーバーとの接続を切断します
+        client.disconnect();
     }
 
     paymentToken().catch(console.error);
     ```
 
     1. `charlie_wallet_seed_here`には、テストネットのチャーリーのシークレットキーを入力してください。
-    2. `alice_wallet_seed_here`には、テストネットのアリスのシークレットキーを入力してください。
+    2. `alice_wallet_address_here`には、テストネットのアリスのアドレスを入力してください。
 </Steps>
 
 ## スクリプトの実行
@@ -91,10 +89,10 @@ XRPLでは、トラストラインを設定したアカウントとユーザー�
     {
         id: 12,
         result: {
-            Account: 'rGrnqGxiW4AQd8bCjQrHBhAnTMvLVQe3iL',
+            Account: 'rGrnqGxiW4AQd8bCjQrHBhAnTMvLVQe3iL', // チャーリーのアドレス（トークン発行者）
             Amount: {
-                currency: 'DOJ',
-                issuer: 'rGrnqGxiW4AQd8bCjQrHBhAnTMvLVQe3iL',
+                currency: 'DOJ', // 通貨コード
+                issuer: 'rGrnqGxiW4AQd8bCjQrHBhAnTMvLVQe3iL', // チャーリーのアドレス（トークン発行者）
                 value: '10'
             },
             DeliverMax: {
@@ -102,7 +100,7 @@ XRPLでは、トラストラインを設定したアカウントとユーザー�
                 issuer: 'rGrnqGxiW4AQd8bCjQrHBhAnTMvLVQe3iL',
                 value: '10'
             },
-            Destination: 'rusJXJ5ba76K9MBC7RcUyTCJx8XdEBHoi',
+            Destination: 'rusJXJ5ba76K9MBC7RcUyTCJx8XdEBHoi', // アリスのアドレス
                 Fee: '12',
                 Flags: 0,
                 LastLedgerSequence: 266109,
@@ -112,7 +110,7 @@ XRPLでは、トラストラインを設定したアカウントとユーザー�
                 TxnSignature: 'BE5AEAED12DC1ABE457B8A1490B96CA53159F8E39CB909D67B4B019C4EF0EA9B55A1B8F64F24F4BB55BDADFF1DCFB42BA519A5D230115F49DEEC1D0ACE893A0A',
                 ctid: 'C0040F6B00000001',
                 date: 767755690,
-                hash: 'DAEED2C83399A39700377C11BABDBAA218E60A5926E012AD8114597538D355C8',
+                hash: 'DAEED2C83399A39700377C11BABDBAA218E60A5926E012AD8114597538D355C8', // ハッシュ値
                 inLedger: 266091,
                 ledger_index: 266091,
                 meta: {
@@ -129,7 +127,7 @@ XRPLでは、トラストラインを設定したアカウントとユーザー�
 
     エクスプローラーで実際に確認してみましょう！
     
-    実際に私が送信したアカウントは[こちら](https://test.bithomp.com/explorer/rusJXJ5ba76K9MBC7RcUyTCJx8XdEBHoi)です。10DOJを保有している状態になっていることが確認できます。
+    実際にこのサンプルで送金したアリスのアカウントは[こちら](https://test.bithomp.com/explorer/rusJXJ5ba76K9MBC7RcUyTCJx8XdEBHoi)です。10DOJを保有している状態になっていることが確認できます。
 
     このように、XRPLではトラストライン機能を利用することで、非常にスマートで安全にトークンを発行することが可能となっています。
 </Steps>
