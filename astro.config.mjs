@@ -23,16 +23,31 @@ export default defineConfig({
         'x.com': 'https://twitter.com/nabe3_m',
       },
       head: [
-        // Fathomのアナリティクススクリプトタグを追加する例。
+        {
+          tag: 'script',
+          attrs: {
+            src: '/gtag.js',
+            defer: true,
+          },
+        },
+        {
+          tag: 'meta',
+          attrs: {
+            name: 'og:image',
+            src: './src/assets/images/ogp.png',
+          },
+        },
         {
           tag: 'script',
           attrs: {
             src: '/script.js',
-            'data-site': 'MY-FATHOM-ID',
             defer: true,
           },
         },
       ],
+      components: {
+        SkipLink: './src/components/SkipLink.astro',
+      },
       sidebar: [
         {
           label: 'スタートガイド',
