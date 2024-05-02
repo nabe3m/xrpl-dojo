@@ -34,7 +34,7 @@ export default defineConfig({
           tag: 'meta',
           attrs: {
             name: 'og:image',
-            src: '/ogp.png',
+            content: '/ogp.png',
           },
         },
         {
