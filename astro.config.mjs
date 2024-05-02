@@ -34,7 +34,7 @@ export default defineConfig({
           tag: 'meta',
           attrs: {
             property: 'og:image',
-            content: '/ogp.png',
+            content: 'https://xrpldojo.dev/ogp.png',
           },
         },
         {
