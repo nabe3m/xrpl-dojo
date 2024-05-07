@@ -47,10 +47,10 @@ import { Aside, Steps } from '@astrojs/starlight/components';
             // TrustSetトランザクションの作成
             const trustSetTx = {
                 TransactionType: 'TrustSet',
-                Account: wallet.address, // アリスまたはボブのアドレスが入ります
+                Account: wallet.address, // 発行者のアドレス（チャーリー）
                 LimitAmount: {
                     currency: trustLineCurrency, // 通貨コード
-                    issuer: trustLineIssuer, // 発行者のアドレス（チャーリー）
+                    issuer: trustLineIssuer, // ユーザーのアドレス（アリスまたはボブ）
                     value: trustLineLimit, // 限度額（ここでは変更しない）
                 },
                 // NoRippleフラグを無効化
@@ -70,11 +70,11 @@ import { Aside, Steps } from '@astrojs/starlight/components';
 
     // 関数の実行
     const currency = 'DOJ'; // 通貨コード
-    const trustLineIssuer = 'alice_wallet_address_here'; // 発行者のアドレス（チャーリー）
+    const trustLineIssuer = 'alice_wallet_address_here'; // ユーザーのアドレス（アリス）
     const limit = '0'; // 限度額（ここでは変更しない）
 
-    const issuerWallet = xrpl.Wallet.fromSecret('charlie_wallet_secret_here'); // アリスのシークレットキー
-    disableNoRipple(issuerWallet, currency, trustLineIssuer, limit); // アリスのトラストライン情報を変更する
+    const issuerWallet = xrpl.Wallet.fromSecret('charlie_wallet_secret_here'); // 発行者のシークレットキー（チャーリー）
+    disableNoRipple(issuerWallet, currency, trustLineIssuer, limit); // ユーザーのトラストライン情報を変更する
     ```
 
     1. `alice_wallet_address_here`には、テストネットのアリスのアドレスを入力してください。
