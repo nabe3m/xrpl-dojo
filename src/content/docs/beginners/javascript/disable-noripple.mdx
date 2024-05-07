@@ -39,33 +39,33 @@ import { Aside, Steps } from '@astrojs/starlight/components';
         trustLineIssuer,
         trustLineLimit
     ) {
-    // Testnetに接続
-    const client = new xrpl.Client('wss://s.altnet.rippletest.net:51233');
-    await client.connect();
+        // Testnetに接続
+        const client = new xrpl.Client('wss://s.altnet.rippletest.net:51233');
+        await client.connect();
 
-    try {
-        // TrustSetトランザクションの作成
-        const trustSetTx = {
-            TransactionType: 'TrustSet',
-            Account: wallet.address, // アリスまたはボブのアドレスが入ります
-            LimitAmount: {
-                currency: trustLineCurrency, // 通貨コード
-                issuer: trustLineIssuer, // 発行者のアドレス（チャーリー）
-                value: trustLineLimit, // 限度額（ここでは変更しない）
-            },
-            // NoRippleフラグを無効化
-            Flags: xrpl.TrustSetFlags.tfClearNoRipple,
-        };
+        try {
+            // TrustSetトランザクションの作成
+            const trustSetTx = {
+                TransactionType: 'TrustSet',
+                Account: wallet.address, // アリスまたはボブのアドレスが入ります
+                LimitAmount: {
+                    currency: trustLineCurrency, // 通貨コード
+                    issuer: trustLineIssuer, // 発行者のアドレス（チャーリー）
+                    value: trustLineLimit, // 限度額（ここでは変更しない）
+                },
+                // NoRippleフラグを無効化
+                Flags: xrpl.TrustSetFlags.tfClearNoRipple,
+            };
 
-        // トランザクションを送信し、結果を待つ
-        const response = await client.submitAndWait(trustSetTx, { wallet });
-        console.log('Transaction result:', response);
-    } catch (error) {
-        console.error('An error occurred:', error);
-    }
+            // トランザクションを送信し、結果を待つ
+            const response = await client.submitAndWait(trustSetTx, { wallet });
+            console.log('Transaction result:', response);
+        } catch (error) {
+            console.error('An error occurred:', error);
+        }
 
-    // 接続を閉じる
-    await client.disconnect();
+        // 接続を閉じる
+        await client.disconnect();
     }
 
     // 関数の実行
