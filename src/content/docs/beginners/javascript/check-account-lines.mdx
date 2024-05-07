@@ -1,0 +1,124 @@
+---
+title: 発行者に紐づくトラストライン情報を確認する | JavaScriptでのXRPL開発初段編
+description: JavaScriptでXRPL開発するための初段編として、アカウントの情報の確認方法について紹介しています。
+sidebar:
+  label: トラストライン情報を確認する
+  order: 10
+---
+
+import { Aside, Steps } from '@astrojs/starlight/components';
+
+先ほどの章では、`Rippling`を許可したにもかかわらず、アリスからボブへのトークンの送付が失敗してしまいました。
+
+原因を探るため、チャーリーに紐づくトラストラインの情報を一度確認してみましょう。
+
+トラストラインのアカウント情報を取得するには、`rippled`の`パブリックメソッド`である`アカウントメソッド`を使用します。
+
+## 前提
+
+このガイドは、以下の登場人物が登場する設定で進行しています。
+
+- チャーリー（トークン発行者）
+- アリス（トークン受領者）
+
+## スクリプトを作成
+
+トラストラインのリストを確認するため、[account_lines](https://xrpl.org/ja/docs/references/http-websocket-apis/public-api-methods/account-methods/account_lines/)コマンドを使用します。
+
+<Steps>
+
+1. プロジェクトディレクトリに`check_account_lines.js`という新しいファイルを作成します。
+2. 以下のコードを`check_account_lines.js`に貼り付けます。
+
+    ```javascript
+    const xrpl = require('xrpl');
+
+    async function checkAccountLines(accountAddress) {
+        // Testnetに接続
+        const client = new xrpl.Client('wss://s.altnet.rippletest.net:51233');
+        await client.connect();
+
+        try {
+            // account_lines コマンドを用いて確認
+            const response = await client.request({
+                command: 'account_lines', // コマンド
+                account: accountAddress, // 確認したいアドレス
+                ledger_index: 'validated', // 確実に検証済みのレジャーから取得する
+            });
+
+            // コンソールに結果を出力します
+            console.log('Account Lines:', response.result.lines);
+        } catch (error) {
+            console.error('Error retrieving account lines:', error);
+        }
+
+        // client.disconnect()メソッドを呼び出して、サーバーとの接続を切断します
+        client.disconnect();
+    }
+
+    // 関数に引数としてアカウントアドレスを渡す
+    const charlieAddress = 'charlie_wallet_address_here'; // チャーリーのアドレス
+    checkAccountLines(charlieAddress);
+    ```
+
+    `charlie_wallet_address_here`には、テストネットのチャーリーのアドレスを入力してください。
+</Steps>
+
+## スクリプトの実行
+
+<Steps>
+
+1. コマンドラインで以下のコマンドを実行して、スクリプトを実行します。
+
+    ```bash
+    node check_account_lines.js
+    ```
+
+2. 成功すれば、コンソールに以下が表示されます。
+
+    ```bash
+    Account Lines: [
+        { // アリス
+            account: 'rQr8KfkCQcpqvFwmRspDoaL36reZhcdaeA',
+            balance: '-1000',
+            currency: 'DOJ',
+            limit: '0',
+            limit_peer: '10000',
+            no_ripple: true, // No Rippleフラグ
+            no_ripple_peer: false,
+            quality_in: 0,
+            quality_out: 0
+        },
+        { // ボブ
+            account: 'rDNVaJJSp9iQmHC8YAAwHytnLP9aXEPhDw',
+            balance: '0',
+            currency: 'DOJ',
+            limit: '0',
+            limit_peer: '10000',
+            no_ripple: true, // No Rippleフラグ
+            no_ripple_peer: false,
+            quality_in: 0,
+            quality_out: 0
+        }
+    ]
+    ```
+
+    発行者であるチャーリー視点で確認した結果、紐づくアカウントのトラストラインが、`no_ripple: true`となってしまっていました。
+</Steps>
+
+## Ripplingの許可とトラストラインの関係について
+
+アリスとボブはトラストラインを設定し、チャーリーからトークンを送付してもらえる権利は得てはいますが、`NoRippleフラグ`が有効になってしまっていました。
+
+<Aside title="NoRippleフラグとは？">
+このフラグが設定されていると、そのトラストラインに対してリップリング（信用を通じたトークンの移動）が禁止されます。
+また今回のガイドとは少し話が逸れますが、トラストライン上のNoRippleフラグは、トラストライン上のアドレスの残高がマイナスでない場合に限り、有効にできます。これにより、この機能を悪用してトラストラインの残高に示される債務を不履行にすることができなくなります。
+詳しくは、[公式ドキュメント](https://xrpl.org/ja/docs/concepts/tokens/fungible-tokens/rippling/)などをご確認ください。
+</Aside>
+
+
+原因は、`DOJ`トークンの発行者であるチャーリーのアカウントに対して`Rippleフラグ`を許可する前に、トラストラインをセットしてしまっていたことです。
+
+基本的にユーザー間でのトークンの送付を許可したい場合は、発行者自身のアカウントの`Rippling`を有効にしてから、ユーザーにトラストラインをセットしてもらう必要がありますのでご注意ください。
+
+次の章では、`TrustSet`トランザクションを用いて、NoRippleフラグを無効化する方法を紹介します。

@@ -1,0 +1,133 @@
+---
+title: NoRippleフラグを無効化する | JavaScriptでのXRPL開発初段編
+description: JavaScriptでXRPL開発するための初段編として、トラストライン機能をセットしたユーザのNoRippleフラグを無効化する方法を紹介しています。
+sidebar:
+  label: NoRippleフラグを無効化する
+  order: 10
+---
+
+import { Aside, Steps } from '@astrojs/starlight/components';
+
+先ほどの章では、トランザクションが失敗した理由と、`Rippling`と`NoRippleフラグ`の関係などの概要を紹介しました。
+
+発行者視点での、アリスの`NoRippleフラグ`を無効化するために、`TrustSet`トランザクションを用いて、状態を変更してみましょう！
+
+## 前提
+
+このガイドは、以下の登場人物が登場する設定で進行します。
+
+- チャーリー（トークン発行者）
+- アリス（トークン受領者）
+
+## スクリプトを作成
+
+<Steps>
+
+1. プロジェクトディレクトリに`disable_noripple.js`という新しいファイルを作成します。
+2. 以下のコードを`disable_noripple.js`に貼り付けます。
+
+    これまでも関数として定義したサンプルを紹介してきましたが、ここで一度、引数を増やしたパターンのコードにしてみましょう。
+
+    これは発行者であるチャーリーから、アリスのNoRippleフラグを無効化するスクリプトです。
+
+    ```javascript
+    const xrpl = require('xrpl');
+
+    async function disableNoRipple(
+        wallet,
+        trustLineCurrency,
+        trustLineIssuer,
+        trustLineLimit
+    ) {
+    // Testnetに接続
+    const client = new xrpl.Client('wss://s.altnet.rippletest.net:51233');
+    await client.connect();
+
+    try {
+        // TrustSetトランザクションの作成
+        const trustSetTx = {
+            TransactionType: 'TrustSet',
+            Account: wallet.address, // アリスまたはボブのアドレスが入ります
+            LimitAmount: {
+                currency: trustLineCurrency, // 通貨コード
+                issuer: trustLineIssuer, // 発行者のアドレス（チャーリー）
+                value: trustLineLimit, // 限度額（ここでは変更しない）
+            },
+            // NoRippleフラグを無効化
+            Flags: xrpl.TrustSetFlags.tfClearNoRipple,
+        };
+
+        // トランザクションを送信し、結果を待つ
+        const response = await client.submitAndWait(trustSetTx, { wallet });
+        console.log('Transaction result:', response);
+    } catch (error) {
+        console.error('An error occurred:', error);
+    }
+
+    // 接続を閉じる
+    await client.disconnect();
+    }
+
+    // 関数の実行
+    const currency = 'DOJ'; // 通貨コード
+    const trustLineIssuer = 'alice_wallet_address_here'; // 発行者のアドレス（チャーリー）
+    const limit = '0'; // 限度額（ここでは変更しない）
+
+    const issuerWallet = xrpl.Wallet.fromSecret('charlie_wallet_secret_here'); // アリスのシークレットキー
+    disableNoRipple(issuerWallet, currency, trustLineIssuer, limit); // アリスのトラストライン情報を変更する
+    ```
+
+    1. `alice_wallet_address_here`には、テストネットのアリスのアドレスを入力してください。
+    1. `charlie_wallet_secret_here`には、テストネットのチャーリーのシークレットキーを入力してください。
+</Steps>
+
+## スクリプトの実行
+
+<Steps>
+
+1. コマンドラインで以下のコマンドを実行して、スクリプトを実行します。
+
+    ```bash
+    node enabled_rippling.js
+    ```
+
+2. 成功すれば、コンソールに以下が表示されます。
+    ```bash
+    Transaction result: {
+        id: 12,
+        result: {
+            Account: 'rQr8KfkCQcpqvFwmRspDoaL36reZhcdaeA',
+            Fee: '12',
+            Flags: 262144,
+            LastLedgerSequence: 478802,
+            LimitAmount: {
+                currency: 'DOJ',
+                issuer: 'rh8xETfGs1Ktizj9EXZb5QpW4aqk8bWUSU',
+                value: '20000'
+            },
+            Sequence: 474074,
+            SigningPubKey: 'ED2924DBD08E093DD7FC9C35B8DCEBD74CA4C8349D68D7BF566AD6C2533B8BB865',
+            TransactionType: 'TrustSet',
+            TxnSignature: 'DD350511FDFDB2C430C40CE6CE87B047BAF9130FD98634B8375955BE8863412ED8AB17C3E038D64B2C7805C088258E72861989ECD1280A7B4ABE718669694801',
+            ctid: 'C0074E4000000001',
+            date: 768414741,
+            hash: '97418F46A8B47FFA455DA3A0401BFDF2F09579F9911D64E194768BECB4AC2DC3',
+            inLedger: 478784,
+            ledger_index: 478784,
+            meta: {
+                AffectedNodes: [Array],
+                TransactionIndex: 0,
+                TransactionResult: 'tesSUCCESS' // 成功
+            },
+            validated: true
+        },
+        type: 'response'
+    }
+    ```
+
+    これで発行者視点での、アリスの`NoRippleフラグ`を無効化することができました。
+
+    送付するアカウントの`NoRippleフラグ`が無効になっていれば送付ができますので、次の章では、[こちらのガイド](/beginners/javascript/failure-payment/)にて失敗した、アリスからボブへの`DOJ`トークンの送付を再度試してみましょう！
+</Steps>
+
+

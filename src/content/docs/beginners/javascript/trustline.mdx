@@ -1,8 +1,8 @@
 ---
-title: トラストラインの設定 | JavaScriptでのXRPL開発初級編
-description: JavaScriptでXRPL開発するための初級編として、トラストライン機能について紹介しています。
+title: トラストラインの設定方法 | JavaScriptでのXRPL開発初段編
+description: JavaScriptでXRPL開発するための初段編として、トラストライン機能について紹介しています。
 sidebar:
-  label: トラストラインの設定
+  label: トラストラインの概要と設定
   order: 2
 ---
 
@@ -27,7 +27,7 @@ XRPL（XRP Ledger）のトラストライン機能は、ユーザーが特定の
 
 ## スクリプトを作成
 
-以下は、アリスからチャーリーにトラストラインをセットするスクリプトです。
+以下は、アリスからチャーリーが発行体のトークンにトラストラインをセットするスクリプトです。
 
 <Steps>
 
@@ -37,50 +37,55 @@ XRPL（XRP Ledger）のトラストライン機能は、ユーザーが特定の
     ```javascript
     const xrpl = require('xrpl');
 
-    async function trustSet() {
+    // TrustSetトランザクションを送信する関数
+    async function trustSet(recipientSecret) {
         // Testnetサーバーに接続します
         const client = new xrpl.Client('wss://s.altnet.rippletest.net:51233');
-
-        // client.connect()メソッドを呼び出して、サーバーに接続します
-        // awaitを使って、接続が完了するまで待機します
         await client.connect();
 
-        // トークン発行者のウォレットを設定（チャーリー）
-        const issuerWalletAddress = 'charlie_wallet_address_here';
+        try {
+            // トークン発行者のウォレットアドレス（チャーリー）
+            const issuerWalletAddress = 'charlie_wallet_address_here';
 
-        // トークン受領者のウォレットを設定（アリス）
-        const recipientWallet = xrpl.Wallet.fromSeed(
-            'alice_wallet_seed_here'
-        );
+            // トークン受領者のウォレットを設定
+            const recipientWallet = xrpl.Wallet.fromSecret(recipientSecret);
 
-        const currencyCode = 'DOJ'; // トークンの通貨コード
-        const amount = '10000'; // アリスが受領できるトークンの量の最大値（整数値）
+            // トークンに関する固定の情報
+            const currencyCode = 'DOJ'; // 通貨コード
+            const amount = '10000'; // 最大受領可能なトークンの量
 
-        const result = await client.submitAndWait(
-        {
-            TransactionType: 'TrustSet',
-            Account: recipientWallet.address, // アリスのアドレス
-            LimitAmount: {
-                issuer: issuerWalletAddress, // チャーリーのアドレス（トークン発行者）
-                currency: currencyCode, // DOJ
-                value: amount, // 10000
-            },
-        },
-        { wallet: recipientWallet } // アリスのウォレットで認証
-        );
+            // TrustSetトランザクションを送信する
+            const response = await client.submitAndWait(
+                {
+                    TransactionType: 'TrustSet', // トラストラインを設定
+                    Account: recipientWallet.address, // アリスのアドレス
+                    LimitAmount: {
+                        issuer: issuerWalletAddress, // 発行体のアドレス（チャーリー）
+                        currency: currencyCode, // DOJ
+                        value: amount, // 10000
+                    },
+                },
+                { wallet: recipientWallet } // アリスのウォレットで署名
+            );
 
-        // コンソールに結果を出力します
-        console.log(result);
+            // コンソールに結果を出力する
+            console.log('Transaction result:', response);
+        } catch (error) {
+            // エラーハンドリング
+            console.error('An error occurred:', error);
+        }
 
-        // client.disconnect()メソッドを呼び出して、サーバーとの接続を切断します
+        // サーバーとの接続を切断する
         client.disconnect();
     }
 
-    trustSet().catch(console.error);
+    // 関数を実行する
+    const recipientSecret = 'alice_wallet_secret_here'; // アリスのシークレットキーを設定
+    trustSet(recipientSecret);
     ```
 
    1. `charlie_wallet_address_here`には、テストネットのチャーリーのアドレスを入力してください。
-   2. `alice_wallet_seed_here`には、テストネットのアリスのシークレットキーを入力してください。
+   2. `alice_wallet_secret_here`には、テストネットのアリスのシークレットキーを入力してください。
 </Steps>
 
 ## スクリプトの実行
@@ -94,36 +99,36 @@ XRPL（XRP Ledger）のトラストライン機能は、ユーザーが特定の
     成功すれば、コンソールに以下が表示されます。
 
     ```bash
-    {
-        id: 8,
+    Transaction result: {
+        id: 14,
         result: {
-            Account: 'rusJXJ5ba76K9MBC7RcUyTCJx8XdEBHoi', // アリスのアドレス
-            Fee: '12', // 手数料
+            Account: 'rQr8KfkCQcpqvFwmRspDoaL36reZhcdaeA', // アリスのアドレス
+            Fee: '12',
             Flags: 0,
-            LastLedgerSequence: 265645,
+            LastLedgerSequence: 474997,
             LimitAmount: {
                 currency: 'DOJ', // 通貨コード
-                issuer: 'rGrnqGxiW4AQd8bCjQrHBhAnTMvLVQe3iL', // チャーリーのアドレス（トークン発行者）
+                issuer: 'rh8xETfGs1Ktizj9EXZb5QpW4aqk8bWUSU', // トークン発行者のアドレス（チャーリー）
                 value: '10000' // アリスがDOJトークンを受け取れる最大値
             },
-            Sequence: 265605,
-            SigningPubKey: 'EDCA712B8F9BC3E586553FEA9F40395CC7EDE766D42D6EE3D8D0521422F48D0B70',
+            Sequence: 474064,
+            SigningPubKey: 'ED2924DBD08E093DD7FC9C35B8DCEBD74CA4C8349D68D7BF566AD6C2533B8BB865',
             TransactionType: 'TrustSet',
-            TxnSignature: '7658F96EA716F7AA760B2CCA52F673DBB31AF70F7AB9B45BB6F06DDD180B18EC4E909D3A22B93C5F83116A2D81B6B2244FEF1DE0FF3338452DED7C9208DF8505',
-            ctid: 'C0040D9A00000001',
-            date: 767754233,
-            hash: '3AB395F4D04A56AB59B80BD5A2856C9EF2F8F35D08B5F6AF1546F300872F2826', // ハッシュ値
-            inLedger: 265626,
-            ledger_index: 265626, // レジャーインデックス番号
+            TxnSignature: '8245C9412BA9E247D962B2D9B9B6B74A90D3757FDA66422527611971004F94D803607A3CC5357BA83B0FA0B7D010B10F3D0F5188EE8D4F1D72181BFA4D052B0B',
+            ctid: 'C0073F6300000001',
+            date: 768402681,
+            hash: 'A20A377A4E9D8CAAA62E5AEE7CDFB9FBC690171B1D13485AC40A6313996A98C8', // ハッシュ値
+            inLedger: 474979,
+            ledger_index: 474979, // レジャーインデックス番号
             meta: {
                 AffectedNodes: [Array],
                 TransactionIndex: 0,
                 TransactionResult: 'tesSUCCESS' // 成功
             },
-            validated: true
+            validated: true // 検証済みのトランザクション
         },
         type: 'response'
     }
     ```
 
-    これでチャーリーが発行するトークン（DOJ）をアリスが受け取ることが可能になりました。
+    これでチャーリーが発行体のトークン、`DOJ`をアリスが受け取ることが可能になりました。

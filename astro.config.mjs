@@ -66,13 +66,13 @@ export default defineConfig({
           autogenerate: { directory: 'basics' },
         },
         {
-          label: '初級編',
+          label: '初段編',
           autogenerate: { directory: 'beginners' },
         },
-        {
-          label: 'チュートリアル',
-          autogenerate: { directory: 'tutorials' },
-        },
+        // {
+        //   label: 'チュートリアル',
+        //   autogenerate: { directory: 'tutorials' },
+        // },
       ],
     }),
   ],

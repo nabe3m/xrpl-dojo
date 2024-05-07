@@ -178,6 +178,27 @@ declare module 'astro:content' {
   collection: "docs";
   data: InferEntrySchema<"docs">
 } & { render(): Render[".mdx"] };
+"beginners/javascript/check-account.mdx": {
+	id: "beginners/javascript/check-account.mdx";
+  slug: "beginners/javascript/check-account";
+  body: string;
+  collection: "docs";
+  data: InferEntrySchema<"docs">
+} & { render(): Render[".mdx"] };
+"beginners/javascript/enabled-rippling.mdx": {
+	id: "beginners/javascript/enabled-rippling.mdx";
+  slug: "beginners/javascript/enabled-rippling";
+  body: string;
+  collection: "docs";
+  data: InferEntrySchema<"docs">
+} & { render(): Render[".mdx"] };
+"beginners/javascript/failure-payment.mdx": {
+	id: "beginners/javascript/failure-payment.mdx";
+  slug: "beginners/javascript/failure-payment";
+  body: string;
+  collection: "docs";
+  data: InferEntrySchema<"docs">
+} & { render(): Render[".mdx"] };
 "beginners/javascript/index.mdx": {
 	id: "beginners/javascript/index.mdx";
   slug: "beginners/javascript";
@@ -192,9 +213,23 @@ declare module 'astro:content' {
   collection: "docs";
   data: InferEntrySchema<"docs">
 } & { render(): Render[".mdx"] };
+"beginners/javascript/rippling-payment.mdx": {
+	id: "beginners/javascript/rippling-payment.mdx";
+  slug: "beginners/javascript/rippling-payment";
+  body: string;
+  collection: "docs";
+  data: InferEntrySchema<"docs">
+} & { render(): Render[".mdx"] };
 "beginners/javascript/trustline.mdx": {
 	id: "beginners/javascript/trustline.mdx";
   slug: "beginners/javascript/trustline";
+  body: string;
+  collection: "docs";
+  data: InferEntrySchema<"docs">
+} & { render(): Render[".mdx"] };
+"beginners/javascript/trustset-bob.mdx": {
+	id: "beginners/javascript/trustset-bob.mdx";
+  slug: "beginners/javascript/trustset-bob";
   body: string;
   collection: "docs";
   data: InferEntrySchema<"docs">
