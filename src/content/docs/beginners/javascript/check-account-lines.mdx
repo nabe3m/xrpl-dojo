@@ -80,7 +80,7 @@ import { Aside, Steps } from '@astrojs/starlight/components';
     Account Lines: [
         { // アリス
             account: 'rQr8KfkCQcpqvFwmRspDoaL36reZhcdaeA',
-            balance: '-1000',
+            balance: '-1000', // アリスに対しての債務
             currency: 'DOJ',
             limit: '0',
             limit_peer: '10000',
@@ -104,6 +104,8 @@ import { Aside, Steps } from '@astrojs/starlight/components';
     ```
 
     発行者であるチャーリー視点で確認した結果、紐づくアカウントのトラストラインが、`no_ripple: true`となってしまっていました。
+
+    また、`-1000`となっているのは、チャーリーの視点では「アリスに対して債務がある」という意味になるからです。例えるのであれば、これは国民が所有している国債と同じような概念となります。
 </Steps>
 
 ## Ripplingの許可とトラストラインの関係について

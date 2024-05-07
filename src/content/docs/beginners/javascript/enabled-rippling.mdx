@@ -35,7 +35,7 @@ import { Aside, Steps } from '@astrojs/starlight/components';
         await client.connect();
 
         try {
-            // ウォレット情報をシードから作成
+            // ウォレット情報をシークレットキーから作成する
             const issuerWallet = xrpl.Wallet.fromSecret(walletSecret);
 
             // リップリングを有効にするトランザクションを送信
@@ -113,8 +113,6 @@ import { Aside, Steps } from '@astrojs/starlight/components';
     これで、チャーリーのアカウントのRippling機能が許可されました。
 
     次の章で、[こちらのガイド](/beginners/javascript/failure-payment/)にて失敗した、アリスからボブへの`DOJ`トークンの送付を再度試してみましょう！
-
-    ※Rippling機能について別途、ガイドを作成予定です。
 </Steps>
 
 
