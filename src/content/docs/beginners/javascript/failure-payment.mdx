@@ -47,7 +47,7 @@ import { Aside, Steps } from '@astrojs/starlight/components';
         const issuerWalletAddress = 'charlie_wallet_address_here';
 
         const currencyCode = 'DOJ'; // トークンの通貨コード
-        const amount = '5'; // 送金するトークンの量
+        const amount = '100'; // 送金するトークンの量
 
         const response = await client.submitAndWait(
             {
@@ -57,7 +57,7 @@ import { Aside, Steps } from '@astrojs/starlight/components';
                 Amount: {
                     issuer: issuerWalletAddress, // トークン発行者のアドレス（チャーリー）
                     currency: currencyCode, // DOJ
-                    value: amount, // 5
+                    value: amount, // 100
                 },
             },
             { wallet: senderWallet } // アリスのウォレットで認証
@@ -98,12 +98,12 @@ import { Aside, Steps } from '@astrojs/starlight/components';
             Amount: {
                 currency: 'DOJ',
                 issuer: 'rh8xETfGs1Ktizj9EXZb5QpW4aqk8bWUSU', // トークン発行者のアドレス（チャーリー）
-                value: '500'
+                value: '100'
             },
             DeliverMax: {
                 currency: 'DOJ',
                 issuer: 'rh8xETfGs1Ktizj9EXZb5QpW4aqk8bWUSU',
-                value: '500'
+                value: '100'
             },
             Destination: 'rDNVaJJSp9iQmHC8YAAwHytnLP9aXEPhDw', // ボブのアドレス
             Fee: '12', // 送金手数料: 12 drops

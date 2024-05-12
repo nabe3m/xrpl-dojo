@@ -50,14 +50,14 @@ import { Aside, Steps } from '@astrojs/starlight/components';
             const response = await client.submitAndWait(
                 {
                     TransactionType: 'TrustSet', // トラストラインを設定
-                    Account: recipientWallet.address, // アリスのアドレス
+                    Account: recipientWallet.address, // ボブのアドレス
                     LimitAmount: {
                         issuer: issuerWalletAddress, // 発行体のアドレス（チャーリー）
                         currency: currencyCode, // DOJ
                         value: amount, // 10000
                     },
                 },
-                { wallet: recipientWallet } // アリスのウォレットで署名
+                { wallet: recipientWallet } // ボブのウォレットで署名
             );
 
             // コンソールに結果を出力する
