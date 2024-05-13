@@ -178,6 +178,13 @@ declare module 'astro:content' {
   collection: "docs";
   data: InferEntrySchema<"docs">
 } & { render(): Render[".mdx"] };
+"beginners/javascript/check-account-lines.mdx": {
+	id: "beginners/javascript/check-account-lines.mdx";
+  slug: "beginners/javascript/check-account-lines";
+  body: string;
+  collection: "docs";
+  data: InferEntrySchema<"docs">
+} & { render(): Render[".mdx"] };
 "beginners/javascript/check-account.mdx": {
 	id: "beginners/javascript/check-account.mdx";
   slug: "beginners/javascript/check-account";
@@ -185,9 +192,23 @@ declare module 'astro:content' {
   collection: "docs";
   data: InferEntrySchema<"docs">
 } & { render(): Render[".mdx"] };
+"beginners/javascript/disable-noripple.mdx": {
+	id: "beginners/javascript/disable-noripple.mdx";
+  slug: "beginners/javascript/disable-noripple";
+  body: string;
+  collection: "docs";
+  data: InferEntrySchema<"docs">
+} & { render(): Render[".mdx"] };
 "beginners/javascript/enabled-rippling.mdx": {
 	id: "beginners/javascript/enabled-rippling.mdx";
   slug: "beginners/javascript/enabled-rippling";
+  body: string;
+  collection: "docs";
+  data: InferEntrySchema<"docs">
+} & { render(): Render[".mdx"] };
+"beginners/javascript/failure-payment-2.mdx": {
+	id: "beginners/javascript/failure-payment-2.mdx";
+  slug: "beginners/javascript/failure-payment-2";
   body: string;
   collection: "docs";
   data: InferEntrySchema<"docs">
@@ -213,9 +234,9 @@ declare module 'astro:content' {
   collection: "docs";
   data: InferEntrySchema<"docs">
 } & { render(): Render[".mdx"] };
-"beginners/javascript/rippling-payment.mdx": {
-	id: "beginners/javascript/rippling-payment.mdx";
-  slug: "beginners/javascript/rippling-payment";
+"beginners/javascript/success-payment.mdx": {
+	id: "beginners/javascript/success-payment.mdx";
+  slug: "beginners/javascript/success-payment";
   body: string;
   collection: "docs";
   data: InferEntrySchema<"docs">
@@ -244,6 +265,181 @@ declare module 'astro:content' {
 "editor/prettier.mdx": {
 	id: "editor/prettier.mdx";
   slug: "editor/prettier";
+  body: string;
+  collection: "docs";
+  data: InferEntrySchema<"docs">
+} & { render(): Render[".mdx"] };
+"en/basics/javascript/connect.mdx": {
+	id: "en/basics/javascript/connect.mdx";
+  slug: "en/basics/javascript/connect";
+  body: string;
+  collection: "docs";
+  data: InferEntrySchema<"docs">
+} & { render(): Render[".mdx"] };
+"en/basics/javascript/create-wallet.mdx": {
+	id: "en/basics/javascript/create-wallet.mdx";
+  slug: "en/basics/javascript/create-wallet";
+  body: string;
+  collection: "docs";
+  data: InferEntrySchema<"docs">
+} & { render(): Render[".mdx"] };
+"en/basics/javascript/faucet.mdx": {
+	id: "en/basics/javascript/faucet.mdx";
+  slug: "en/basics/javascript/faucet";
+  body: string;
+  collection: "docs";
+  data: InferEntrySchema<"docs">
+} & { render(): Render[".mdx"] };
+"en/basics/javascript/index.mdx": {
+	id: "en/basics/javascript/index.mdx";
+  slug: "en/basics/javascript";
+  body: string;
+  collection: "docs";
+  data: InferEntrySchema<"docs">
+} & { render(): Render[".mdx"] };
+"en/basics/javascript/send.mdx": {
+	id: "en/basics/javascript/send.mdx";
+  slug: "en/basics/javascript/send";
+  body: string;
+  collection: "docs";
+  data: InferEntrySchema<"docs">
+} & { render(): Render[".mdx"] };
+"en/basics/javascript/started.mdx": {
+	id: "en/basics/javascript/started.mdx";
+  slug: "en/basics/javascript/started";
+  body: string;
+  collection: "docs";
+  data: InferEntrySchema<"docs">
+} & { render(): Render[".mdx"] };
+"en/beginners/javascript/check-account-lines.mdx": {
+	id: "en/beginners/javascript/check-account-lines.mdx";
+  slug: "en/beginners/javascript/check-account-lines";
+  body: string;
+  collection: "docs";
+  data: InferEntrySchema<"docs">
+} & { render(): Render[".mdx"] };
+"en/beginners/javascript/check-account.mdx": {
+	id: "en/beginners/javascript/check-account.mdx";
+  slug: "en/beginners/javascript/check-account";
+  body: string;
+  collection: "docs";
+  data: InferEntrySchema<"docs">
+} & { render(): Render[".mdx"] };
+"en/beginners/javascript/disable-noripple.mdx": {
+	id: "en/beginners/javascript/disable-noripple.mdx";
+  slug: "en/beginners/javascript/disable-noripple";
+  body: string;
+  collection: "docs";
+  data: InferEntrySchema<"docs">
+} & { render(): Render[".mdx"] };
+"en/beginners/javascript/enabled-rippling.mdx": {
+	id: "en/beginners/javascript/enabled-rippling.mdx";
+  slug: "en/beginners/javascript/enabled-rippling";
+  body: string;
+  collection: "docs";
+  data: InferEntrySchema<"docs">
+} & { render(): Render[".mdx"] };
+"en/beginners/javascript/failure-payment-2.mdx": {
+	id: "en/beginners/javascript/failure-payment-2.mdx";
+  slug: "en/beginners/javascript/failure-payment-2";
+  body: string;
+  collection: "docs";
+  data: InferEntrySchema<"docs">
+} & { render(): Render[".mdx"] };
+"en/beginners/javascript/failure-payment.mdx": {
+	id: "en/beginners/javascript/failure-payment.mdx";
+  slug: "en/beginners/javascript/failure-payment";
+  body: string;
+  collection: "docs";
+  data: InferEntrySchema<"docs">
+} & { render(): Render[".mdx"] };
+"en/beginners/javascript/index.mdx": {
+	id: "en/beginners/javascript/index.mdx";
+  slug: "en/beginners/javascript";
+  body: string;
+  collection: "docs";
+  data: InferEntrySchema<"docs">
+} & { render(): Render[".mdx"] };
+"en/beginners/javascript/payment-token.mdx": {
+	id: "en/beginners/javascript/payment-token.mdx";
+  slug: "en/beginners/javascript/payment-token";
+  body: string;
+  collection: "docs";
+  data: InferEntrySchema<"docs">
+} & { render(): Render[".mdx"] };
+"en/beginners/javascript/success-payment.mdx": {
+	id: "en/beginners/javascript/success-payment.mdx";
+  slug: "en/beginners/javascript/success-payment";
+  body: string;
+  collection: "docs";
+  data: InferEntrySchema<"docs">
+} & { render(): Render[".mdx"] };
+"en/beginners/javascript/trustline.mdx": {
+	id: "en/beginners/javascript/trustline.mdx";
+  slug: "en/beginners/javascript/trustline";
+  body: string;
+  collection: "docs";
+  data: InferEntrySchema<"docs">
+} & { render(): Render[".mdx"] };
+"en/beginners/javascript/trustset-bob.mdx": {
+	id: "en/beginners/javascript/trustset-bob.mdx";
+  slug: "en/beginners/javascript/trustset-bob";
+  body: string;
+  collection: "docs";
+  data: InferEntrySchema<"docs">
+} & { render(): Render[".mdx"] };
+"en/editor/install.mdx": {
+	id: "en/editor/install.mdx";
+  slug: "en/editor/install";
+  body: string;
+  collection: "docs";
+  data: InferEntrySchema<"docs">
+} & { render(): Render[".mdx"] };
+"en/editor/prettier.mdx": {
+	id: "en/editor/prettier.mdx";
+  slug: "en/editor/prettier";
+  body: string;
+  collection: "docs";
+  data: InferEntrySchema<"docs">
+} & { render(): Render[".mdx"] };
+"en/getting-started/index.mdx": {
+	id: "en/getting-started/index.mdx";
+  slug: "en/getting-started";
+  body: string;
+  collection: "docs";
+  data: InferEntrySchema<"docs">
+} & { render(): Render[".mdx"] };
+"en/getting-started/node-js.mdx": {
+	id: "en/getting-started/node-js.mdx";
+  slug: "en/getting-started/node-js";
+  body: string;
+  collection: "docs";
+  data: InferEntrySchema<"docs">
+} & { render(): Render[".mdx"] };
+"en/index.mdx": {
+	id: "en/index.mdx";
+  slug: "en";
+  body: string;
+  collection: "docs";
+  data: InferEntrySchema<"docs">
+} & { render(): Render[".mdx"] };
+"en/xrpl/ecosystem.mdx": {
+	id: "en/xrpl/ecosystem.mdx";
+  slug: "en/xrpl/ecosystem";
+  body: string;
+  collection: "docs";
+  data: InferEntrySchema<"docs">
+} & { render(): Render[".mdx"] };
+"en/xrpl/features.mdx": {
+	id: "en/xrpl/features.mdx";
+  slug: "en/xrpl/features";
+  body: string;
+  collection: "docs";
+  data: InferEntrySchema<"docs">
+} & { render(): Render[".mdx"] };
+"en/xrpl/whats.mdx": {
+	id: "en/xrpl/whats.mdx";
+  slug: "en/xrpl/whats";
   body: string;
   collection: "docs";
   data: InferEntrySchema<"docs">

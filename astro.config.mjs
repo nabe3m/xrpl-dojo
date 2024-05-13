@@ -17,6 +17,10 @@ export default defineConfig({
           label: '日本語',
           lang: 'ja-JP',
         },
+        en: {
+          label: 'English',
+          lang: 'en-US',
+        },
       },
       social: {
         github: 'https://github.com/Nabe3m/',
