@@ -17,6 +17,10 @@ export default defineConfig({
           label: '日本語',
           lang: 'ja-JP',
         },
+        // en: {
+        //   label: 'English',
+        //   lang: 'en-US',
+        // },
       },
       social: {
         github: 'https://github.com/Nabe3m/',
@@ -62,12 +66,19 @@ export default defineConfig({
           autogenerate: { directory: 'xrpl' },
         },
         {
-          label: '入門編',
+          label: '入門',
+          // collapsed: true,
           autogenerate: { directory: 'basics' },
         },
         {
-          label: '初段編',
+          label: '初段',
+          // collapsed: true,
           autogenerate: { directory: 'beginners' },
+        },
+        {
+          label: '二段',
+          // collapsed: true,
+          autogenerate: { directory: '2nd' },
         },
         // {
         //   label: 'チュートリアル',
