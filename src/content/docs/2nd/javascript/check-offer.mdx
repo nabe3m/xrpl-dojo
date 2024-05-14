@@ -1,0 +1,93 @@
+---
+title: オファーの確認方法 | JavaScriptでのXRPL開発 二段編
+description: JavaScriptでのXRPL開発 二段編の「オファーの確認方法」を紹介するページです。
+sidebar:
+  label: オファーの確認方法
+  order: 3
+---
+
+import { Aside, Steps } from '@astrojs/starlight/components';
+
+## はじめに
+
+XRPL（XRP Ledger）は、ネイティブな分散型取引所（DEX）機能を提供しており、ユーザーはオファー（注文）を作成して資産を売買することができます。本記事では、XRPL上で作成したオファーを確認する方法を解説します。
+
+## 準備
+
+先ほどの章でオファーを作成する際に使用したウォレットアドレスを用意してください。
+
+## スクリプトを作成
+
+<Steps>
+
+1. プロジェクトディレクトリに`check_offers.js`という新しいファイルを作成します。
+2. 以下のコードを`check_offers.js`に貼り付けます。
+
+    ```javascript
+    const xrpl = require('xrpl');
+
+    async function checkOffers() {
+        const client = new xrpl.Client('wss://s.altnet.rippletest.net:51233');
+        await client.connect();
+
+        const walletAddress = 'your_wallet_address'; // ウォレットアドレスを入力
+
+        const response = await client.request({
+            command: 'account_offers',
+            account: walletAddress,
+            ledger_index: 'validated'
+        });
+
+        console.log('オファーリスト:', response.result.offers);
+
+        await client.disconnect();
+    }
+
+    checkOffers();
+    ```
+
+</Steps>
+
+## スクリプトの実行
+
+<Steps>
+
+1. コマンドラインで以下のコマンドを実行して、スクリプトを実行します。
+
+    ```bash
+    node check_offers.js
+    ```
+    
+2. 成功すれば、コンソールに以下が表示されます。
+
+    ```bash
+    オファーリスト: [
+        {
+            flags: 0,
+            quality: '0.00001',
+            seq: 477853,
+            taker_gets: '20000000',
+            taker_pays: {
+                currency: 'USD',
+                issuer: 'rhub8VRN55s94qWKDv6jmDy1pUykJzF3wq',
+                value: '200'
+            }
+        }
+    ]
+    ```
+    
+    オファーの確認が成功しました。
+
+    実際に、このオファーを受け入れる人は`20 XRP`を受け取り、`200 USD`を支払います。
+
+    この章で出力した`seq`の番号`477853`は次章で使用しますので、メモしておきましょう。
+
+    ### 各フィールドの説明
+
+    1. flags: オファーに関連するフラグを示します。特定の条件やオプションを設定するために使用されます。ここでは0なので、特別なフラグは設定されていません。
+    2. quality: オファーの品質を示します。これは「支払う通貨の量」対「受け取る通貨の量」の比率です。ここでは0.00001という値が設定されており、これは1 USD = 100,000 dropsの比率になっていることを意味します。
+    3. seq: トランザクションのシーケンス番号です。この番号はアカウントごとに一意であり、トランザクションの順序を示します。
+    4. taker_gets: オファーを受け入れる人（Taker）が受け取る資産の量を示します。ここでは20000000 drops（20 XRP）が設定されています。XRPはdrops単位で指定されます（1 XRP = 1,000,000 drops）。
+    5. taker_pays: オファーを受け入れる人（Taker）が支払う資産を示します。
+
+</Steps>
