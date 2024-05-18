@@ -1,0 +1,16 @@
+---
+import type { Props } from '@astrojs/starlight/props';
+import Default from '@astrojs/starlight/components/Footer.astro';
+
+const isHomepage = Astro.props.slug === '';
+---
+
+{
+  isHomepage ? (
+    <footer>Starlightで作成 🌟</footer>
+  ) : (
+    <Default {...Astro.props}>
+      <slot />
+    </Default>
+  )
+}

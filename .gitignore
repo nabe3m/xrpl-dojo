@@ -1,0 +1,92 @@
+# Node.js関連
+node_modules/
+npm-debug.log
+npm-debug.log.*
+yarn-debug.log
+yarn-error.log
+
+# Astro
+dist/
+
+# Hosting
+.vercel
+.netlify
+
+# ログファイル
+logs
+*.log
+*.csv
+*.dat
+*.out
+*.pid
+*.seed
+
+# ランタイムデータ
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# ディレクトリのアップロード
+uploads
+
+# Grunt中間ストレージ（http://gruntjs.com/creating-plugins#storing-task-files）
+.grunt
+
+# Bowerの構成ファイル
+bower_components
+
+# lockファイル
+yarn.lock
+package-lock.json
+*.gem
+
+# Compiled source #
+###################
+*.com
+*.class
+*.dll
+*.exe
+*.o
+*.so
+
+# パッケージング
+*.7z
+*.dmg
+*.gz
+*.iso
+*.jar
+*.rar
+*.tar
+*.zip
+
+# OS生成ファイル #
+######################
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDEおよびエディターフォルダ
+.vscode/
+.idea/
+*.swp
+*.swo
+*.sublime
+*.sublime-workspace
+
+# プロファイルログ
+.npm/
+*.log
+*.csv
+*.dat
+*.out
+*.pid
+*.seed
+
+# その他
+.env
+.secret

@@ -1,0 +1,129 @@
+---
+title: トラストラインの設定（ボブ編） | JavaScriptでのXRPL開発初段編
+description: JavaScriptでXRPL開発するための初段編として、トラストライン機能について紹介（ボブ編）しています。
+sidebar:
+  label: トラストラインの設定（ボブ）
+  order: 5
+---
+
+import { Aside, Steps } from '@astrojs/starlight/components';
+
+次に、ボブも`DOJ`トークンを受け取ることができるようにトラストラインをセットしてみましょう。
+
+## 前提
+
+このガイドでは、以下の登場人物が登場する設定で進行します。
+
+- チャーリー（トークン発行者）
+- ボブ（トークン受領者）
+
+## スクリプトを作成
+
+以下は、ボブからチャーリーが発行体のトークンにトラストラインをセットするスクリプトです。
+
+<Steps>
+
+1. プロジェクトディレクトリに作成済の`trust_set.js`に修正を加えます。
+2. `trust_set.js`の関数の呼び出しを追加し、以下のようにしてください。
+
+    ```javascript
+    const xrpl = require('xrpl');
+
+    // TrustSetトランザクションを送信する関数
+    async function trustSet(recipientSecret) {
+        // Testnetサーバーに接続します
+        const client = new xrpl.Client('wss://s.altnet.rippletest.net:51233');
+        await client.connect();
+
+        try {
+            // トークン発行者のウォレットアドレス（チャーリー）
+            const issuerWalletAddress = 'charlie_wallet_address_here';
+
+            // トークン受領者のウォレットを設定
+            const recipientWallet = xrpl.Wallet.fromSeed(recipientSecret);
+
+            // トークンに関する固定の情報
+            const currencyCode = 'DOJ'; // 通貨コード
+            const amount = '10000'; // 最大受領可能なトークンの量
+
+            // TrustSetトランザクションを送信する
+            const response = await client.submitAndWait(
+                {
+                    TransactionType: 'TrustSet', // トラストラインを設定
+                    Account: recipientWallet.address, // ボブのアドレス
+                    LimitAmount: {
+                        issuer: issuerWalletAddress, // 発行体のアドレス（チャーリー）
+                        currency: currencyCode, // DOJ
+                        value: amount, // 10000
+                    },
+                },
+                { wallet: recipientWallet } // ボブのウォレットで署名
+            );
+
+            // コンソールに結果を出力する
+            console.log('Transaction result:', response);
+        } catch (error) {
+            // エラーハンドリング
+            console.error('An error occurred:', error);
+        }
+
+        // サーバーとの接続を切断する
+        client.disconnect();
+    }
+
+    // 関数を実行する
+    // const recipientSecret = 'alice_wallet_secret_here'; // コメントアウト
+    const recipientSecret = 'bob_wallet_secret_here'; // ボブのウォレットを設定
+    trustSet(recipientSecret);
+    ```
+
+   1. `charlie_wallet_address_here`には、テストネットのチャーリーのアドレスを入力してください。
+   2. `bob_wallet_secret_here`には、テストネットのボブのシークレットキーを入力してください。
+</Steps>
+
+## スクリプトの実行
+
+1. コマンドラインで以下のコマンドを実行して、スクリプトを実行します。
+
+    ```bash
+    node trust_set.js
+    ```
+
+    成功すれば、コンソールに以下が表示されます。
+
+    ```bash
+    Transaction result: {
+        id: 12,
+        result: {
+            Account: 'rDNVaJJSp9iQmHC8YAAwHytnLP9aXEPhDw', // ボブのアドレス
+            Fee: '12',
+            Flags: 0,
+            LastLedgerSequence: 475618,
+            LimitAmount: {
+                currency: 'DOJ', // 通貨コード
+                issuer: 'rh8xETfGs1Ktizj9EXZb5QpW4aqk8bWUSU', // 発行者のアドレス（チャーリー）
+                value: '10000' // 受領可能なトークンの最大値
+            },
+            Sequence: 473782,
+            SigningPubKey: 'EDEE50D2E97DDB649EC43B36A0EF05AF0E9D33805CC11E7693A04D42E20B5E4C4C',
+            TransactionType: 'TrustSet', // トランザクションの種別
+            TxnSignature: 'EC29F6806FE4A422AD5BF20610179F0791A908D4262D86C355966831217F0613956BF8D222E40018BC5C47BECDF0B77EB31426C5217276A4FE0F1884A53A890C',
+            ctid: 'C00741D000010001',
+            date: 768404650,
+            hash: 'EADE8622DA5CC922CDBE52EDF7136D09C7F3C08CAC4C5BE4F07E946FE360893C', // ハッシュ値
+            inLedger: 475600,
+            ledger_index: 475600, // レジャーインデックス番号
+            meta: {
+                AffectedNodes: [Array],
+                TransactionIndex: 1,
+                TransactionResult: 'tesSUCCESS' // 成功
+            },
+            validated: true // 検証済みのトランザクション
+        },
+        type: 'response'
+    }
+    ```
+
+    これでチャーリーが発行体のトークン、`DOJ`をボブも受け取ることが可能になりました。
+
+    先ほどの章で作成した、`payment_token.js`を用いて、ボブにもトークンを送付してみてください。
