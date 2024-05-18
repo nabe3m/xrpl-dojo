@@ -1,79 +1,79 @@
 ---
-title: ウォレットの生成 | JavaScript入門編
-description: XRPLのJavaScript向けライブラリであるxrpl.jsでウォレットを生成する方法について紹介しています。
-sidebar:
-  label: ウォレットの生成
+title: Create Wallet | Introduction to JavaScript
+description: This page demonstrates how to create a wallet with xrpl.js, XRPL's library for JavaScript.
+sidebar: label
+  label: create wallet
   order: 4
 ---
 
 import { Aside, Steps } from '@astrojs/starlight/components';
 
-## スクリプトを作成
+## Create Script
 
-<Steps>
+<Steps> 
 
-1. プロジェクトディレクトリに`create_wallet.js`という新しいファイルを作成します。
-2. 以下のコードを`create_wallet.js`に貼り付けます。
+1. Create a new file named `create_wallet.js` in your project directory 
+2. Paste the following code into `create_wallet.js`.
 
     ```javascript
     const xrpl = require('xrpl');
 
     async function main() {
-    // Testnetサーバーに接続
+    // Connect to Testnet server
     const client = new xrpl.Client('wss://s.altnet.rippletest.net:51233');
     await client.connect();
 
-    // 新しいウォレットを生成
+    // create a new wallet
     const wallet = xrpl.Wallet.generate();
-    console.log('New wallet address:', wallet.address);
-    console.log('Secret:', wallet.seed);
+    generate(); console.log('New wallet address:', wallet.address);
+    console.log('Secret:', wallet.seed); console.log('Secret:', wallet.seed); 
 
-    // 接続を閉じる
-    client.disconnect();
+    // Close connection
+    client.disconnect(); 
     }
 
     main().catch(console.error);
-    ```
+    ````
 
-    このスクリプトは、新しいXRPウォレットを生成し、そのアドレスと秘密鍵（シークレットキー）を表示する処理です。
+    This script creates a new XRP wallet and displays its address and private key (secret key).
 
 </Steps>
 
-## スクリプトの実行
+## Run Script
 
 <Steps>
 
-1. コマンドラインで以下のコマンドを実行して、スクリプトを実行します。
+1. Run script by executing the following command on the command line.
 
     ```bash
     node create_wallet.js
-    ```
+    ````
     
-    成功すれば、コンソールに以下が表示されます。
+    If successful, you will see the following in the console.
 
     ```bash
     New wallet address: rHjHkeRJ7PMQXbghGKYL9NkTvk********
     Secret: sEdTcmvRqeoJeHQGKf2Pz6B********
-    ```
+    ````
 
-    このように、XRPLでは簡単に新規アドレスを発行することが可能です。
+    XRPL can easily issue new addresses like this.
 
-    アドレスは銀行口座番号のような役割を果たし、秘密鍵はアカウント管理や署名に使用する大事な役割となります。
+    The address acts like a bank account number, and the private key is important for account management and signing.
 
-    <Aside type="caution" title="Caution">
-    テストネットで作成した秘密鍵（シークレットキー）はクラウドなどに保管しても特に問題はありませんが、メインネットの場合は手元の紙にメモするなど、厳重な管理が必要となります。  
-    秘密鍵さえ知っていれば、資産を自由に動かすことができてしまうからです。
-    </Aside>
+    <Aside type=“caution” title=“Caution”>
+    There should be no problem in storing the private key (secret key) created for the test network in the cloud, etc., but for the main network, it must be safely stored offline by writing it down on a piece of paper, for example.  
+    This is because if somebody else gains access to the secret key, your assets might be easily in the hands of someone else.
+    </Aside> 2.
 
-2. 作成したアドレスを引き続き開発で使用したい場合は、表示されたアドレスと秘密鍵をテキストファイルやメモツールにメモしておきましょう。
+2. If you want to continue to use the address you created here, please save the displayed address and secret key in a text file or in a note app, etc.
 
 </Steps>
 
-## 備考
+## Notes
 
-<Aside title="アドレスについて">
-実はこのままでは上記で作成したアドレスを使用することができません。XRPLでは有効化が必要であり、1アドレスあたり10XRP（2024/04/28現在）が必要となります。  
-メインネットでは、取引所などで暗号資産であるXRPを購入する必要がありますが、テストネットでは開発用トークンを取得することができるので、無料で開発を進めることが可能となっています。
+<Aside title=“About the address”>
+Actually, you cannot use the address you created above as it is; XRPL requires activation, which requires 10 XRP (as of April 28, 2024) per address.  
+The mainnet requires you to purchase XRP, on exchanges, etc., while the testnet allows you to obtain tokens for development use, which are free of charge.
 </Aside>
 
-次の章では、テストネット用のアドレスに開発用トークンを取得する方法について紹介します。
+In the next section, we will show you how to get tokens for development use to your address for Testnet.

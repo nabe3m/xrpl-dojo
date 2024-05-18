@@ -1,69 +1,69 @@
 ---
-title: Connecting to the Test Net | Introduction to JavaScript
-description: Learn how to connect to the testnet using xrpl.js, XRPL's library for JavaScript.
+title: テストネットに接続する | JavaScript入門編
+description: XRPLのJavaScript向けライブラリであるxrpl.jsでテストネットに接続する方法について紹介しています。
 sidebar:
-  label: Connecting to the testnet
+  label: テストネットに接続する
   order: 3
 ---
 
 import { Steps } from '@astrojs/starlight/components';
 
-A testnet evnironment is provided in XRPL.
+XRPLには、テストネットが用意されています。
 
-The testnet allows developers to develop products having the mainnet in mind. The main reason for using a testnet is that the mainnet requires the developer to bear a certain amount of `XRP` as fees and account reserves.
+テストネットを利用することで、開発者がメインネットを想定したプロダクト開発ができるようになっています。テストネットを利用する大きな理由としては、メインネットでは実際に手数料とアカウントの準備金としての`XRP`のコストを負担をする必要があるからです。
 
-The following is one of the commonly used testnet environment.
+以下が一般的に利用されるテストネット環境です。
 
 `wss://s.altnet.rippletest.net:51233`
 
-There are several other testnet environments that do exist, please refer to [here](https://xrpl.org/resources/dev-tools/xrp-faucets/).
+その他のテストネット環境もいくつか存在していますので、[こちら](https://xrpl.org/resources/dev-tools/xrp-faucets/)を参考にしてください。
 
-## Creating the Script
+## スクリプトを作成
 
 <Steps>
 
-1. Create a new file named `connect.js` in your project directory 
-2. Paste the following code into `connect.js`.
+1. プロジェクトディレクトリに`connect.js`という新しいファイルを作成します。
+2. 以下のコードを`connect.js`に貼り付けます。
 
    ```javascript
-   const xrpl = require('xrpl'); // Load the xrpl library.
+   const xrpl = require('xrpl'); // xrplライブラリを読み込みます。
 
    async function main() {
      // async
-     // Connectting to the Testnet server, which is a test network for XRP Ledger development.
-     // Create a client to connect to XRP Ledger's Testnet server using the xrpl.Client class
+     // Testnetサーバーに接続します。Testnetは、XRP Ledgerの開発用テストネットワークです。
+     // xrpl.Clientクラスを使って、XRP LedgerのTestnetサーバーに接続するためのクライアントを作成します。
      const client = new xrpl.Client('wss://s.altnet.rippletest.net:51233');
 
-     // Connect to the server by calling the client.connect() method.
-     // Use "await" to wait for the connection to complete.
+     // client.connect()メソッドを呼び出して、サーバーに接続します。
+     // awaitを使って、接続が完了するまで待機します。
      await client.connect();
 
-     // If the connection is successful, a message is output to the console.
+     // 接続が成功したら、コンソールにメッセージを出力します。
      console.log('Connected to the XRP Ledger Testnet');
 
-     // Disconnect from the server by calling the client.disconnect() method.
+     // client.disconnect()メソッドを呼び出して、サーバーとの接続を切断します。
      client.disconnect();
    }
 
    main().catch(console.error);
-     // Call the main function to start the program.
-     // catch(console.error) is used to output error messages to the console if an error occurs.
+   // main関数を呼び出して、プログラムを開始します。
+   // catch(console.error)を使って、エラーが発生した場合はコンソールにエラーメッセージを出力します。
    ```
 
-   The script simply connects to XRP Ledger's Testnet, displays to the console that the connection was successful, and then closes the connection.
+   このスクリプトは XRP Ledger の Testnet に接続し、成功したことをコンソールに表示後、接続を閉じるだけのシンプルな処理です。
 
 </Steps>
 
-## Running the Script
+## スクリプトの実行
 
 <Steps>
-1. Run the script by executing the following command on the command line.
+1. コマンドラインで以下のコマンドを実行して、スクリプトを実行します。
 
    ```bash
    node connect.js
-   ````
-   
-2. If successful, you will see the following in the console.
+   ```
+
+2. 成功すれば、コンソールに以下が表示されます。
 
    ```bash
    Connected to the XRP Ledger Testnet

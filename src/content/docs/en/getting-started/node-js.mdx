@@ -1,103 +1,104 @@
 ---
-title: Node.js のインストールガイド
+title: Node.js installation guide
 description: A guide in my new Starlight docs site.
-sidebar:
+sidebar: 2
   order: 2
 ---
 
-このガイドでは、開発基盤となる`Node.js`をインストールする方法を説明します。
+This guide explains how to install `Node.js` as a development platform.
 
-## Mac OS でのインストール
+## Installation in Mac OS
 
-### 方法 1: Homebrew を使用する
+### Method 1: Using Homebrew 1.
 
-1. Homebrew がインストールされていない場合は、ターミナルを開いて以下のコマンドを実行してください。
+1. If you do not have Homebrew installed, open terminal and run the following command.
 
    ```bash
-   /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+   /bin/bash -c “$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)”
    ```
 
-   Homebrew のインストールが完了したら、次に進みます。
+   Once the Homebrew installation is complete, proceed as follows: 
+   
+2. To install Node.js, run the following command in terminal.
 
-2. Node.js をインストールするには、次のコマンドをターミナルで実行します。
-   ```bash
+   ````bash
    brew install node
-   ```
+   ````
 
-### 方法 2: Volta を使用する
+### Method 2: Using Volta
 
-Rust製のNode.jsバージョン管理ツールです。  
-公式では「手間要らずのJavaScriptツールマネージャー」と説明されています。
+Volta is a Node.js version control tool made in Rust.  
+It is officially described as “a hassle-free JavaScript tool manager”.
 
 
-#### 通常の方法でインストールする場合
+#### To install it the normal way
 
-ターミナルを開いて以下のコマンドを実行してください。
+Open terminal and run the following command
 
-   ```bash
-   curl https://get.volta.sh | bash
-   ```
+```bash
+curl https://get.volta.sh | bash
+```
 
-#### Homebrewでインストールする場合
+#### To install using Homebrew
 
-ターミナルを開いて以下のコマンドを実行してください。
+Open  terminal and run the following command.
 
 ```bash
 brew install volta
-```
+````
 
-#### PATHを通す
+#### Passing the PATH
 
-PATHを通す必要があるので、以下のコマンドを実行してください。  
-.zshrcに以下を記述します。
+You need to pass the PATH, so execute the following command.  
+Include the following in your .zshrc.
 
 ```bash
-export VOLTA_HOME="$HOME/.volta"
-export PATH="$VOLTA_HOME/bin:$PATH"
+export VOLTA_HOME=“$HOME/.volta”
+export PATH=“$VOLTA_HOME/bin:$PATH”
 ```
 
-#### インストール確認方法
+#### How to confirm installation
 
 ```bash
 volta --version
-```
+````
 
-以下のようにVoltaのバージョンが表示されれば完了です。
+If you see the version of Volta as follows, you are done.
 
 ```bash
 1.1.1
-```
+````
 
-#### Node.js のインストール
+#### Installing Node.js
 
-最新バージョンをインストールする場合
+To install the latest version
 
 ```bash
 volta install node
-```
+````
 
-バージョンを指定してインストールする場合
+To install a specific version: 
 
 ```bash
 volta install node@20.11.0
 ```
 
-### 方法 3: Node.js の公式サイトからインストーラをダウンロード
+### Method 3: Download the installer from the official Node.js website
 
-1. [Node.js 公式ウェブサイト](https://nodejs.org/)にアクセスします。
-2. 推奨されるバージョンのインストーラをダウンロードするために「Download Node.js」をクリックします。
-3. ダウンロードしたファイルを開き、画面の指示に従ってインストールを完了します。
-Mac OS、Windows、Linuxともに方法は同様です。
+1. Go to the [official Node.js website](https://nodejs.org/) 
+2. Click “Download Node.js” to download the recommended version of the installer. 
+3. Open the downloaded file and follow the instructions to complete the installation.
+The method is the same for Mac OS, Windows, and Linux.
 
-バージョンを指定してインストーラをダウンロードする場合は、[こちら](https://nodejs.org/en/download)よりダウンロードが可能です。
+To download the installer by specifying the version, you can download it from [here](https://nodejs.org/en/download).
 
-### インストール後の確認
+### Confirmation after installation
 
-インストールが成功したかどうかを確認するために、以下のコマンドをターミナル（Mac）またはコマンドプロンプト（Windows）で実行します。
+To check if the installation was successful, run the following command in Terminal (Mac) or Command Prompt (Windows).
 
 ```bash
 node -v
 npm -v
 ```
 
-これらのコマンドは、インストールされた Node.js と npm のバージョンを表示します。出力が表示されれば、インストールは成功しています。
+These commands will show you the installed versions of Node.js and npm. If you see the output, the installation was successful.

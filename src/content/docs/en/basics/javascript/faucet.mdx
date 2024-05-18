@@ -1,42 +1,42 @@
 ---
-title: テスト用のXRPの取得 | JavaScript入門編
-description: Node.jsを用いたテスト用のXRPの取得方法について紹介しています。
-sidebar:
-  label: テスト用のXRPの取得
+title: Getting XRP for Development Use | Introduction to JavaScript
+description: Demonstrate how to get XRP for development use using Node.js.
+sidebar: label: XRP for development use
+  label: Get XRP for development use
   order: 5
 ---
 
 import {Steps } from '@astrojs/starlight/components';
 
-テストネットでは開発用としての、ネイティブトークンであるXRPを取得することができます。
+Testnet allows you to obtain XRP, the native token, for development purposes.
 
-方法は主に2種類ありますので、順に紹介します。
+There are two main methods.
 
-## アドレスを指定して取得する場合
+## Obtain by specifying an address
 
-以下のサイトではアドレスを指定して取得することができます。
+The following site allows you to acquire XRP by specifying an address.
 
-先ほどコードベースで作成したアカウントアドレスに送信したい場合は、bithomb.comのツールを使用すると良いでしょう。
+If you want to send to the account address you created earlier by code, you can use the tool at bithomb.com.
 
 - [test.bithomp.com](https://test.bithomp.com/faucet/)
 
-アドレスを作成しつつ、取得したい場合は以下でアカウントを取得しましょう。
+If you want to get XRP while creating an address, go on and create an account below.
 
 - [xrpl.org](https://xrpl.org/resources/dev-tools/xrp-faucets/)
 
-## コードで取得する場合
+## If you want to get it by code
 
-効率と利便性を考慮するとツールを使用した方が便利ですが、コードベースで発行する方法もあります。
+While it is better to use a tool for efficiency and convenience, you can also get XRP using code.
 
-### node-fetchのインストール
+### Installing node-fetch
 
-fetch APIはブラウザに組み込まれていますが、Node.js環境ではnode-fetchモジュールをインストールする必要があります。
+The fetch API is built into the browser, but in a Node.js environment, you need to install the node-fetch module.
 
 ```bash
 npm install node-fetch
 ```
 
-### スクリプトの作成
+### Create Script
 
 ```javascript
 const fetch = require('node-fetch');
@@ -46,7 +46,7 @@ async function faucet() {
     // XRPL Testnet Faucet URL
     const faucetUrl = 'https://faucet.altnet.rippletest.net/accounts';
 
-    // Fetch APIを使用してPOSTリクエストを送信
+    // Send POST request using Fetch API
     const response = await fetch(faucetUrl, {
       method: 'POST',
       headers: {
@@ -60,38 +60,38 @@ async function faucet() {
 
     const data = await response.json();
     console.log('Wallet Address:', data.account.address);
-    console.log('Secret:', data.account.secret);
-    console.log('Balance:', data.balance); // テストネットで付与されるXRPの量を表示
+    console.log('Secret:', data.account.secret); 
+    console.log('Balance:', data.balance); // display the amount of XRP granted in the test net
   } catch (error) {
-    console.error('Error requesting XRP:', error.message);
+    console.error('Error requesting XRP:', error.message); 
   }
 }
 
-faucet();
+faucet(); 
 ```
 
-## スクリプトの実行
+## Run script
 
-<Steps>
+<Steps> 
 
-1. コマンドラインで以下のコマンドを実行して、スクリプトを実行します。
+1. Run script by executing the following command on the command line
 
     ```bash
     node create_wallet.js
-    ```
+    ````
 
-2. 成功すれば、コンソールに以下が表示されます。
+If successful, you will see the following in the console.
 
     ```Object
     data: {
         account: {
         xAddress: 'XVBX4Scdqqvh8WukxJjvoNCSQ5CvZPCvZUPuaXaqZ2JuxH9',
-            address: 'rDt3T3ifG96eKS4pkZyUxhYt8rTSpPDauf', // アドレス
+            address: 'rDt3T3ifG96eKS4pkZyUxhYt8rTSpPDauf', // address
             classicAddress: 'rDt3T3ifG96eKS4pkZyUxhYt8rTSpPDauf'
-        },
-        amount: 100, // 100XRPが取得できました
+        }, 
+        amount: 100, // 100XRP has been obtained
         transactionHash: '6FBE1C1215B8B3D0765D3CEC2FD48EE2BBC073DB8A960A92CA0485986CFE226C',
-        seed: 'sEdTYR4byoAWLJUqFCGQsZsAX6ni9tc' // シークレットキー
+        seed: 'sEdTYR4byoAWLJUqFCGQsZsAX6ni9tc' // secret key
     }
     ```
 </Steps>
