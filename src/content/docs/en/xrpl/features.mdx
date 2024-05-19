@@ -1,72 +1,72 @@
 ---
-title: XRPLの主な特徴
-description: XRP Ledgerについて、簡単に説明します。さらに詳細を知りたい場合はxrpl.orgなどを参考にしてください。
+title: Key Features of XRPL
+DESCRIPTION: This is a simple description of XRP Ledger. If you want to know more details, please refer to xrpl.org.
 sidebar:
-  label: 主な特徴
+  label: main features
   order: 2
 ---
 
 import { Icon } from '@astrojs/starlight/components';
 
-XRP Ledger（以後、XRPL）は、Bitcoinに代表されるブロックチェーン暗号を用いた分散型システムです。
+XRP Ledger (XRPL) is a decentralized system using blockchain cryptography, similar to Bitcoin.
 
-システムは分散型であり、単一の機関や個人が全体のネットワークをコントロールできない仕組みになっています。
+The system is decentralized, meaning that no single institution or individual can control the entire network.
 
 ## XRP
 
-XRP（エックスアールピー）はXRPLネットワークのネイティブトークンで、XRPLによりトランザクションが検証され記録が管理されるデジタル通貨です。
+XRP is the native token of the XRPL network, a digital currency in which transactions are verified and records are maintained by XRPL.
 
-ネットワークの誕生と共に、約1000億XRPがすでに発行済みとなっていて、BitcoinのようなPoW方式でマイニングされる度に発行される仕組みとは異なっています。
+Since the birth of the network, approximately 100 billion XRP have already been issued, which is different from the PoW system like Bitcoin, where tokens are issued each time it is mined.
 
-小数点以下も存在しており、正式には、`100,000,000,000.000000`dropsが最大値となります。
+Decimal points also exist, with the official maximum being `100,000,000,000.00000000`drops.
 
-したがって、`1XRP = 1,000,000drops`となります。
+Thus, `1XRP = 1,000,000,000drops`.
 
-また、XRPはデフレ性質を持っており、トランザクションごとにわずかなXRPが破棄されるため、時間と共に総供給量は減少します。
+Also, since XRP has deflationary properties and a small amount of XRP is discarded with each transaction, the total supply will decrease over time.
 
-## コンセンサスプロトコル
+## Consensus Protocol
 
-XRPLはPoWやPoSとは異なる独自のコンセンサスアルゴリズム（Proof of Association）が用いられており、トランザクションの検証効率が良いことが大きな特徴です。
+XRPL utilize a unique consensus algorithm (Proof of Association), which is different from PoW and PoS, and is characterized by its high transaction verification efficiency.
 
-ほぼリアルタイムでの決済（3～6秒）が可能となっています。
+Close to real-time settlement (3-6 seconds) is possible.
 
-## バリデータ & UNL
+## Validators & UNL
 
-XRP Ledger (XRPL) のバリデータ運営には、直接的な金銭的報酬は存在しません。
-バリデータの主なインセンティブは、ネットワークの安定性と信頼性を保ち、その健全な進化を促進することです。
-これにより、XRP Ledgerを利用するビジネスや、その依存度が高い組織は、ネットワークの信頼性を通じて間接的な利益を得ることができます。
-また、バリデータはコミュニティからの信頼と評価を獲得することも大きなインセンティブです。
+There is no direct financial reward for XRP Ledger (XRPL) validator operations.
+The main incentive of the validator is to keep the network stable and reliable and to promote its healthy evolution.
+This allows businesses that use XRP Ledger and the organizations that rely on system to benefit indirectly through the trustworthiness of the network.
+Another major incentive for validators is to earn the trust and reputation of the community.
 
-また各バリデータは信頼するユニークノードリスト（UNL）を選択できるような仕組みになっています。
-現在、RippleとXRP Ledger財団が推奨デフォルトリストを公表していますが、仮にRippleとXRP Ledger財団を信用できない場合、各運営者自身でUNLを設定し、引き続き使用することが可能です。
+Each validator also has the ability to select a Unique Node List (UNL) to trust.
+Currently, Ripple and the XRP Ledger Foundation publish a recommended default list, but if Ripple and the XRP Ledger Foundation no longer becomes trustworthy, each operator can set their own UNL and continue to use it.
 
-## 世界最古のDEX
+## World's oldest DEX
 
-世界最古といわれているプロトコルとして実装されているDEX（分散型取引所）により、自動的に最も安価な通貨取引注文を決済に適用して通貨をブリッジングすることができます。
+The DEX (decentralized exchange), which is implemented as the world's oldest known protocol, allows bridging currencies by automatically applying the cheapest currency trade order to settlement.
 
-逆に、DEXがプロトコルに組み込まれているブロックチェーン・ネットワークは珍しいといえるでしょう。
+Conversely, it is rare to find a blockchain network where DEX is built into the protocol.
 
-## 金融向けの機能の充実
+## Enhanced features for financial use cases
 
-XRPLでは以下のような、金融的な機能がすでに備わっており、新たに開発する必要がありません。
+XRPL already has the following financial features that do not require new development
 
-- チケット（小切手発行機能）
-- クローバック（発行トークン回収機能）
-- エスクロー（預託機能）
-- AMM（自動マーケットメイカー）
+- Ticket (check issuing functionality)
+- Clawback (collect issued token functionality)
+- Escrow (depository function)
+- AMM (Automated Market Maker functionality)
 
-またコミュニティーにより、常に新たな提案が行われており、メインネットに新機能が追加される際には、Amendmentにより2週間にわたって80%超の支持を得た場合のみ許可されるなど、民主的な運用が行われています。
+The community is constantly proposing new features, and new features are only allowed to be added to the mainnet if they receive over 80% support over a 2-week period through Amendments.
 
-## サステナビリティ
+## Sustainability
 
-XRP Ledgerの主な強みは速さだけではなく、効率性です。
+XRP Ledger's main strength is not only its speed, but also its efficiency.
 
-XRPLはPoWやPoSとは異なる独自のコンセンサスアルゴリズムが用いられており、エネルギー消費がBitcoinなどの他のブロックチェーン技術と比較して格段に少ないです。
+XRPL uses a unique consensus algorithm, different from PoW and PoS, and its energy consumption is much lower than other blockchain technologies such as Bitcoin.
 
-ブロックチェーンにより仕組みと思想が異なることが多いため、どちらが良い悪いとは言い切れませんが、グローバルな目線では、エネルギー消費が少ないことは間違いなく良いことだと考えています。
+Since different blockchains often have different mechanisms and philosophies, it is impossible to say which is better or worse, but from a global perspective, less energy consumption is definitely a good thing.
 
-## 備考
+## Notes
 
-さらに詳細を知りたい場合は以下サイトなどを参考に学習していただけると幸いです。
+If you would like to know more details, please refer to the following sites.
 
 [xrpl.org](https://xrpl.org/)
