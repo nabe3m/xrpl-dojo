@@ -1,0 +1,64 @@
+---
+title: Introducing Prettier
+description: How to introduce Prettier to VS Code.
+sidebar:
+  order: 2
+---
+
+## How to Install Prettier in VS Code
+
+This document explains the steps to install the Prettier plugin in Visual Studio Code (VS Code).
+
+Prettier is a tool that automatically formats code to help maintain readable code.
+
+## Prerequisites
+
+- Visual Studio Code is installed.
+- Node.js and npm are installed.
+
+## Step 1: Install the Prettier Extension
+
+1. Open VS Code.
+2. Click the Extensions icon on the left sidebar (the icon that looks like overlapping squares).
+3. Type "Prettier" in the search bar.
+4. Find "Prettier - Code formatter" in the search results and click the install button.
+
+## Step 2: Use Prettier in VS Code
+
+Open a file, right-click, and select "Format Document," or use the shortcut Shift + Alt + F (for Windows) or Shift + Option + F (for Mac).
+
+To enable formatting features, open VS Code settings (Ctrl + , or Cmd + ,), search for `editor.defaultFormatter`, and select `Prettier - Code formatter`.
+
+To automatically format code when saving a file, open the VS Code settings, search for `editor.formatOnSave`, and check the `Format On Save` option.
+
+Now, Prettier is set up in VS Code and ready to use. Your code will be automatically formatted every time you save it.
+
+## Bonus: Setting Up Prettier in a Project
+
+Prettier can be installed and used in a project.
+
+To do this, follow these steps:
+
+1. In the root directory of your project, run the following command to install Prettier:
+
+    ```bash
+    npm install -D prettier
+    ```
+
+2. Create a .prettierrc file in the root of your project and specify Prettier settings. For example, you can set it up with the following content:
+
+    ```json
+    {
+      "semi": false,
+      "singleQuote": true
+    }
+    ```
+
+This setting configures Prettier to avoid using semicolons and to use single quotes.
+
+You can also create a .prettierignore file to specify files and directories to exclude from Prettier formatting.
+
+```bash
+node_modules
+dist
+```

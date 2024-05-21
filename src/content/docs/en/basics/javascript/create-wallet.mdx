@@ -1,0 +1,79 @@
+---
+title: Create Wallet | Introduction to JavaScript
+description: This page demonstrates how to create a wallet with xrpl.js, XRPL's library based on JavaScript.
+sidebar: 
+  label: Create wallet
+  order: 4
+---
+
+import { Aside, Steps } from '@astrojs/starlight/components';
+
+## Create Script
+
+<Steps> 
+
+1. Create a new file named `create_wallet.js` in your project directory 
+2. Paste the following code into `create_wallet.js`.
+
+    ```javascript
+    const xrpl = require('xrpl');
+
+    async function main() {
+    // Connect to Testnet server
+    const client = new xrpl.Client('wss://s.altnet.rippletest.net:51233');
+    await client.connect();
+
+    // create a new wallet
+    const wallet = xrpl.Wallet.generate();
+    generate(); console.log('New wallet address:', wallet.address);
+    console.log('Secret:', wallet.seed); console.log('Secret:', wallet.seed); 
+
+    // Close connection
+    client.disconnect(); 
+    }
+
+    main().catch(console.error);
+    ````
+
+    This script creates a new XRP wallet and displays its address and private key (secret key).
+
+</Steps>
+
+## Run Script
+
+<Steps>
+
+1. Run script by executing the following command on the command line.
+
+    ```bash
+    node create_wallet.js
+    ````
+    
+    If successful, you will see the following in the console.
+
+    ```bash
+    New wallet address: rHjHkeRJ7PMQXbghGKYL9NkTvk********
+    Secret: sEdTcmvRqeoJeHQGKf2Pz6B********
+    ````
+
+    XRPL can easily issue new addresses like this.
+
+    The address acts like a bank account number, and the private key is important for account management and signing.
+
+    <Aside type="caution" title="Caution">
+    There should be no problem in storing the private key (secret key) created for the test network in the cloud, etc., but for the main network, it must be safely stored offline by writing it down on a piece of paper, for example.  
+    This is because if somebody else gains access to the secret key, your assets might be easily in the hands of someone else.
+    </Aside>
+
+2. If you want to continue to use the address you created here, please save the displayed address and secret key in a text file or in a note app, etc.
+
+</Steps>
+
+## Notes
+
+<Aside title="About the address">
+Actually, you cannot use the address you created above as it is. XRPL requires activation, which requires 10 XRP (as of April 28, 2024) per address.  
+The mainnet requires you to purchase XRP, on exchanges, etc., while the testnet allows you to obtain tokens for development use, which are free of charge.
+</Aside>
+
+In the next section, we will show you how to get tokens for development use to your address for Testnet.

@@ -17,10 +17,10 @@ export default defineConfig({
           label: '日本語',
           lang: 'ja-JP',
         },
-        // en: {
-        //   label: 'English',
-        //   lang: 'en-US',
-        // },
+        en: {
+          label: 'English',
+          lang: 'en-US',
+        },
       },
       social: {
         github: 'https://github.com/Nabe3m/',
@@ -55,33 +55,45 @@ export default defineConfig({
       sidebar: [
         {
           label: 'スタートガイド',
+          translations: { 'en-US': 'Start Guide' },
           autogenerate: { directory: 'getting-started' },
         },
         {
           label: '開発用エディターの準備',
+          translations: { 'en-US': 'Preparing the Development Editor' },
           autogenerate: { directory: 'editor' },
         },
         {
           label: 'XRPLとは？',
+          translations: { 'en-US': 'What is XRPL?' },
           autogenerate: { directory: 'xrpl' },
         },
         {
           label: '入門',
+          translations: { 'en-US': 'Introduction' },
           // collapsed: true,
           autogenerate: { directory: 'basics' },
         },
         {
           label: '初段',
+          translations: { 'en-US': 'First Dan' },
           // collapsed: true,
           autogenerate: { directory: 'beginners' },
         },
         {
           label: '二段',
+          translations: { 'en-US': 'Second Dan' },
           // collapsed: true,
           autogenerate: { directory: '2nd' },
         },
         // {
+        //   label: '三段',
+        //   translations: { 'en-US': 'Third Dan' },
+        //   autogenerate: { directory: '3rd' },
+        // },
+        // {
         //   label: 'チュートリアル',
+        //   translations: { 'en': 'Tutorials' },
         //   autogenerate: { directory: 'tutorials' },
         // },
       ],
