@@ -234,7 +234,7 @@ const setFlag = AccountSetAsfFlags.asfDefaultRipple; // リップリング許可
 const clearFlag = AccountSetAsfFlags.asfDefaultRipple; // リップリング拒否の解除 9
 
 // アカウントフラグの設定
-await setAccountFlags(client, wallet, setFlag, clearFlag);
+await setAccountFlags(client, wallet, setFlag);
 // await setAccountFlags(client, wallet, setFlag, clearFlag);
 
 client.disconnect();
