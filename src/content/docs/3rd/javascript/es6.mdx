@@ -1,0 +1,123 @@
+---
+title: ES6モジュールについて | JavaScriptでのXRPL開発 三段編
+description: JavaScriptでのXRPL開発 三段編として、「ES6モジュール」について解説しているページです。
+sidebar:
+  label: ES6モジュールについて
+  order: 3
+---
+
+ES6モジュールは、JavaScriptでコードをより簡単に再利用しやすくするための仕組みです。
+2015年にECMAScript 6（ES6）として導入され、JavaScriptの標準的なモジュールシステムとして使われています。
+
+モジュールを使うとコードを別々のファイルに分けて管理できますし、メソッドごとに必要なときにインポートして使うことができるます。
+
+昨今のモダンなフレームワークですと採用されていることがほとんどですので、初心者の方は合わせて習得してみてください。
+
+## 主な特徴
+
+### 1. インポートとエクスポート
+
+- エクスポート（export）：モジュール内の関数、オブジェクト、または変数を他のモジュールで使用できるようにするためにエクスポートします。
+- インポート（import）：他のモジュールで作った関数や変数を自分のモジュールに取り込みます。
+
+### 2. スコープの分離
+
+各モジュールは独自のスコープ（変数の範囲）を持つので、モジュール間で変数がぶつかることがありません。
+
+以下に、スコープの分離がどのように機能するかの例を紹介します。
+
+`module1.js`を作成します。
+
+```javascript
+// module1.js
+export const name = 'Alice';
+
+export function greet() {
+  return `Hello, ${name}!`;
+}
+```
+
+次に、`module2.js`として、ほとんど同じようなコードを作成します。
+
+```javascript
+// module2.js
+export const name = 'Bob';
+
+export function greet() {
+  return `Hi, ${name}!`;
+}
+```
+
+`main.js`で上記をインポートしてみます。
+
+
+```javascript
+// main.js
+import { name as name1, greet as greet1 } from './module1.js';
+import { name as name2, greet as greet2 } from './module2.js';
+
+console.log(name1);  // Alice
+console.log(greet1());  // Hello, Alice!
+
+console.log(name2);  // Bob
+console.log(greet2());  // Hi, Bob!
+```
+
+この例では、`module1.js`と`module2.js`の両方で`name`という変数を定義していますが、各モジュールは独自のスコープを持つため、それぞれの`name`変数は他のモジュールの`name`変数と干渉しません。
+
+また、`main.js`では、それぞれのモジュールからインポートした`name`変数と`greet`関数を使っていますが、別名（name1とname2）を付けることで、名前の衝突を防いでいます。
+
+## エクスポートの方法
+
+エクスポートには、名前を付けてエクスポートする方法と、デフォルトでエクスポートする方法があります。
+
+### 名前付きエクスポート
+
+```javascript
+// functions.js
+export function add(x, y) {
+  return x + y;
+}
+
+export function subtract(x, y) {
+  return x - y;
+}
+```
+
+### デフォルトエクスポート
+
+```javascript
+// multiply.js
+export default function multiply(x, y) {
+  return x * y;
+}
+```
+
+## インポートの方法
+
+### 名前付きエクスポートのインポート
+
+```javascript
+// main.js
+import { add, subtract } from './functions.js';
+
+console.log(add(2, 3)); // 5
+console.log(subtract(5, 2)); // 3
+```
+
+### デフォルトエクスポートのインポート
+
+```javascript
+// main.js
+import multiply from './multiply.js';
+
+console.log(multiply(2, 3)); // 6
+```
+
+## まとめ
+
+ES6モジュールを使うとコードを整理しやすくなり、再利用性も高まります！
+
+複雑なプロジェクトでも、モジュールごとに分けることで管理が楽になり、開発が効率的に進められますよ。
+
+また、今後の章では基本的にES6で解説していきます。

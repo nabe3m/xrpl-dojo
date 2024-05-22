@@ -71,26 +71,26 @@ export default defineConfig({
         {
           label: '入門',
           translations: { 'en-US': 'Introduction' },
-          // collapsed: true,
+          collapsed: true,
           autogenerate: { directory: 'basics' },
         },
         {
           label: '初段',
           translations: { 'en-US': 'First Dan' },
-          // collapsed: true,
+          collapsed: true,
           autogenerate: { directory: 'beginners' },
         },
         {
           label: '二段',
           translations: { 'en-US': 'Second Dan' },
-          // collapsed: true,
+          collapsed: true,
           autogenerate: { directory: '2nd' },
         },
-        // {
-        //   label: '三段',
-        //   translations: { 'en-US': 'Third Dan' },
-        //   autogenerate: { directory: '3rd' },
-        // },
+        {
+          label: '三段',
+          translations: { 'en-US': 'Third Dan' },
+          autogenerate: { directory: '3rd' },
+        },
         // {
         //   label: 'チュートリアル',
         //   translations: { 'en': 'Tutorials' },

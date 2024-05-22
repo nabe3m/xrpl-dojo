@@ -1,0 +1,327 @@
+---
+title: 汎用的なメソッドの作成 | JavaScriptでのXRPL開発 三段編
+description: JavaScriptでのXRPL開発 三段編として、「ES6モジュール」について解説しているページです。
+sidebar:
+  label: 汎用的なメソッドの作成
+  order: 4
+---
+
+先ほどES6について解説しましたが、このガイドでは実用的な実装方法に慣れていくことを目的に、汎用的なメソッドをモジュールとして定義しながら解説していきます。
+
+ますは下準備として、`utils`ディレクトリにファイルを作成していきましょう。
+
+## 1. trustSet.jsの作成
+トラストラインを設定する汎用的なメソッドを定義します。
+    
+```javascript
+// utils/trustSet.js
+
+// トラストラインを設定する関数
+export async function setTrustLine(client, wallet, currency, issuer, limit) {
+  try {
+    const trustSet = {
+      TransactionType: 'TrustSet',
+      Account: wallet.classicAddress,
+      LimitAmount: {
+        currency: currency,
+        issuer: issuer,
+        value: limit,
+      },
+    };
+    const response = await client.submitAndWait(trustSet, { wallet });
+    return response;
+  } catch (error) {
+    console.error(`Error setting trust line: ${error}`);
+    throw error;
+  }
+}
+```
+
+### 使用方法
+
+```javascript
+import { Client, Wallet } from 'xrpl';
+import { setTrustLine } from './utils/trustSet.js';
+
+// クライアントとウォレットの初期化
+const client = new Client('wss://s.altnet.rippletest.net:51233');
+await client.connect();
+
+const wallet = Wallet.fromSeed('s████████████████████████████');
+
+const currency = 'USD';
+const issuer = 'r████████████████████████████';
+const limit = '1000';
+
+// トラストラインの設定
+await setTrustLine(client, wallet, currency, issuer, limit);
+
+client.disconnect();
+```
+
+## 2. offerCreate.jsの作成
+offerCreateトランザクションを送信する汎用的なメソッドを定義します。
+    
+```javascript
+// utils/offerCreate.js
+
+// オファーを作成する関数
+export async function createOffer(client, wallet, takerGets, takerPays) {
+  try {
+    const offerCreate = {
+      TransactionType: 'OfferCreate',
+      Account: wallet.classicAddress,
+      TakerGets: takerGets,
+      TakerPays: takerPays,
+    };
+    const response = await client.submitAndWait(offerCreate, { wallet });
+    console.log(`Offer created for ${wallet.classicAddress}:`, response);
+    return response;
+  } catch (error) {
+    console.error(
+      `Error creating offer for ${wallet.classicAddress}: ${error}`
+    );
+    throw error;
+  }
+}
+
+```
+
+### 使用方法
+
+```javascript
+import { Client, Wallet } from 'xrpl';
+import { createOffer } from './utils/offerCreate.js';
+
+// クライアントとウォレットの初期化
+const client = new Client('wss://s.altnet.rippletest.net:51233');
+await client.connect();
+
+const wallet = Wallet.fromSeed('s████████████████████████████');
+
+const takerGets = {
+  currency: 'USD',
+  issuer: 'r████████████████████████████',
+  value: '100',
+};
+
+const takerPays = {
+  currency: 'XRP',
+  value: '100000000',
+};
+
+// オファーの作成
+await createOffer(client, wallet, takerGets, takerPays);
+
+client.disconnect();
+```
+
+## 3. payment.jsの作成
+送金を行う汎用的なメソッドを定義します。
+    
+```javascript
+// utils/payment.js
+
+// 送金を行う汎用的な関数
+export async function sendPayment(
+  client,
+  wallet,
+  amount,
+  destination,
+  sendMax
+) {
+  try {
+    const payment = {
+      TransactionType: 'Payment',
+      Account: wallet.classicAddress,
+      Amount: typeof amount === 'object' ? amount : amount.toString(),
+      Destination: destination,
+      SendMax: typeof sendMax === 'object' ? sendMax : sendMax.toString(),
+    };
+    const response = await client.submitAndWait(payment, { wallet });
+    console.log(
+      `Payment sent from ${wallet.classicAddress} to ${destination}:`,
+      response
+    );
+    return response;
+  } catch (error) {
+    console.error(
+      `Error sending payment from ${wallet.classicAddress} to ${destination}: ${error}`
+    );
+    throw error;
+  }
+}
+
+```
+
+### 使用方法
+
+```javascript
+import { Client, Wallet } from 'xrpl';
+import { sendPayment } from './utils/payment.js';
+
+// クライアントとウォレットの初期化
+const client = new Client('wss://s.altnet.rippletest.net:51233');
+await client.connect();
+
+const wallet = Wallet.fromSeed('s████████████████████████████');
+
+const amount = {
+  currency: 'USD',
+  issuer: 'r████████████████████████████',
+  value: '10',
+};
+
+const destination = 'r████████████████████████████';
+const sendMax = '100000000';
+
+// 送金の実行
+await sendPayment(client, wallet, amount, destination, sendMax);
+
+client.disconnect();
+
+```
+
+## 4. setAccountFlags.jsの作成
+アカウントのリップリング許可を設定する汎用的なメソッドを定義します。
+    
+```javascript
+// utils/setAccountFlags.js
+
+// アカウントのリップリング許可を設定する関数
+export async function setAccountFlags(
+  client,
+  wallet,
+  setFlag,
+  clearFlag = null
+) {
+  try {
+    const accountSet = {
+      TransactionType: 'AccountSet',
+      Account: wallet.classicAddress,
+      SetFlag: setFlag,
+    };
+
+    if (clearFlag !== null) {
+      accountSet.ClearFlag = clearFlag;
+    }
+
+    const response = await client.submitAndWait(accountSet, { wallet });
+    console.log(`Account flags set for ${wallet.classicAddress}:`, response);
+    return response;
+  } catch (error) {
+    console.error(
+      `Error setting account flags for ${wallet.classicAddress}: ${error}`
+    );
+    throw error;
+  }
+}
+```
+
+### 使用方法
+
+```javascript
+import { Client, Wallet } from 'xrpl';
+import { setAccountFlags } from './utils/setAccountFlags.js';
+
+// クライアントとウォレットの初期化
+const client = new Client('wss://s.altnet.rippletest.net:51233');
+await client.connect();
+
+const wallet = Wallet.fromSeed('s████████████████████████████');
+
+const setFlag = 8; // リップリング許可の設定
+const clearFlag = 9; // リップリング拒否の解除
+
+// アカウントフラグの設定
+await setAccountFlags(client, wallet, setFlag, clearFlag);
+
+client.disconnect();
+```
+
+## 5. payment.jsの作成
+offerCreateトランザクションを送信する汎用的なメソッドを定義します。
+    
+```javascript
+// utils/payment.js
+
+// 支払いを送信する関数
+export async function sendPayment(
+  client,
+  wallet,
+  amount,
+  destination,
+  sendMax
+) {
+  const payment = {
+    TransactionType: 'Payment',
+    Account: wallet.classicAddress,
+    Amount: amount,
+    Destination: destination,
+    SendMax: sendMax,
+  };
+  const response = await client.submitAndWait(payment, { wallet });
+  
+  return response;
+}
+```
+
+## 6. issueCurrency.jsの作成
+トークンを発行する汎用的なメソッドを定義します。
+    
+```javascript
+// utils/payment.js
+
+// トークンを発行する関数
+export async function issueCurrency(
+  client,
+  issuerWallet,
+  recipientAddress,
+  currency,
+  amount
+) {
+  try {
+    const payment = {
+      TransactionType: 'Payment',
+      Account: issuerWallet.classicAddress,
+      Amount: {
+        currency: currency,
+        issuer: issuerWallet.classicAddress,
+        value: amount,
+      },
+      Destination: recipientAddress,
+    };
+    const response = await client.submitAndWait(payment, {
+      wallet: issuerWallet,
+    });
+    console.log(`Currency issued to ${recipientAddress}:`, response);
+    return response;
+  } catch (error) {
+    console.error(`Error issuing currency to ${recipientAddress}: ${error}`);
+    throw error;
+  }
+}
+
+```
+
+### 使用方法
+
+```javascript
+import { Client, Wallet } from 'xrpl';
+import { issueCurrency } from './utils/issueCurrency.js';
+
+// クライアントとウォレットの初期化
+const client = new Client('wss://s.altnet.rippletest.net:51233');
+await client.connect();
+
+const issuerWallet = Wallet.fromSeed('s████████████████████████████');
+const recipientAddress = 'r████████████████████████████';
+
+const currency = 'USD';
+const amount = '1000';
+
+// トークンの発行
+await issueCurrency(client, issuerWallet, recipientAddress, currency, amount);
+
+client.disconnect();
+```
