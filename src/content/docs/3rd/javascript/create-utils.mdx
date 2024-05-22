@@ -221,7 +221,7 @@ export async function setAccountFlags(
 ### 使用方法
 
 ```javascript
-import { Client, Wallet } from 'xrpl';
+import { Client, Wallet, AccountSetAsfFlags } from 'xrpl';
 import { setAccountFlags } from './utils/setAccountFlags.js';
 
 // クライアントとウォレットの初期化
@@ -230,11 +230,12 @@ await client.connect();
 
 const wallet = Wallet.fromSeed('s████████████████████████████');
 
-const setFlag = 8; // リップリング許可の設定
-const clearFlag = 9; // リップリング拒否の解除
+const setFlag = AccountSetAsfFlags.asfDefaultRipple; // リップリング許可の設定 8
+const clearFlag = AccountSetAsfFlags.asfDefaultRipple; // リップリング拒否の解除 9
 
 // アカウントフラグの設定
 await setAccountFlags(client, wallet, setFlag, clearFlag);
+// await setAccountFlags(client, wallet, setFlag, clearFlag);
 
 client.disconnect();
 ```
@@ -264,6 +265,33 @@ export async function sendPayment(
   
   return response;
 }
+```
+
+### 使用方法
+
+```javascript
+import { sendPayment } from './utils/payment.js';
+import { Client, Wallet } from 'xrpl';
+
+// クライアントとウォレットの初期化
+const client = new Client('wss://s.altnet.rippletest.net:51233');
+await client.connect();
+
+const wallet = Wallet.fromSeed('s████████████████████████████');
+
+const amount = {
+  currency: 'USD',
+  issuer: 'r████████████████████████████',
+  value: '10',
+};
+
+const destination = 'r████████████████████████████';
+const sendMax = '100000000';
+
+// 送金の実行
+await sendPayment(client, wallet, amount, destination, sendMax);
+
+client.disconnect();
 ```
 
 ## 6. issueCurrency.jsの作成
