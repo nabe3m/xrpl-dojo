@@ -201,11 +201,7 @@ export async function setAccountFlags(
       Account: wallet.classicAddress,
       SetFlag: setFlag,
     };
-
-    if (clearFlag !== null) {
-      accountSet.ClearFlag = clearFlag;
-    }
-
+    
     const response = await client.submitAndWait(accountSet, { wallet });
     console.log(`Account flags set for ${wallet.classicAddress}:`, response);
     return response;
@@ -231,70 +227,14 @@ await client.connect();
 const wallet = Wallet.fromSeed('s████████████████████████████');
 
 const setFlag = AccountSetAsfFlags.asfDefaultRipple; // リップリング許可の設定 8
-const clearFlag = AccountSetAsfFlags.asfDefaultRipple; // リップリング拒否の解除 9
 
 // アカウントフラグの設定
 await setAccountFlags(client, wallet, setFlag);
-// await setAccountFlags(client, wallet, setFlag, clearFlag);
 
 client.disconnect();
 ```
 
-## 5. payment.jsの作成
-offerCreateトランザクションを送信する汎用的なメソッドを定義します。
-    
-```javascript
-// utils/payment.js
-
-// 支払いを送信する関数
-export async function sendPayment(
-  client,
-  wallet,
-  amount,
-  destination,
-  sendMax
-) {
-  const payment = {
-    TransactionType: 'Payment',
-    Account: wallet.classicAddress,
-    Amount: amount,
-    Destination: destination,
-    SendMax: sendMax,
-  };
-  const response = await client.submitAndWait(payment, { wallet });
-  
-  return response;
-}
-```
-
-### 使用方法
-
-```javascript
-import { sendPayment } from './utils/payment.js';
-import { Client, Wallet } from 'xrpl';
-
-// クライアントとウォレットの初期化
-const client = new Client('wss://s.altnet.rippletest.net:51233');
-await client.connect();
-
-const wallet = Wallet.fromSeed('s████████████████████████████');
-
-const amount = {
-  currency: 'USD',
-  issuer: 'r████████████████████████████',
-  value: '10',
-};
-
-const destination = 'r████████████████████████████';
-const sendMax = '100000000';
-
-// 送金の実行
-await sendPayment(client, wallet, amount, destination, sendMax);
-
-client.disconnect();
-```
-
-## 6. issueCurrency.jsの作成
+## 5. issueCurrency.jsの作成
 トークンを発行する汎用的なメソッドを定義します。
     
 ```javascript
