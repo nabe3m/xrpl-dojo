@@ -3,16 +3,18 @@ title: トラストラインの設定 | JavaScriptでのXRPL開発 三段編
 description: JavaScriptでのXRPL開発 三段編として、クロスカレンシー送金を行うためのトラストラインの設定について解説しているページです。
 sidebar:
   label: トラストラインの設定
-  order: 5
+  order: 6
 ---
 
 import { Aside, Steps } from '@astrojs/starlight/components';
 
-トラストラインを設定することで、特定の通貨を受け取ることができるようになります。
+トラストラインを設定することで、アカウントは特定の通貨を受け取ることができるようになります。
 
-このガイドでは、発行者Aの`USD`を`A.USD`、発行者Bの`USD`を`B.USD`と表現します。
+※トラストラインの基本的な解説については[こちら](/beginners/javascript/trustline/)を参照ください。
 
-この例では、`Alice`と`Charlie`が`A.USD`を受け取り、`Bob`と`Daniel`が`B.USD`を受け取れることにしようと思いますので、以下のようにコードを設定します。
+このガイドでは、発行者Aの`A.USD`、発行者Bの`B.EUR`を取り扱う形で解説します。
+
+クロスカレンシー送金の学習を進めるために、先ほどの章で作成したアカウントに基本的な設定を行う必要がありますので、以下のスクリプトを作成・実行してください。
 
 ## 使用するメソッド
 
@@ -55,49 +57,45 @@ export async function setTrustLine(client, wallet, currency, issuer, limit) {
 
     ```javascript
     // setTrustline.js
-    import { Client, Wallet, AccountSetAsfFlags } from 'xrpl';
+    import { Client, AccountSetAsfFlags } from 'xrpl';
+    import { wallets } from './wallets.js';
     import { setTrustLine } from './utils/trustSet.js';
     import { setAccountFlags } from './utils/setAccountFlags.js';
 
     const client = new Client('wss://s.altnet.rippletest.net:51233'); // テストネットを使用
 
-    async function main() {
-        try {
-            await client.connect();
+    const main = async () => {
+      try {
+        await client.connect();
 
-            const issuerA = Wallet.fromSeed('s████████████████████████████');
-            const issuerB = Wallet.fromSeed('s████████████████████████████');
+        const { issuerA, issuerB, alice, bob, charlie, daniel } = wallets;
+        const limitAmount = '10000';
 
-            // Ripplingを許可する
-            await setAccountFlags(client, issuerA, AccountSetAsfFlags.asfDefaultRipple);
-            await setAccountFlags(client, issuerB, AccountSetAsfFlags.asfDefaultRipple);
+        // Ripplingを許可する
+        await setAccountFlags(client, issuerA, AccountSetAsfFlags.asfDefaultRipple);
+        await setAccountFlags(client, issuerB, AccountSetAsfFlags.asfDefaultRipple);
 
-            const alice = Wallet.fromSeed('s████████████████████████████');
-            const bob = Wallet.fromSeed('s████████████████████████████');
-            const charlie = Wallet.fromSeed('s████████████████████████████');
-            const daniel = Wallet.fromSeed('s████████████████████████████');
+        // AliceがissuerAのUSDとBのEURを受け取るためのトラストラインを設定
+        await setTrustLine(client, alice, 'USD', issuerA.classicAddress, limitAmount);
+        await setTrustLine(client, alice, 'EUR', issuerB.classicAddress, limitAmount);
 
-            // AliceがissuerAのUSDを受け取るためのトラストラインを設定
-            await setTrustLine(client, alice, 'USD', issuerA.classicAddress, '1000');
+        // BobがissuerBのEURを受け取るためのトラストラインを設定
+        await setTrustLine(client, bob, 'EUR', issuerB.classicAddress, limitAmount);
 
-            // BobがissuerBのUSDを受け取るための信頼線を設定
-            await setTrustLine(client, bob, 'USD', issuerB.classicAddress, '1000');
+        // CharlieがissuerAのUSDを受け取るためのトラストラインを設定
+        await setTrustLine(client, charlie, 'USD', issuerA.classicAddress, limitAmount);
 
-            // CharlieがissuerAのUSDを受け取るための信頼線を設定
-            await setTrustLine(client, charlie, 'USD', issuerA.classicAddress, '1000');
-
-            // DanielがissuerBのUSDを受け取るための信頼線を設定
-            await setTrustLine(client, daniel, 'USD', issuerB.classicAddress, '1000');
-        } catch (error) {
-            console.error(`Error in trust line setup: ${error}`);
-        } finally {
-            await client.disconnect();
-        }
-    }
+        // DanielがissuerBのEURを受け取るためのトラストラインを設定
+        await setTrustLine(client, daniel, 'EUR', issuerB.classicAddress, limitAmount);
+      } catch (error) {
+        console.error(`Error in trust line setup: ${error}`);
+      } finally {
+        await client.disconnect();
+      }
+    };
 
     main();
     ```
-
 </Steps>
 
 
@@ -111,181 +109,150 @@ export async function setTrustLine(client, wallet, currency, issuer, limit) {
     node setTrustLine.js
     ```
 
-2. 成功すれば、コンソールに以下が表示されます。
+2. 以下のようなコンソールログがが表示されれば、成功です。
     ```bash
-    Account flags set for rGViRHtm2o1hGKdL8RCsWiSKDi4SdBMYF4: {
-    id: 12,
-    result: {
-        Account: 'rGViRHtm2o1hGKdL8RCsWiSKDi4SdBMYF4',
+    Account flags set for rfkJ7Uz6NrNV1FdbmKB5wepoim51KFpYQp: {
+      id: 12,
+      result: {
+        Account: 'rfkJ7Uz6NrNV1FdbmKB5wepoim51KFpYQp',
         Fee: '12',
         Flags: 0,
-        LastLedgerSequence: 870615,
-        Sequence: 869983,
+        LastLedgerSequence: 1048947,
+        Sequence: 1046418,
         SetFlag: 8,
-        SigningPubKey: 'EDA93EBB6F8645837929A4415A110713C3C46187580F6315E75828C785EB4233A5',
+        SigningPubKey: 'EDEBAB4C81CF854860D393191A001822A9B58242302710A2D3EFE5BE8620A1F8A9',
         TransactionType: 'AccountSet',
-        TxnSignature: '8058EBA57C071B86F13F0F3A7B82B673AA5DBC1A639813891E6AF209B3F4688EAAC73E8ACCCA6E6782F643074AED9A0272DD27C66A56846AC3D327FE91251606',
-        ctid: 'C00D48C500530001',
-        date: 769652370,
-        hash: 'E02C2242336A9CADAFAC36DEE50F42F101FC199E7DD20C678C21F091C5E5A14B',
-        inLedger: 870597,
-        ledger_index: 870597,
+        TxnSignature: '0F1D6C311E50499CBF1B08D3423D83797AAE3139A444ED2461E41F0D6D2F7F61415C65C2302C6230F2EE85C55B3505FEE120C9169D2EC90754848EED663EB50A',
+        ctid: 'C010016100000001',
+        date: 770216691,
+        hash: 'FEEABF75F7220CF3CED9FB9D71CADE7C3C78F433812FCA7D3321958A07F3608F',
+        inLedger: 1048929,
+        ledger_index: 1048929,
         meta: {
-        AffectedNodes: [Array],
-        TransactionIndex: 83,
-        TransactionResult: 'tesSUCCESS'
+          AffectedNodes: [Array],
+          TransactionIndex: 0,
+          TransactionResult: 'tesSUCCESS'
         },
         validated: true
-    },
-    type: 'response'
+      },
+      type: 'response'
     }
-    Account flags set for rfFT1m96PbM4LuXuT6hRQoR35WJgEYELAE: {
-    id: 24,
-    result: {
-        Account: 'rfFT1m96PbM4LuXuT6hRQoR35WJgEYELAE',
+    Account flags set for rstM9rxhKo4N4WEaQgQmQSPQRgZqkhHkaU: {
+      id: 24,
+      result: {
+        Account: 'rstM9rxhKo4N4WEaQgQmQSPQRgZqkhHkaU',
         Fee: '12',
         Flags: 0,
-        LastLedgerSequence: 870617,
-        Sequence: 869985,
+        LastLedgerSequence: 1048949,
+        Sequence: 1046420,
         SetFlag: 8,
-        SigningPubKey: 'ED09AFDD13CC9D9440559FFDB00B46B2AC54313280BEE01A1CD5AD5DAEEFC0E632',
+        SigningPubKey: 'EDBE91E21E32E1848B805B22597D87667FBC6B045B9ABADC67807DB88CD1767A97',
         TransactionType: 'AccountSet',
-        TxnSignature: '60BE0A825BADB8FA3349449810FA3C466AA7F3C9E70BDF9CA9AFE2D6D6AD3DBB987DC2397A9F864067115D9F1CAF5F48799C5593B2DF6B1F77E3A0E92571EA0D',
-        ctid: 'C00D48C700000001',
-        date: 769652372,
-        hash: '85A724216D48672DBB1B76AE0EE6B4D928E1FF00FE236B483E707606D9AEB539',
-        inLedger: 870599,
-        ledger_index: 870599,
+        TxnSignature: '85CD26FCCAFBB90218F7DBA03CA2807D129452BAE5001A9D13B610FFBFFA4EF9F84E98F5B91F282C022D07D14A78BE740C315A70F2003CB28DB4DAF200B78D09',
+        ctid: 'C010016300000001',
+        date: 770216701,
+        hash: '6B1CFBC84B221C0790D38961C05BB944374C5E35C4E9D0042E9A853AA6BA5618',
+        inLedger: 1048931,
+        ledger_index: 1048931,
         meta: {
-        AffectedNodes: [Array],
-        TransactionIndex: 0,
-        TransactionResult: 'tesSUCCESS'
+          AffectedNodes: [Array],
+          TransactionIndex: 0,
+          TransactionResult: 'tesSUCCESS'
         },
         validated: true
-    },
-    type: 'response'
+      },
+      type: 'response'
     }
-    Trust line set for rKrcBu6GJ68Kqz7tBH1wZtDtaLQw24G3nw: {
-    id: 34,
-    result: {
-        Account: 'rKrcBu6GJ68Kqz7tBH1wZtDtaLQw24G3nw',
+    Trust line set for r3KQdHtUHUouGkLBFLZRxRYiugbW8cNwyJ: {
+      id: 36,
+      result: {
+        Account: 'r3KQdHtUHUouGkLBFLZRxRYiugbW8cNwyJ',
         Fee: '12',
         Flags: 0,
-        LastLedgerSequence: 870619,
+        LastLedgerSequence: 1048951,
         LimitAmount: {
-        currency: 'USD',
-        issuer: 'rGViRHtm2o1hGKdL8RCsWiSKDi4SdBMYF4',
-        value: '1000'
+          currency: 'USD',
+          issuer: 'rfkJ7Uz6NrNV1FdbmKB5wepoim51KFpYQp',
+          value: '10000'
         },
-        Sequence: 870041,
-        SigningPubKey: 'EDA6FF04AA46A81C42E1BD6AEC2B89FA3A268E4AF9941E6A9EC178B67CBE5B22DA',
+        Sequence: 1046422,
+        SigningPubKey: 'ED84F179E4978F5FA3C5DDAA2305A074B954755975135D4CA3E56E2B09124A98AB',
         TransactionType: 'TrustSet',
-        TxnSignature: 'F9E20E3295DD7D4FD4527B80A0E2610003C9F6692DBEBA906EA96262A146D75D80AD58FA4CA83385DBCC91CF51104DB456262C3FF37B6812487C2E7DA85B6702',
-        ctid: 'C00D48C9002F0001',
-        date: 769652381,
-        hash: '49EA3B24092C2D7CDFE9A640F74C5ABFB43F4AFF3BCE36A7AC507B0A76B95FAD',
-        inLedger: 870601,
-        ledger_index: 870601,
+        TxnSignature: 'A717516A634F6A1FC25D09EB740E3CD686EA35B3A141618C40C1454BB2E05216B1785E57E791EF1CCA95DE8655D5673FDED04A3002656DB5A1320622826A9102',
+        ctid: 'C010016500010001',
+        date: 770216710,
+        hash: 'E30668CA07772CD1A299E3FFD8FC38DE4E62C3E1ECF0518BAE86B7AF9035FDA4',
+        inLedger: 1048933,
+        ledger_index: 1048933,
         meta: {
-        AffectedNodes: [Array],
-        TransactionIndex: 47,
-        TransactionResult: 'tesSUCCESS'
+          AffectedNodes: [Array],
+          TransactionIndex: 1,
+          TransactionResult: 'tesSUCCESS'
         },
         validated: true
-    },
-    type: 'response'
+      },
+      type: 'response'
     }
-    Trust line set for r6q4Noj4eXuhi6CjSiV1rdtpN9YtaiMJz: {
-    id: 49,
-    result: {
-        Account: 'r6q4Noj4eXuhi6CjSiV1rdtpN9YtaiMJz',
+    Trust line set for r3KQdHtUHUouGkLBFLZRxRYiugbW8cNwyJ: {
+      id: 51,
+      result: {
+        Account: 'r3KQdHtUHUouGkLBFLZRxRYiugbW8cNwyJ',
         Fee: '12',
         Flags: 0,
-        LastLedgerSequence: 870621,
+        LastLedgerSequence: 1048953,
         LimitAmount: {
-        currency: 'USD',
-        issuer: 'rfFT1m96PbM4LuXuT6hRQoR35WJgEYELAE',
-        value: '1000'
+          currency: 'EUR',
+          issuer: 'rstM9rxhKo4N4WEaQgQmQSPQRgZqkhHkaU',
+          value: '10000'
         },
-        Sequence: 870042,
-        SigningPubKey: 'EDBF8BBD0944BEC8BA8C2A7FBFD7B00CEF0DEA4FDF7984C20A2193B0D95F8855FE',
+        Sequence: 1046423,
+        SigningPubKey: 'ED84F179E4978F5FA3C5DDAA2305A074B954755975135D4CA3E56E2B09124A98AB',
         TransactionType: 'TrustSet',
-        TxnSignature: '3D7305BC491BDA8FC625A7E80F4BBED1D68A068C75C53A9D014EF0985B729A46A5C2C69E5D4A4A16BD60ADAF48A3DBBB43B64171303EC441AD9467EB7AC3D907',
-        ctid: 'C00D48CB00000001',
-        date: 769652390,
-        hash: '49EFE19146F1743FA02852F361FCE0EAA5596677692872D2A683266D946FD527',
-        inLedger: 870603,
-        ledger_index: 870603,
+        TxnSignature: '34501D584CF69D79421A1328AA1D91BD65069AA143784874A95979F43AC635CEFD9425F65B2FC8CCE95690C90743A3E6B86D877DBB68FFB369D4411FAD586D07',
+        ctid: 'C0100167001E0001',
+        date: 770216712,
+        hash: '94C3B5CFB87CA96B48A77EFD3480DB88161DEF0A23FF0FC25EE9E2BAD9812084',
+        inLedger: 1048935,
+        ledger_index: 1048935,
         meta: {
-        AffectedNodes: [Array],
-        TransactionIndex: 0,
-        TransactionResult: 'tesSUCCESS'
+          AffectedNodes: [Array],
+          TransactionIndex: 30,
+          TransactionResult: 'tesSUCCESS'
         },
         validated: true
-    },
-    type: 'response'
+      },
+      type: 'response'
     }
-    Trust line set for rLTMrJYzd4moEiafmvakeBMtspqSHn3AQ1: {
-    id: 61,
-    result: {
-        Account: 'rLTMrJYzd4moEiafmvakeBMtspqSHn3AQ1',
+    Trust line set for rn9GFEPHW5tX2CaKVc7mA4L2GyXh88JiTy: {
+      id: 63,
+      result: {
+        Account: 'rn9GFEPHW5tX2CaKVc7mA4L2GyXh88JiTy',
         Fee: '12',
         Flags: 0,
-        LastLedgerSequence: 870623,
+        LastLedgerSequence: 1048955,
         LimitAmount: {
-        currency: 'USD',
-        issuer: 'rGViRHtm2o1hGKdL8RCsWiSKDi4SdBMYF4',
-        value: '1000'
+          currency: 'EUR',
+          issuer: 'rstM9rxhKo4N4WEaQgQmQSPQRgZqkhHkaU',
+          value: '10000'
         },
-        Sequence: 870048,
-        SigningPubKey: 'ED58424CB3AE6543EE356CE1D6BC54038246B7DCC6407303F2A7A6A96CA5259AC7',
+        Sequence: 1046424,
+        SigningPubKey: 'EDA33B78BB0BCE6D1E18015AE195AE3D67456F3B7A2C34ECD95D5AD8B0477EE96A',
         TransactionType: 'TrustSet',
-        TxnSignature: '12569DBA0C513E57AF4F5FE30B4D31E570280E0E1DBB7F1750A5E3E966CAD158BCFFBDA4B43BFC91147ADBA589DA95922D918ABAB687E27E6BFC882E0011B102',
-        ctid: 'C00D48CD00520001',
-        date: 769652392,
-        hash: 'F96E3B14DB2B993425931D93F74FC4DB4D0343F3D79A6696647EF3B5151628C5',
-        inLedger: 870605,
-        ledger_index: 870605,
+        TxnSignature: '7A6EB874E4676EA1C2C6A9B37C8093214F4A30F17C9ED90ADE3F92200937131072AF9BF67AAB094540D5708155849AABB90B0F9DC0DE0FDEE9D1D7AC059FD100',
+        ctid: 'C010016900010001',
+        date: 770216721,
+        hash: '9FB732C996091FE868D9C47A0B1EE29691AA4C5CA0E6FC92D1D782C00A743DA5',
+        inLedger: 1048937,
+        ledger_index: 1048937,
         meta: {
-        AffectedNodes: [Array],
-        TransactionIndex: 82,
-        TransactionResult: 'tesSUCCESS'
+          AffectedNodes: [Array],
+          TransactionIndex: 1,
+          TransactionResult: 'tesSUCCESS'
         },
         validated: true
-    },
-    type: 'response'
+      },
+      type: 'response'
     }
-    Trust line set for r3gY9Vx5LXDioruniEPZKav2fuSvCptDuD: {
-    id: 73,
-    result: {
-        Account: 'r3gY9Vx5LXDioruniEPZKav2fuSvCptDuD',
-        Fee: '12',
-        Flags: 0,
-        LastLedgerSequence: 870625,
-        LimitAmount: {
-        currency: 'USD',
-        issuer: 'rfFT1m96PbM4LuXuT6hRQoR35WJgEYELAE',
-        value: '1000'
-        },
-        Sequence: 870050,
-        SigningPubKey: 'ED19241D79B405EE139F9E9B93AB0E50C1BE6D320AD666F6C16E6AABFBFD314EB6',
-        TransactionType: 'TrustSet',
-        TxnSignature: 'FED413F9E946F1E9BBC90A98340A6E1B0000ADB75232E151D3122AC71F3B755C05BB309E56308728CA2D889886E646732580F64461CDA80377998C4CCDF79905',
-        ctid: 'C00D48CF00000001',
-        date: 769652401,
-        hash: '125D0E37EC777390725AA3777756BB8A63818CED736E870FF853FA895881A6B7',
-        inLedger: 870607,
-        ledger_index: 870607,
-        meta: {
-        AffectedNodes: [Array],
-        TransactionIndex: 0,
-        TransactionResult: 'tesSUCCESS'
-        },
-        validated: true
-    },
-    type: 'response'
-    }
+    ...
     ```
 </Steps>
-
-※次の章は作成中です。（2024/05/22）

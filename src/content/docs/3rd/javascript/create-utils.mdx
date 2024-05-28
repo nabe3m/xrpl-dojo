@@ -8,7 +8,7 @@ sidebar:
 
 先ほどES6について解説しましたが、このガイドでは実用的な実装方法に慣れていくことを目的に、汎用的なメソッドをモジュールとして定義しながら解説していきます。
 
-ますは下準備として、`utils`ディレクトリにファイルを作成していきましょう。
+ますは下準備として、学習を効率化するために、`utils`ディレクトリにファイルを作成していきましょう。
 
 ## 1. trustSet.jsの作成
 トラストラインを設定する汎用的なメソッドを定義します。
@@ -59,7 +59,7 @@ await setTrustLine(client, wallet, currency, issuer, limit);
 client.disconnect();
 ```
 
-## 2. offerCreate.jsの作成
+## 2. createOffer.jsの作成
 offerCreateトランザクションを送信する汎用的なメソッドを定義します。
     
 ```javascript
@@ -91,7 +91,9 @@ export async function createOffer(client, wallet, takerGets, takerPays) {
 
 ```javascript
 import { Client, Wallet } from 'xrpl';
-import { createOffer } from './utils/offerCreate.js';
+import { createOffer } from './utils/createOffer.js';
+
+...
 
 // クライアントとウォレットの初期化
 const client = new Client('wss://s.altnet.rippletest.net:51233');
@@ -123,35 +125,31 @@ client.disconnect();
 // utils/payment.js
 
 // 送金を行う汎用的な関数
-export async function sendPayment(
-  client,
-  wallet,
-  amount,
-  destination,
-  sendMax
-) {
+export async function sendPayment(client, wallet, amount, destination, options = {}) {
   try {
     const payment = {
       TransactionType: 'Payment',
       Account: wallet.classicAddress,
       Amount: typeof amount === 'object' ? amount : amount.toString(),
       Destination: destination,
-      SendMax: typeof sendMax === 'object' ? sendMax : sendMax.toString(),
     };
+
+    if (options.sendMax !== undefined && options.sendMax !== null) {
+      payment.SendMax = typeof options.sendMax === 'object' ? options.sendMax : options.sendMax.toString();
+    }
+
+    if (options.paths !== undefined && options.paths !== null) {
+      payment.Paths = options.paths;
+    }
+
     const response = await client.submitAndWait(payment, { wallet });
-    console.log(
-      `Payment sent from ${wallet.classicAddress} to ${destination}:`,
-      response
-    );
+    console.log(`Payment sent from ${wallet.classicAddress} to ${destination}:`, response);
     return response;
   } catch (error) {
-    console.error(
-      `Error sending payment from ${wallet.classicAddress} to ${destination}: ${error}`
-    );
+    console.error(`Error sending payment from ${wallet.classicAddress} to ${destination}: ${error}`);
     throw error;
   }
 }
-
 ```
 
 ### 使用方法
@@ -159,6 +157,8 @@ export async function sendPayment(
 ```javascript
 import { Client, Wallet } from 'xrpl';
 import { sendPayment } from './utils/payment.js';
+
+...
 
 // クライアントとウォレットの初期化
 const client = new Client('wss://s.altnet.rippletest.net:51233');
@@ -173,10 +173,12 @@ const amount = {
 };
 
 const destination = 'r████████████████████████████';
-const sendMax = '100000000';
+const sendMaxAmount = '100000000';
 
 // 送金の実行
-await sendPayment(client, wallet, amount, destination, sendMax);
+await sendPayment(client, wallet, amount, destination, {
+  sendMax: sendMaxAmount
+})
 
 client.disconnect();
 
@@ -188,12 +190,11 @@ client.disconnect();
 ```javascript
 // utils/setAccountFlags.js
 
-// アカウントのリップリング許可を設定する関数
+// アカウントのフラグを設定する関数
 export async function setAccountFlags(
   client,
   wallet,
-  setFlag,
-  clearFlag = null
+  setFlag
 ) {
   try {
     const accountSet = {
@@ -219,6 +220,8 @@ export async function setAccountFlags(
 ```javascript
 import { Client, Wallet, AccountSetAsfFlags } from 'xrpl';
 import { setAccountFlags } from './utils/setAccountFlags.js';
+
+...
 
 // クライアントとウォレットの初期化
 const client = new Client('wss://s.altnet.rippletest.net:51233');
@@ -277,6 +280,8 @@ export async function issueCurrency(
 ```javascript
 import { Client, Wallet } from 'xrpl';
 import { issueCurrency } from './utils/issueCurrency.js';
+
+...
 
 // クライアントとウォレットの初期化
 const client = new Client('wss://s.altnet.rippletest.net:51233');
