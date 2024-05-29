@@ -61,7 +61,7 @@ rhub8VRN55s94qWKDv6jmDy1pUykJzF3wq
 
         const prepared = await client.autofill(offer); // トランザクションを自動的に補完
         const signed = wallet.sign(prepared); // トランザクションに署名
-        const result = await client.submitAndWait(prepared); // 送信
+        const result = await client.submitAndWait(signed); // 送信
 
         console.log('オファー作成結果:', result);
         await client.disconnect();
