@@ -1,0 +1,52 @@
+---
+title: Starting the Project | XRPL Development in JavaScript - Part 3
+description: This page covers "Project Setup" for the third stage of XRPL development in JavaScript.
+sidebar:
+  label: Starting the Project
+  order: 2
+---
+
+Let's start by creating the project.
+
+## Creating the Project
+
+From now on, we will proceed using a more modern setup method.
+
+First, create the project as usual.
+
+
+```bash
+// Create and navigate to the directory
+mkdir xrpl-cross-currency
+cd xrpl-cross-currency
+
+// Initialize the project
+npm init -y
+npm install xrpl
+```
+
+## Enabling ES6 Modules
+
+Next, enable ES6 modules by adding the following setting to your `package.json`.
+
+It doesn't matter where you place it, but make sure to modify it as shown below.
+
+```json
+{
+  "name": "xrpl-cross-currency",
+  "version": "1.0.0",
+  "main": "index.js",
+  "type": "module", // Add this line
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "xrpl": "^3.0.0"
+  }
+}
+
+```

@@ -1,0 +1,179 @@
+---
+title: Regarding the behavior of trust lines | XRPL Development in JavaScript - Part 3
+description: This page explains 'the behavior of trust lines' as part of a three-part series on XRPL development in JavaScript.
+sidebar:
+  label: Regarding the behavior of trust lines
+  order: 11
+---
+
+import { Aside, Steps } from '@astrojs/starlight/components';
+
+Next, we will explain the behavior of trust lines when making an offer.
+
+Let's try a scenario where Bob sells `B.EUR` issued by Issuer B and buys `A.USD` issued by Issuer A, and this `B.EUR` eventually reaches Daniel.
+
+## Prerequisites
+
+Charlie needs to make a payment to Daniel, who wants to receive `B.EUR`. However, at this point, Charlie does not hold `B.EUR` and only has `XRP` and `A.USD` issued by Issuer A. Therefore, Charlie considers whether he can exchange his `A.USD`.
+
+1. Bob will create an offer to sell `B.EUR` issued by Issuer B and buy `A.USD` issued by Issuer A to provide liquidity.
+2. Charlie will initiate the process to send `A.USD` as `B.EUR` to Daniel.
+
+## Creating the Script
+
+<Steps>
+
+1. Use the existing `createOffers.js` to create an offer from Bob.
+
+    ```javascript
+    import { Client, xrpToDrops } from 'xrpl';
+    import { wallets } from './wallets.js';
+    import { createOffer } from './utils/createOffer.js';
+
+    const client = new Client('wss://s.altnet.rippletest.net:51233'); // Using Testnet
+
+    async function main() {
+        try {
+            await client.connect();
+
+            const { issuerA, issuerB, alice, bob, charlie, daniel } = wallets;
+
+            // await createOffer(
+            //   client,
+            //   alice,
+            //   { currency: 'USD', issuer: issuerA.address, value: '100' },
+            //   { currency: 'EUR', issuer: issuerB.address, value: '100' }
+            // );
+
+            await createOffer(
+                client,
+                bob,
+                { currency: 'EUR', issuer: issuerB.address, value: '100' },
+                { currency: 'USD', issuer: issuerA.address, value: '100' }
+            );
+        } catch (error) {
+            console.error(`Error in offer creation: ${error}`);
+        } finally {
+            await client.disconnect();
+        }
+    }
+
+    main();
+    ```
+
+2. Use the existing `crossCurrencyPayment.js` to make a payment from Charlie.
+
+    ```javascript
+    // crossCurrencyPayment.js
+    import xrpl from 'xrpl';
+    import { wallets } from './wallets.js';
+    import { sendPayment } from './utils/payment.js';
+
+    const client = new xrpl.Client('wss://s.altnet.rippletest.net:51233');
+
+    const main = async () => {
+        await client.connect();
+
+        const { issuerA, issuerB, alice, bob, charlie, daniel } = wallets;
+
+        // await sendPayment(
+        //   client,
+        //   daniel,
+        //   { currency: 'USD', issuer: issuerA.address, value: '100' }, // Currency Charlie wants to receive: A.USD
+        //   charlie.address,
+        //   {
+        //     sendMax: { currency: 'EUR', issuer: issuerB.address, value: '100' }, // Currency Daniel wants to pay: B.EUR
+        //   }
+        // );
+
+        // Payment from Charlie to Daniel
+        await sendPayment(
+            client,
+            charlie,
+            { currency: 'EUR', issuer: issuerB.address, value: '100' }, // Currency Daniel wants to receive: B.EUR
+            daniel.address,
+            {
+                sendMax: { currency: 'USD', issuer: issuerA.address, value: '100' }, // Currency Charlie wants to pay: A.USD
+            }
+        );
+
+        await client.disconnect();
+    };
+
+    main().catch(console.error);
+    ```
+</Steps>
+
+
+## Running the Script
+
+<Steps>
+
+1. Run the following commands in the command line to execute the script.
+
+    ```bash
+    node createOffers.js
+    node crossCurrencyPayment.js
+    ```
+
+2. If the following log appears as a result of `crossCurrencyPayment.js`, it is successful.
+    ```bash
+    Payment sent from rnP7Q6LaejYi7oaN4qJHkKhnESZYAyVQwh to rf6R7pFgytT9JKjMVjKqeTv6MeDTrbNw3: {
+        id: 14,
+        result: {
+            Account: 'rnP7Q6LaejYi7oaN4qJHkKhnESZYAyVQwh', // Charlie
+            Amount: {
+                currency: 'EUR',
+                issuer: 'rstM9rxhKo4N4WEaQgQmQSPQRgZqkhHkaU', // issuerB
+                value: '100'
+            },
+            DeliverMax: {
+                currency: 'EUR',
+                issuer: 'rstM9rxhKo4N4WEaQgQmQSPQRgZqkhHkaU',
+                value: '100'
+            },
+            Destination: 'rf6R7pFgytT9JKjMVjKqeTv6MeDTrbNw3', // Daniel
+            Fee: '12',
+            Flags: 0,
+            LastLedgerSequence: 1085862,
+            SendMax: {
+                currency: 'USD',
+                issuer: 'rfkJ7Uz6NrNV1FdbmKB5wepoim51KFpYQp', // issuerA
+                value: '100' // Max amount
+            },
+            Sequence: 1046427,
+            SigningPubKey: 'ED88C6BDCFE0FB8612FCE299211DDAB0E6E6498EEAD14D07673D7C2C0778361766',
+            TransactionType: 'Payment',
+            TxnSignature: 'CE013A27741315A5DE67B811DF4AA793F3CBF24AA80D0EED9A1148B790A6A9713B1DE457BF3F3EECC5C155A8CA81D9536F7C151239DF6BEBA13BFCA057255E02',
+            ctid: 'C010919400000001',
+            date: 770335361,
+            hash: '95CE240790C3B1AA5C59CB1C1A4747B42901B06F3F4217C5BFC3E4F07D372E07',
+            inLedger: 1085844,
+            ledger_index: 1085844,
+            meta: {
+                AffectedNodes: [Array],
+                TransactionIndex: 0,
+                TransactionResult: 'tesSUCCESS', // Success
+                delivered_amount: [Object]
+            },
+            validated: true
+        },
+        type: 'response'
+    }
+    ```
+
+    At this point, please check the [explorer](https://test.bithomp.com/explorer/) to confirm the following:
+
+    1. Bob's balance of `B.EUR` decreased to `900`, and his balance of `A.USD` increased to `100`.
+    2. Charlie's balance of `A.USD` increased to `1,000` (returned to the initial state).
+    3. Daniel's balance of `B.EUR` increased to `1,000` (returned to the initial state).
+
+</Steps>
+
+## About Trust Lines
+
+Bob is able to hold `A.USD` even though he did not explicitly set a trust line for it.
+
+This is the behavior triggered by the `OfferCreate` transaction, and you can interpret it as "placing an order for `A.USD` = trusting `A.USD`".
+
+In the next chapter, we will explain cross-currency payment patterns and more.

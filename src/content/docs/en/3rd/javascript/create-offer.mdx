@@ -1,0 +1,134 @@
+---
+title: Creating an Offer |  XRPL Development in JavaScript - Part 3
+description: This page explains "Creating an Offer" as part of a step in cross-currency payments in the XRPL Development in JavaScript Step-by-Step series.
+sidebar:
+  label: Creating an Offer
+  order: 8
+---
+
+import { Aside, Steps } from '@astrojs/starlight/components';
+
+This guide explains cross-currency payments using issuer A's `A.USD` and issuer B's `B.EUR`.
+
+To proceed with learning cross-currency payments, you first need to create an offer to provide liquidity.
+
+## Prerequisites
+At this stage, Alice holds issuer A's `A.USD` and issuer B's `B.EUR`.
+
+We proceed under the assumption that Alice wants to exchange issuer A's `A.USD` for issuer B's `B.EUR`.
+
+- Alice will create an offer to sell `A.USD` and buy `B.EUR`.
+
+## Method to Use
+
+We will use the following general method created earlier.
+
+```javascript
+// utils/OfferCreate.js
+
+// Function to create an offer
+export async function OfferCreate(client, wallet, takerGets, takerPays) {
+  try {
+    const offerCreate = {
+      TransactionType: 'OfferCreate',
+      Account: wallet.classicAddress,
+      TakerGets: takerGets,
+      TakerPays: takerPays,
+    };
+    const response = await client.submitAndWait(offerCreate, { wallet });
+    console.log(`Offer created for ${wallet.classicAddress}:`, response);
+    return response;
+  } catch (error) {
+    console.error(`Error creating offer for ${wallet.classicAddress}: ${error}`);
+    throw error;
+  }
+}
+```
+
+## Creating the Script
+
+<Steps>
+
+1. Create a new file named `createOffer.js` in your project directory.
+2. Paste the following code into `createOffer.js`.
+
+    ```javascript
+    import { Client, xrpToDrops } from 'xrpl';
+    import { wallets } from './wallets.js';
+    import { createOffer } from './utils/createOffer.js';
+
+    const client = new Client('wss://s.altnet.rippletest.net:51233'); // Using testnet
+
+    async function main() {
+        try {
+            await client.connect();
+
+            const { issuerA, issuerB, alice, bob, charlie, daniel } = wallets;
+
+            await createOffer(
+                client,
+                alice,
+                { currency: 'USD', issuer: issuerA.address, value: '100' },
+                { currency: 'EUR', issuer: issuerB.address, value: '100' }
+            );
+        } catch (error) {
+            console.error(`Error in offer creation: ${error}`);
+        } finally {
+            await client.disconnect();
+        }
+    }
+
+    main();
+    ```
+</Steps>
+
+
+## Running the Script
+
+<Steps>
+
+1. Execute the following command in the command line to run the script.
+
+    ```bash
+    node issueCurrency.js
+    ```
+
+2. If you see the following console log, the process was successful.
+    ```bash
+    Offer created for r3KQdHtUHUouGkLBFLZRxRYiugbW8cNwyJ: {
+        id: 10,
+        result: {
+            Account: 'r3KQdHtUHUouGkLBFLZRxRYiugbW8cNwyJ',
+            Fee: '12',
+            Flags: 0,
+            LastLedgerSequence: 1050080,
+            Sequence: 1046424,
+            SigningPubKey: 'ED84F179E4978F5FA3C5DDAA2305A074B954755975135D4CA3E56E2B09124A98AB',
+            TakerGets: {
+                currency: 'USD',
+                issuer: 'rfkJ7Uz6NrNV1FdbmKB5wepoim51KFpYQp',
+                value: '100'
+            },
+            TakerPays: {
+                currency: 'EUR',
+                issuer: 'rstM9rxhKo4N4WEaQgQmQSPQRgZqkhHkaU',
+                value: '100'
+            },
+            TransactionType: 'OfferCreate',
+            TxnSignature: 'D228E9F7B39DC41B8C76B4318C1CCD7D38F6A9CC49BEAD728E75D5E4DE040A1DFEAF01185061091FC608292024F72CB36BD99E17EF06273DAC0060DEF3C18100',
+            ctid: 'C01005CE00000001',
+            date: 770220351,
+            hash: 'D6689FB0EA43663597620E9EE1B68AC852A3FD0686AA95335F9D125D32AE54DC',
+            inLedger: 1050062,
+            ledger_index: 1050062,
+            meta: {
+                AffectedNodes: [Array],
+                TransactionIndex: 0,
+                TransactionResult: 'tesSUCCESS'
+            },
+            validated: true
+        },
+        type: 'response'
+    }
+    ```
+</Steps>

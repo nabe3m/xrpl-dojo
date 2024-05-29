@@ -1,0 +1,300 @@
+---
+title: Creating Generic Methods | XRPL Development in JavaScript - Part 3
+description: This page explains "generic methods" as part of the third stage in XRPL development with JavaScript.
+sidebar:
+  label: Creating Generic Methods
+  order: 4
+---
+
+In the previous section, we discussed ES6. In this guide, we will get accustomed to practical implementation by defining generic methods as modules.
+
+First, let's set up a utils directory to efficiently organize our learning process.
+
+## 1. Creating trustSet.js
+Define a generic method for setting a trust line.
+    
+```javascript
+// utils/trustSet.js
+
+// Function to set a trust line
+export async function setTrustLine(client, wallet, currency, issuer, limit) {
+  try {
+    const trustSet = {
+      TransactionType: 'TrustSet',
+      Account: wallet.classicAddress,
+      LimitAmount: {
+        currency: currency,
+        issuer: issuer,
+        value: limit,
+      },
+    };
+    const response = await client.submitAndWait(trustSet, { wallet });
+    return response;
+  } catch (error) {
+    console.error(`Error setting trust line: ${error}`);
+    throw error;
+  }
+}
+```
+
+### Usage
+
+```javascript
+import { Client, Wallet } from 'xrpl';
+import { setTrustLine } from './utils/trustSet.js';
+
+// Initialize client and wallet
+const client = new Client('wss://s.altnet.rippletest.net:51233');
+await client.connect();
+
+const wallet = Wallet.fromSeed('s████████████████████████████');
+
+const currency = 'USD';
+const issuer = 'r████████████████████████████';
+const limit = '1000';
+
+// Set the trust line
+await setTrustLine(client, wallet, currency, issuer, limit);
+
+client.disconnect();
+```
+
+## 2. Creating createOffer.js
+Define a generic method to send an OfferCreate transaction.
+    
+```javascript
+// utils/offerCreate.js
+
+// Function to create an offer
+export async function createOffer(client, wallet, takerGets, takerPays) {
+  try {
+    const offerCreate = {
+      TransactionType: 'OfferCreate',
+      Account: wallet.classicAddress,
+      TakerGets: takerGets,
+      TakerPays: takerPays,
+    };
+    const response = await client.submitAndWait(offerCreate, { wallet });
+    console.log(`Offer created for ${wallet.classicAddress}:`, response);
+    return response;
+  } catch (error) {
+    console.error(
+      `Error creating offer for ${wallet.classicAddress}: ${error}`
+    );
+    throw error;
+  }
+}
+
+```
+
+### Usage
+
+```javascript
+import { Client, Wallet } from 'xrpl';
+import { createOffer } from './utils/createOffer.js';
+
+...
+
+// Initialize client and wallet
+const client = new Client('wss://s.altnet.rippletest.net:51233');
+await client.connect();
+
+const wallet = Wallet.fromSeed('s████████████████████████████');
+
+const takerGets = {
+  currency: 'USD',
+  issuer: 'r████████████████████████████',
+  value: '100',
+};
+
+const takerPays = {
+  currency: 'XRP',
+  value: '100000000',
+};
+
+// Create the offer
+await createOffer(client, wallet, takerGets, takerPays);
+
+client.disconnect();
+```
+
+## 3. Creating payment.js
+Define a generic method to send payments.
+    
+```javascript
+// utils/payment.js
+
+// Initialize client and wallet
+export async function sendPayment(client, wallet, amount, destination, options = {}) {
+  try {
+    const payment = {
+      TransactionType: 'Payment',
+      Account: wallet.classicAddress,
+      Amount: typeof amount === 'object' ? amount : amount.toString(),
+      Destination: destination,
+    };
+
+    if (options.sendMax !== undefined && options.sendMax !== null) {
+      payment.SendMax = typeof options.sendMax === 'object' ? options.sendMax : options.sendMax.toString();
+    }
+
+    if (options.paths !== undefined && options.paths !== null) {
+      payment.Paths = options.paths;
+    }
+
+    const response = await client.submitAndWait(payment, { wallet });
+    console.log(`Payment sent from ${wallet.classicAddress} to ${destination}:`, response);
+    return response;
+  } catch (error) {
+    console.error(`Error sending payment from ${wallet.classicAddress} to ${destination}: ${error}`);
+    throw error;
+  }
+}
+```
+
+### Usage
+
+```javascript
+import { Client, Wallet } from 'xrpl';
+import { sendPayment } from './utils/payment.js';
+
+...
+
+// Initialize client and wallet
+const client = new Client('wss://s.altnet.rippletest.net:51233');
+await client.connect();
+
+const wallet = Wallet.fromSeed('s████████████████████████████');
+
+const amount = {
+  currency: 'USD',
+  issuer: 'r████████████████████████████',
+  value: '10',
+};
+
+const destination = 'r████████████████████████████';
+const sendMaxAmount = '100000000';
+
+// Send the payment
+await sendPayment(client, wallet, amount, destination, {
+  sendMax: sendMaxAmount
+})
+
+client.disconnect();
+
+```
+
+## 4. Creating setAccountFlags.js
+Define a generic method to change account settings (such as enabling rippling).
+    
+```javascript
+// utils/setAccountFlags.js
+
+// Function to set account flags
+export async function setAccountFlags(
+  client,
+  wallet,
+  setFlag
+) {
+  try {
+    const accountSet = {
+      TransactionType: 'AccountSet',
+      Account: wallet.classicAddress,
+      SetFlag: setFlag,
+    };
+    
+    const response = await client.submitAndWait(accountSet, { wallet });
+    console.log(`Account flags set for ${wallet.classicAddress}:`, response);
+    return response;
+  } catch (error) {
+    console.error(
+      `Error setting account flags for ${wallet.classicAddress}: ${error}`
+    );
+    throw error;
+  }
+}
+```
+
+### Usage
+
+```javascript
+import { Client, Wallet, AccountSetAsfFlags } from 'xrpl';
+import { setAccountFlags } from './utils/setAccountFlags.js';
+
+...
+
+// Initialize client and wallet
+const client = new Client('wss://s.altnet.rippletest.net:51233');
+await client.connect();
+
+const wallet = Wallet.fromSeed('s████████████████████████████');
+
+const setFlag = AccountSetAsfFlags.asfDefaultRipple; // asfDefaultRipple 8
+
+// Set account flags
+await setAccountFlags(client, wallet, setFlag);
+
+client.disconnect();
+```
+
+## 5. Creating issueCurrency.js
+Define a generic method to issue tokens.
+    
+```javascript
+// utils/payment.js
+
+// Function to issue tokens
+export async function issueCurrency(
+  client,
+  issuerWallet,
+  recipientAddress,
+  currency,
+  amount
+) {
+  try {
+    const payment = {
+      TransactionType: 'Payment',
+      Account: issuerWallet.classicAddress,
+      Amount: {
+        currency: currency,
+        issuer: issuerWallet.classicAddress,
+        value: amount,
+      },
+      Destination: recipientAddress,
+    };
+    const response = await client.submitAndWait(payment, {
+      wallet: issuerWallet,
+    });
+    console.log(`Currency issued to ${recipientAddress}:`, response);
+    return response;
+  } catch (error) {
+    console.error(`Error issuing currency to ${recipientAddress}: ${error}`);
+    throw error;
+  }
+}
+
+```
+
+### Usage
+
+```javascript
+import { Client, Wallet } from 'xrpl';
+import { issueCurrency } from './utils/issueCurrency.js';
+
+...
+
+// Initialize client and wallet
+const client = new Client('wss://s.altnet.rippletest.net:51233');
+await client.connect();
+
+const issuerWallet = Wallet.fromSeed('s████████████████████████████');
+const recipientAddress = 'r████████████████████████████';
+
+const currency = 'USD';
+const amount = '1000';
+
+// Issue the token
+await issueCurrency(client, issuerWallet, recipientAddress, currency, amount);
+
+client.disconnect();
+```

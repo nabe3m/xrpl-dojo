@@ -1,0 +1,305 @@
+---
+title: Issuing Currency (Tokens) | XRPL Development in JavaScript - Part 3
+description: This page explains how to set up trust lines for cross-currency payments as part of the third stage in XRPL development with JavaScript.
+sidebar:
+  label: Issuing Currency (Tokens)
+  order: 7
+---
+
+import { Aside, Steps } from '@astrojs/starlight/components';
+
+This guide explains cross-currency payments by dealing with `A.USD` issued by Issuer A and `B.EUR` issued by Issuer B.
+
+To proceed with learning about cross-currency payments, we will send currency (tokens) from the issuers to the accounts that we have created and set up trust lines for.
+
+## Prerequisites
+
+- Issue A.USD and B.EUR to Alice.
+- Issue B.EUR to Bob.
+- Issue A.USD to Charlie.
+- Issue B.EUR to Daniel.
+
+## Methods to be Used
+
+In this chapter, we will use the following methods created in the previous chapters.
+
+```javascript
+// utils/issueCurrency.js
+
+// Function to issue currency
+export async function issueCurrency(
+  client,
+  issuerWallet,
+  recipientAddress,
+  currency,
+  amount
+) {
+  try {
+    const payment = {
+      TransactionType: 'Payment',
+      Account: issuerWallet.classicAddress,
+      Amount: {
+        currency: currency,
+        issuer: issuerWallet.classicAddress,
+        value: amount,
+      },
+      Destination: recipientAddress,
+    };
+    const response = await client.submitAndWait(payment, {
+      wallet: issuerWallet,
+    });
+    console.log(`Currency issued to ${recipientAddress}:`, response);
+    return response;
+  } catch (error) {
+    console.error(`Error issuing currency to ${recipientAddress}: ${error}`);
+    throw error;
+  }
+}
+
+```
+
+## Creating the Script
+
+<Steps>
+
+1. Create a new file named `issueCurrency.js` in your project directory.
+2. Paste the following code into `issueCurrency.js`.
+
+    ```javascript
+    import { Client } from 'xrpl';
+    import { wallets } from './wallets.js';
+    import { issueCurrency } from './utils/issueCurrency.js';
+
+    const client = new Client('wss://s.altnet.rippletest.net:51233'); // Using the testnet
+
+    async function main() {
+      try {
+        await client.connect();
+
+        const { issuerA, issuerB, alice, bob, charlie, daniel } = wallets;
+
+        const limitAmount = '1000'; // 送金量
+
+        // Alice
+        await issueCurrency(client, issuerA, alice.address, 'USD', limitAmount);
+        await issueCurrency(client, issuerB, alice.address, 'EUR', limitAmount);
+
+        // Bob
+        await issueCurrency(client, issuerB, bob.address, 'EUR', limitAmount);
+
+        // Charlie
+        await issueCurrency(client, issuerA, charlie.address, 'USD', limitAmount);
+
+        // Daniel
+        await issueCurrency(client, issuerB, daniel.address, 'EUR', limitAmount);
+      } catch (error) {
+        console.error(`Error in setup: ${error}`);
+      } finally {
+        await client.disconnect();
+      }
+    }
+
+    main();
+    ```
+</Steps>
+
+
+## Running the Script
+
+<Steps>
+
+1. Run the following command in the command line to execute the script.
+
+    ```bash
+    node issueCurrency.js
+    ```
+
+2. If you see console logs like the following, the operation was successful.
+    ```bash
+    Currency issued to r3KQdHtUHUouGkLBFLZRxRYiugbW8cNwyJ: {
+      id: 12,
+      result: {
+        Account: 'rfkJ7Uz6NrNV1FdbmKB5wepoim51KFpYQp',
+        Amount: {
+          currency: 'USD',
+          issuer: 'rfkJ7Uz6NrNV1FdbmKB5wepoim51KFpYQp',
+          value: '1000'
+        },
+        DeliverMax: {
+          currency: 'USD',
+          issuer: 'rfkJ7Uz6NrNV1FdbmKB5wepoim51KFpYQp',
+          value: '1000'
+        },
+        Destination: 'r3KQdHtUHUouGkLBFLZRxRYiugbW8cNwyJ',
+        Fee: '12',
+        Flags: 0,
+        LastLedgerSequence: 1049258,
+        Sequence: 1046419,
+        SigningPubKey: 'EDEBAB4C81CF854860D393191A001822A9B58242302710A2D3EFE5BE8620A1F8A9',
+        TransactionType: 'Payment',
+        TxnSignature: '74CC6F81AA8B0F080A57FBB12587FDD6CD8654317950D380DEA47EC090581CF369BBFB05BFA567BC9323E7933E951BC510CCCFDED518A90599CE5BB166423105',
+        ctid: 'C010029800000001',
+        date: 770217711,
+        hash: '32C9AF7855BC4CB4978A4B9F96F8D05A7ED5E9AEC90A8523AAA4D37921FC4102',
+        inLedger: 1049240,
+        ledger_index: 1049240,
+        meta: {
+          AffectedNodes: [Array],
+          TransactionIndex: 0,
+          TransactionResult: 'tesSUCCESS',
+          delivered_amount: [Object]
+        },
+        validated: true
+      },
+      type: 'response'
+    }
+    Currency issued to r3KQdHtUHUouGkLBFLZRxRYiugbW8cNwyJ: {
+      id: 22,
+      result: {
+        Account: 'rstM9rxhKo4N4WEaQgQmQSPQRgZqkhHkaU',
+        Amount: {
+          currency: 'EUR',
+          issuer: 'rstM9rxhKo4N4WEaQgQmQSPQRgZqkhHkaU',
+          value: '1000'
+        },
+        DeliverMax: {
+          currency: 'EUR',
+          issuer: 'rstM9rxhKo4N4WEaQgQmQSPQRgZqkhHkaU',
+          value: '1000'
+        },
+        Destination: 'r3KQdHtUHUouGkLBFLZRxRYiugbW8cNwyJ',
+        Fee: '12',
+        Flags: 0,
+        LastLedgerSequence: 1049260,
+        Sequence: 1046421,
+        SigningPubKey: 'EDBE91E21E32E1848B805B22597D87667FBC6B045B9ABADC67807DB88CD1767A97',
+        TransactionType: 'Payment',
+        TxnSignature: '64E95A4A04CBD2726B16729564A9E7EF716ADDEF7817087C8C92B52B4F3550D13C3DF9E83C59FCC0C29EB5A8CB69AC6EE54CF49F261829F78ED9153EA6D25B0F',
+        ctid: 'C010029A00000001',
+        date: 770217720,
+        hash: '263B9E60D187DEC3473DC2154100F6490CBE7ABE734244A36429401F2BB27E0E',
+        inLedger: 1049242,
+        ledger_index: 1049242,
+        meta: {
+          AffectedNodes: [Array],
+          TransactionIndex: 0,
+          TransactionResult: 'tesSUCCESS',
+          delivered_amount: [Object]
+        },
+        validated: true
+      },
+      type: 'response'
+    }
+    Currency issued to rn9GFEPHW5tX2CaKVc7mA4L2GyXh88JiTy: {
+      id: 36,
+      result: {
+        Account: 'rstM9rxhKo4N4WEaQgQmQSPQRgZqkhHkaU',
+        Amount: {
+          currency: 'EUR',
+          issuer: 'rstM9rxhKo4N4WEaQgQmQSPQRgZqkhHkaU',
+          value: '1000'
+        },
+        DeliverMax: {
+          currency: 'EUR',
+          issuer: 'rstM9rxhKo4N4WEaQgQmQSPQRgZqkhHkaU',
+          value: '1000'
+        },
+        Destination: 'rn9GFEPHW5tX2CaKVc7mA4L2GyXh88JiTy',
+        Fee: '12',
+        Flags: 0,
+        LastLedgerSequence: 1049262,
+        Sequence: 1046422,
+        SigningPubKey: 'EDBE91E21E32E1848B805B22597D87667FBC6B045B9ABADC67807DB88CD1767A97',
+        TransactionType: 'Payment',
+        TxnSignature: '6B22A203EC9C350A91A3908D69047AEDA8BC860C5845173C0E442C0C3ADF68D3838571FF330DF165D6A50D894AA8629B94E4A2CAE7D357FB7F1E08F009BC810A',
+        ctid: 'C010029C00020001',
+        date: 770217722,
+        hash: '87F37DDB448ED9EEE2AB91997C2EE83C3DF786BF592E7BFDC498610D84AF2BAF',
+        inLedger: 1049244,
+        ledger_index: 1049244,
+        meta: {
+          AffectedNodes: [Array],
+          TransactionIndex: 2,
+          TransactionResult: 'tesSUCCESS',
+          delivered_amount: [Object]
+        },
+        validated: true
+      },
+      type: 'response'
+    }
+    Currency issued to rnP7Q6LaejYi7oaN4qJHkKhnESZYAyVQwh: {
+      id: 51,
+      result: {
+        Account: 'rfkJ7Uz6NrNV1FdbmKB5wepoim51KFpYQp',
+        Amount: {
+          currency: 'USD',
+          issuer: 'rfkJ7Uz6NrNV1FdbmKB5wepoim51KFpYQp',
+          value: '1000'
+        },
+        DeliverMax: {
+          currency: 'USD',
+          issuer: 'rfkJ7Uz6NrNV1FdbmKB5wepoim51KFpYQp',
+          value: '1000'
+        },
+        Destination: 'rnP7Q6LaejYi7oaN4qJHkKhnESZYAyVQwh',
+        Fee: '12',
+        Flags: 0,
+        LastLedgerSequence: 1049264,
+        Sequence: 1046420,
+        SigningPubKey: 'EDEBAB4C81CF854860D393191A001822A9B58242302710A2D3EFE5BE8620A1F8A9',
+        TransactionType: 'Payment',
+        TxnSignature: 'C83C3A41C1D5EEEACD20E4E3DBF6F98A6ADA4E2C3327BF04488E67576ABD2ADA7F8E3CA07DF96B34D396C9A1AE82058DECEC4B3B3633ED3E2C36A72F3A16EF02',
+        ctid: 'C010029E00000001',
+        date: 770217731,
+        hash: '4C9FDB7F3E5E27677E0218E157389F6700D2D0B90A9AAE4A526BA707526B53C6',
+        inLedger: 1049246,
+        ledger_index: 1049246,
+        meta: {
+          AffectedNodes: [Array],
+          TransactionIndex: 0,
+          TransactionResult: 'tesSUCCESS',
+          delivered_amount: [Object]
+        },
+        validated: true
+      },
+      type: 'response'
+    }
+    Currency issued to rf6R7pFgytT9JKjMVjKqeTv6MeDTrbNw3: {
+      id: 61,
+      result: {
+        Account: 'rstM9rxhKo4N4WEaQgQmQSPQRgZqkhHkaU',
+        Amount: {
+          currency: 'EUR',
+          issuer: 'rstM9rxhKo4N4WEaQgQmQSPQRgZqkhHkaU',
+          value: '1000'
+        },
+        DeliverMax: {
+          currency: 'EUR',
+          issuer: 'rstM9rxhKo4N4WEaQgQmQSPQRgZqkhHkaU',
+          value: '1000'
+        },
+        Destination: 'rf6R7pFgytT9JKjMVjKqeTv6MeDTrbNw3',
+        Fee: '12',
+        Flags: 0,
+        LastLedgerSequence: 1049266,
+        Sequence: 1046423,
+        SigningPubKey: 'EDBE91E21E32E1848B805B22597D87667FBC6B045B9ABADC67807DB88CD1767A97',
+        TransactionType: 'Payment',
+        TxnSignature: '0A217D0EC6731761596AE6DA7E131010601DE05A7B925E287AAB0DA1F653BCBEC0EB91E4746C45F9CE35D18DDE802EEC92EE18D065B311FCABB1359944BD200E',
+        ctid: 'C01002A000000001',
+        date: 770217740,
+        hash: 'D6FDDB8E55F62A55D13A358C76FAA8D399159F471A10CC0F1820A31D37233ECC',
+        inLedger: 1049248,
+        ledger_index: 1049248,
+        meta: {
+          AffectedNodes: [Array],
+          TransactionIndex: 0,
+          TransactionResult: 'tesSUCCESS',
+          delivered_amount: [Object]
+        },
+        validated: true
+      },
+      type: 'response'
+    }
+    ```
+</Steps>
