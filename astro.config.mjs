@@ -76,19 +76,19 @@ export default defineConfig({
         },
         {
           label: '初段',
-          translations: { 'en-US': 'First Dan' },
+          translations: { 'en-US': 'Level 1' },
           collapsed: true,
           autogenerate: { directory: 'beginners' },
         },
         {
           label: '二段',
-          translations: { 'en-US': 'Second Dan' },
+          translations: { 'en-US': 'Level 2' },
           collapsed: true,
           autogenerate: { directory: '2nd' },
         },
         {
           label: '三段',
-          translations: { 'en-US': 'Third Dan' },
+          translations: { 'en-US': 'Level 3' },
           autogenerate: { directory: '3rd' },
         },
         // {
