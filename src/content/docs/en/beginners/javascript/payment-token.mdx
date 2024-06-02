@@ -8,96 +8,96 @@ sidebar:
 
 import { Steps } from '@astrojs/starlight/components';
 
-XRPLでは、トラストラインを設定したアカウントとユーザー間であれば、即座にトークンを送金することができるようになります。
+With XRPL, once a trust line is set up between accounts and users, tokens can be transferred instantly.
 
-先ほどの章で、アリスはチャーリーが発行体となる`DOJ`トークンを`10,000`ほど受領する権利を得ましたので、チャーリーからアリスに`1000 DOJ`を送付してみます。
+In the previous chapter, Alice obtained the right to receive about `10,000 DOJ` tokens issued by Charlie. Now, let's send `1,000 DOJ` from Charlie to Alice.
 
-## 前提
+## Prerequisites
 
-このガイドでは、以下の登場人物が登場する設定で進行します。
+This guide proceeds with the following characters:
 
-- チャーリー（トークン発行者）
-- アリス（トークン受領者）
+- Charlie (Token Issuer)
+- Alice (Token Recipient)
 
-## スクリプトを作成
+## Create the Script
 
-以下は、チャーリーからアリスにトークンを送金するスクリプトです。
+The following is a script to send tokens from Charlie to Alice.
 
 <Steps>
 
-1. プロジェクトディレクトリに`payment_token.js`という新しいファイルを作成します。
-2. 以下のコードを`payment_token.js`に貼り付けます。
+1. Create a new file named `payment_token.js` in your project directory.
+2. Paste the following code into `payment_token.js`.
 
     ```javascript
     const xrpl = require('xrpl');
 
     async function paymentToken() {
-        // Testnetサーバーに接続します
+        // Connect to the Testnet server
         const client = new xrpl.Client('wss://s.altnet.rippletest.net:51233');
         await client.connect();
 
-        // トークン発行者のウォレットシークレットキーを設定（チャーリー）
+        // Set the wallet secret key of the token issuer (Charlie)
         const issuerWallet = xrpl.Wallet.fromSecret('charlie_wallet_secret_here');
 
-        // トークン受領者のウォレットアドレスを設定（アリス）
+        // Set the wallet address of the token recipient (Alice)
         const recipientWalletAddress = 'alice_wallet_address_here';
 
-        const currencyCode = 'DOJ'; // トークンの通貨コード
-        const amount = '1000'; // 送金するトークンの量
+        const currencyCode = 'DOJ'; // Token currency code
+        const amount = '1000'; // Amount of tokens to send
 
         try {
             const response = await client.submitAndWait(
                 {
-                    TransactionType: 'Payment', // 支払い
-                    Account: issuerWallet.address, // チャーリーのアドレス（トークン発行者）
-                    Destination: recipientWalletAddress, // アリスのアドレス
+                    TransactionType: 'Payment', // Payment
+                    Account: issuerWallet.address, // Charlie's address (token issuer)
+                    Destination: recipientWalletAddress, // Alice's address
                     Amount: {
-                        issuer: issuerWallet.address, // チャーリーのアドレス（トークン発行者）
+                        issuer: issuerWallet.address, // Charlie's address (token issuer)
                         currency: currencyCode, // DOJ
                         value: amount, // 1000
                     },
                 },
-                { wallet: issuerWallet } // チャーリー（トークン発行者）のウォレットで認証
+                { wallet: issuerWallet } // Authenticate with Charlie's (token issuer's) wallet
             );
 
-            // コンソールに結果を出力します
+            // Output the result to the console
             console.log('Transaction result:', response);
         } catch (error) {
-            // エラーハンドリング
+            // Error handling
             console.error('An error occurred:', error);
         }
 
-        // client.disconnect()メソッドを呼び出して、サーバーとの接続を切断します
+        // Call the client.disconnect() method to disconnect from the server
         client.disconnect();
     }
 
     paymentToken().catch(console.error);
     ```
 
-    1. `charlie_wallet_secret_here`には、テストネットのチャーリーのシークレットキーを入力してください。
-    2. `alice_wallet_address_here`には、テストネットのアリスのアドレスを入力してください。
+    1. Enter Charlie's testnet secret key in `charlie_wallet_secret_here`.
+    2. Enter Alice's testnet address in `alice_wallet_address_here`.
 </Steps>
 
-## スクリプトの実行
+## Run the Script
 
 <Steps>
 
-1. コマンドラインで以下のコマンドを実行して、スクリプトを実行します。
+1. Run the following command in the command line to execute the script.
 
     ```bash
     node payment_token.js
     ```
 
-2. 成功すれば、コンソールに以下が表示されます。
+2. If successful, the console will display the following.
 
     ```bash
     {
         id: 12,
         result: {
-            Account: 'rh8xETfGs1Ktizj9EXZb5QpW4aqk8bWUSU', // 差出人のアドレス（トークン発行者：チャーリー）
+            Account: 'rh8xETfGs1Ktizj9EXZb5QpW4aqk8bWUSU', // Sender's address (token issuer: Charlie)
             Amount: {
                 currency: 'DOJ',
-                issuer: 'rh8xETfGs1Ktizj9EXZb5QpW4aqk8bWUSU', // トークン発行者のアドレス（チャーリー）
+                issuer: 'rh8xETfGs1Ktizj9EXZb5QpW4aqk8bWUSU', // Issuer's address (Charlie)
                 value: '1000'
             },
             DeliverMax: {
@@ -105,8 +105,8 @@ XRPLでは、トラストラインを設定したアカウントとユーザー�
                 issuer: 'rh8xETfGs1Ktizj9EXZb5QpW4aqk8bWUSU',
                 value: '1000'
             },
-            Destination: 'rQr8KfkCQcpqvFwmRspDoaL36reZhcdaeA', // アリスのアドレス
-            Fee: '12', // 送金手数料: 12 drops
+            Destination: 'rQr8KfkCQcpqvFwmRspDoaL36reZhcdaeA', // Alice's address
+            Fee: '12', // Transaction fee: 12 drops
             Flags: 0,
             LastLedgerSequence: 475482,
             Sequence: 473776,
@@ -115,22 +115,22 @@ XRPLでは、トラストラインを設定したアカウントとユーザー�
             TxnSignature: '8BFCFDD9E88C09277376C295C494231883C15BF91AEC86CFC288CF58731526CD8BDE4B13CC4EAEE1E6E51254F0BB0A8B9E7ACC1C0ABFEB9EB5C4ECBA891A330B',
             ctid: 'C007414800000001',
             date: 768404212,
-            hash: '89283A3D48F7776E9FCE061713A787415A8E79428C318709C133A7A5F085EDC5', // ハッシュ値
+            hash: '89283A3D48F7776E9FCE061713A787415A8E79428C318709C133A7A5F085EDC5', // Hash value
             inLedger: 475464,
-            ledger_index: 475464, // レジャーインデックス番号
+            ledger_index: 475464, // Ledger index number
             meta: {
                 AffectedNodes: [Array],
                 TransactionIndex: 0,
-                TransactionResult: 'tesSUCCESS', // 成功
+                TransactionResult: 'tesSUCCESS', // Success
                 delivered_amount: [Object]
             },
-            validated: true // 検証済みのトランザクション
+            validated: true // Validated transaction
         },
         type: 'response'
     }
     ```
-    
-    ここで実際にアリスのアカウントアドレス情報用いて、[エクスプローラー](https://test.bithomp.com/explorer/)で確認してみましょう。成功していれば、`1000 DOJ`を受領できていることが確認できるかと思います。
 
-    このように、XRPLではトラストライン機能を利用することで、非常にスマートで安全にトークンを発行することが可能となっています。
+    Now, using Alice's account address information, check on the [Explorer](https://test.bithomp.com/explorer/). If successful, you will see that Alice has received `1,000 DOJ`.
+
+    In this way, XRPL allows tokens to be issued very smartly and securely using the trust line feature.
 </Steps>

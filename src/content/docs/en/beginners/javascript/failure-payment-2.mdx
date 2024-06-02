@@ -8,89 +8,89 @@ sidebar:
 
 import { Aside, Steps } from '@astrojs/starlight/components';
 
-先ほどの章では、`DOJ`トークンの発行者であるチャーリーのアカウントの`Rippling`機能を許可することに成功しました。
+In the previous chapter, we successfully enabled the Rippling feature for Charlie's account, the issuer of the `DOJ` tokens.
 
-XRPLでは、発行者以外のユーザー間でのトークンの送付は通常不可ですが、発行者のアカウントにて`Rippling`機能が許可されていれば、ユーザー間でも（アリスとボブ）トークンを送り合うことができるようになるはずです。
+In XRPL, transferring tokens between users other than the issuer is usually not allowed, but if the `Rippling` feature is enabled in the issuer's account, users (Alice and Bob) should be able to transfer tokens to each other.
 
-※アリスとボブが直接やり取りするわけではなく、チャーリーを介して残高を調整するイメージです。
+※ The image is not that Alice and Bob are directly interacting, but rather adjusting balances through Charlie.
 
-## 前提
+## Prerequisites
 
-このガイドでは、以下の登場人物が登場する設定で進行します。
+This guide proceeds with the following characters:
 
-- チャーリー（トークン発行者）
-- アリス（トークン受領者1）※1000 DOJ を保有中
-- ボブ（トークン受領者2）
+- Charlie (Token Issuer)
+- Alice (Token Recipient 1) ※ Currently holds 1000 DOJ
+- Bob (Token Recipient 2)
 
-## スクリプトを作成
+## Create the Script
 
-以下は、アリスからボブへトークンを送付するスクリプトです。
+The following is a script to send tokens from Alice to Bob.
 
 <Steps>
 
-1. プロジェクトディレクトリに作成済みの`payment_token_ab.js`を再度、使用します。
-2. 以下のようなコードになっていることを確認してください。
+1. Reuse the previously created `payment_token_ab.js` file in your project directory.
+2. Ensure the code is as follows.
 
     ```javascript
     const xrpl = require('xrpl');
 
     async function paymentTokenAB() {
-        // Testnetサーバーに接続します
+        // Connect to the Testnet server
         const client = new xrpl.Client('wss://s.altnet.rippletest.net:51233');
         await client.connect();
 
-        // アリスのウォレットを設定
+        // Set Alice's wallet
         const senderWallet = xrpl.Wallet.fromSecret('alice_wallet_secret_here');
 
-        // ボブのウォレットアドレスを設定
+        // Set Bob's wallet address
         const recipientWalletAddress = 'bob_wallet_address_here';
 
-        // トークン発行者のウォレットアドレスを設定（チャーリー）
+        // Set the wallet address of the token issuer (Charlie)
         const issuerWalletAddress = 'charlie_wallet_address_here';
 
-        const currencyCode = 'DOJ'; // トークンの通貨コード
-        const amount = '100'; // 送金するトークンの量
+        const currencyCode = 'DOJ'; // Token currency code
+        const amount = '100'; // Amount of tokens to send
 
         const response = await client.submitAndWait(
             {
-                TransactionType: 'Payment', // 支払い
-                Account: senderWallet.address, // アリスのアドレス
-                Destination: recipientWalletAddress, // ボブのアドレス
+                TransactionType: 'Payment', // Payment
+                Account: senderWallet.address, // Alice's address
+                Destination: recipientWalletAddress, // Bob's address
                 Amount: {
-                    issuer: issuerWalletAddress, // トークン発行者のアドレス（チャーリー）
+                    issuer: issuerWalletAddress, // Token issuer's address (Charlie)
                     currency: currencyCode, // DOJ
                     value: amount, // 100
                 },
             },
-            { wallet: senderWallet } // アリスのウォレットで認証
+            { wallet: senderWallet } // Authenticate with Alice's wallet
         );
 
-        // コンソールに結果を出力します
+        // Output the result to the console
         console.log('Transaction result:', response);
 
-        // client.disconnect()メソッドを呼び出して、サーバーとの接続を切断します
+        // Call the client.disconnect() method to disconnect from the server
         client.disconnect();
     }
 
     paymentTokenAB().catch(console.error);
     ```
 
-    1. `alice_wallet_secret_here`には、テストネットのアリスのシークレットキーを入力してください。
-    2. `bob_wallet_address_here`には、テストネットのボブのアドレスを入力してください。
-    3. `charlie_wallet_address_here`には、テストネットのチャーリーのアドレスを入力してください。
+    1. Enter Alice's testnet secret key in `alice_wallet_secret_here`.
+    2. Enter Bob's testnet address in `bob_wallet_address_here`.
+    3. Enter Charlie's testnet address in `charlie_wallet_address_here`.
 </Steps>
 
-## スクリプトの実行
+## Run the Script
 
 <Steps>
 
-1. コマンドラインで以下のコマンドを実行して、スクリプトを実行します。
+1. Run the following command in the command line to execute the script.
 
     ```bash
     node payment_token_ab.js
     ```
 
-2. コンソールの結果を確認します。
+2. Check the console result.
 
     ```bash
     {
@@ -123,7 +123,7 @@ XRPLでは、発行者以外のユーザー間でのトークンの送付は通�
             meta: {
                 AffectedNodes: [Array],
                 TransactionIndex: 45,
-                TransactionResult: 'tecPATH_DRY' // 失敗
+                TransactionResult: 'tecPATH_DRY' // Failure
             },
             validated: true
         },
@@ -131,7 +131,7 @@ XRPLでは、発行者以外のユーザー間でのトークンの送付は通�
     }
     ```
 
-    またも、送付に失敗してしまいました。なぜでしょうか？
+    Again, the transfer failed. Why?
 
-    こういった場合はアカウントの設定などに問題がある場合があるので一度、発行者であるチャーリーのウォレットアドレスにて、トラストラインの状態を確認してみましょう。
+    In such cases, there may be issues with the account settings, so let's check the status of the trust line using the wallet address of the issuer, Charlie.
 </Steps>

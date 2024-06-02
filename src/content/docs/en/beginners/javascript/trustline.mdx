@@ -8,108 +8,108 @@ sidebar:
 
 import { Steps } from '@astrojs/starlight/components';
 
-## トラストラインとは？
+## What is a Trust Line?
 
-XRPL（XRP Ledger）のトラストライン機能は、ユーザーが特定の通貨を受け入れる意向を示すためのものです。これは、XRP以外の資産をXRPL上で取り扱うために使用されます。例えば、あるユーザーが別の通貨や発行体のトークンを受け入れる場合、そのユーザーはその通貨に対してトラストラインを設定する必要があります。
+The trust line feature of XRPL (XRP Ledger) allows users to indicate their intention to accept specific currencies. This is used to handle assets other than XRP on XRPL. For example, if a user wants to accept a token from another issuer, they need to set a trust line for that currency.
 
-トラストライン機能によってユーザーは他のユーザーや発行体が発行した資産を自分のアカウントで保持し、取引することを許可しています。例えば、アリスがチャーリーが発行体のトークンに対してトラストラインを設定することで、トークンをアリスは受け取ることが可能となります。
+The trust line feature allows users to hold and trade assets issued by other users or issuers in their accounts. For example, Alice can receive tokens issued by Charlie by setting a trust line for Charlie's tokens.
 
-メリットとしては、受領を許可していないトークンを自身のアドレスに勝手に送金されることを防ぐことでき、ユーザー間の秩序を守ることができます。
+One benefit is that it prevents unauthorized tokens from being sent to a user's address, maintaining order among users.
 
 ![](../../../../../assets/images/img-trust-set.webp)
 
-## 前提
+## Prerequisites
 
-このガイドでは、以下の登場人物が登場する設定で進行します。
+This guide proceeds with the following characters:
 
-- チャーリー（トークン発行者）
-- アリス（トークン受領者）
+- Charlie (Token Issuer)
+- Alice (Token Recipient)
 
-## スクリプトを作成
+## Create the Script
 
-以下は、アリスからチャーリーが発行体のトークンにトラストラインをセットするスクリプトです。
+The following is a script to set a trust line for Charlie's tokens from Alice.
 
 <Steps>
 
-1. プロジェクトディレクトリに`trust_set.js`という新しいファイルを作成します。
-2. 以下のコードを`trust_set.js`に貼り付けます。
+1. Create a new file named `trust_set.js` in your project directory.
+2. Paste the following code into `trust_set.js`.
 
     ```javascript
     const xrpl = require('xrpl');
 
-    // TrustSetトランザクションを送信する関数
+    // Function to send a TrustSet transaction
     async function trustSet(recipientSecret) {
-        // Testnetサーバーに接続します
+        // Connect to the Testnet server
         const client = new xrpl.Client('wss://s.altnet.rippletest.net:51233');
         await client.connect();
 
         try {
-            // トークン発行者のウォレットアドレス（チャーリー）
+            // Wallet address of the token issuer (Charlie)
             const issuerWalletAddress = 'charlie_wallet_address_here';
 
-            // トークン受領者のウォレットを設定
+            // Set the recipient's wallet
             const recipientWallet = xrpl.Wallet.fromSecret(recipientSecret);
 
-            // トークンに関する固定の情報
-            const currencyCode = 'DOJ'; // 通貨コード
-            const amount = '10000'; // 最大受領可能なトークンの量
+            // Fixed information about the token
+            const currencyCode = 'DOJ'; // Currency code
+            const amount = '10000'; // Maximum receivable amount of tokens
 
-            // TrustSetトランザクションを送信する
+            // Send the TrustSet transaction
             const response = await client.submitAndWait(
                 {
-                    TransactionType: 'TrustSet', // トラストラインを設定
-                    Account: recipientWallet.address, // アリスのアドレス
+                    TransactionType: 'TrustSet', // Set the trust line
+                    Account: recipientWallet.address, // Alice's address
                     LimitAmount: {
-                        issuer: issuerWalletAddress, // 発行体のアドレス（チャーリー）
+                        issuer: issuerWalletAddress, // Issuer's address (Charlie)
                         currency: currencyCode, // DOJ
                         value: amount, // 10000
                     },
                 },
-                { wallet: recipientWallet } // アリスのウォレットで署名
+                { wallet: recipientWallet } // Sign with Alice's wallet
             );
 
-            // コンソールに結果を出力する
+            // Output the result to the console
             console.log('Transaction result:', response);
         } catch (error) {
-            // エラーハンドリング
+            // Error handling
             console.error('An error occurred:', error);
         }
 
-        // サーバーとの接続を切断する
+        // Disconnect from the server
         client.disconnect();
     }
 
-    // 関数を実行する
-    const recipientSecret = 'alice_wallet_secret_here'; // アリスのシークレットキーを設定
+    // Execute the function
+    const recipientSecret = 'alice_wallet_secret_here'; // Set Alice's secret key
     trustSet(recipientSecret);
     ```
 
-   1. `charlie_wallet_address_here`には、テストネットのチャーリーのアドレスを入力してください。
-   2. `alice_wallet_secret_here`には、テストネットのアリスのシークレットキーを入力してください。
+   1. Enter Charlie's testnet address in `charlie_wallet_address_here`.
+   2. Enter Alice's testnet secret key in `alice_wallet_secret_here`.
 </Steps>
 
-## スクリプトの実行
+## Run the Script
 
-1. コマンドラインで以下のコマンドを実行して、スクリプトを実行します。
+1. Run the following command in the command line to execute the script.
 
     ```bash
     node trust_set.js
     ```
 
-    成功すれば、コンソールに以下が表示されます。
+    If successful, the console will display the following.
 
     ```bash
     Transaction result: {
         id: 14,
         result: {
-            Account: 'rQr8KfkCQcpqvFwmRspDoaL36reZhcdaeA', // アリスのアドレス
+            Account: 'rQr8KfkCQcpqvFwmRspDoaL36reZhcdaeA', // Alice's address
             Fee: '12',
             Flags: 0,
             LastLedgerSequence: 474997,
             LimitAmount: {
-                currency: 'DOJ', // 通貨コード
-                issuer: 'rh8xETfGs1Ktizj9EXZb5QpW4aqk8bWUSU', // トークン発行者のアドレス（チャーリー）
-                value: '10000' // アリスがDOJトークンを受け取れる最大値
+                currency: 'DOJ', // Currency code
+                issuer: 'rh8xETfGs1Ktizj9EXZb5QpW4aqk8bWUSU', // Token issuer's address (Charlie)
+                value: '10000' // Maximum amount of DOJ tokens Alice can receive
             },
             Sequence: 474064,
             SigningPubKey: 'ED2924DBD08E093DD7FC9C35B8DCEBD74CA4C8349D68D7BF566AD6C2533B8BB865',
@@ -117,18 +117,18 @@ XRPL（XRP Ledger）のトラストライン機能は、ユーザーが特定の
             TxnSignature: '8245C9412BA9E247D962B2D9B9B6B74A90D3757FDA66422527611971004F94D803607A3CC5357BA83B0FA0B7D010B10F3D0F5188EE8D4F1D72181BFA4D052B0B',
             ctid: 'C0073F6300000001',
             date: 768402681,
-            hash: 'A20A377A4E9D8CAAA62E5AEE7CDFB9FBC690171B1D13485AC40A6313996A98C8', // ハッシュ値
+            hash: 'A20A377A4E9D8CAAA62E5AEE7CDFB9FBC690171B1D13485AC40A6313996A98C8', // Hash value
             inLedger: 474979,
-            ledger_index: 474979, // レジャーインデックス番号
+            ledger_index: 474979, // Ledger index number
             meta: {
                 AffectedNodes: [Array],
                 TransactionIndex: 0,
-                TransactionResult: 'tesSUCCESS' // 成功
+                TransactionResult: 'tesSUCCESS' // Success
             },
-            validated: true // 検証済みのトランザクション
+            validated: true // Validated transaction
         },
         type: 'response'
     }
     ```
 
-    これでチャーリーが発行体のトークン、`DOJ`をアリスが受け取ることが可能になりました。
+    Now Alice can receive the DOJ tokens issued by Charlie.
