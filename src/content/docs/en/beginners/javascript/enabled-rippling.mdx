@@ -1,0 +1,118 @@
+---
+title: Allowing Token Transfers Between Users (Rippling) | XRPL Development with JavaScript Level 1
+description: Introducing the methods and mechanisms for allowing token transfers between users using trust lines as part of the Level 1 curriculum for developing XRPL with JavaScript.
+sidebar:
+  label: Allowing User Transfers
+  order: 7
+---
+
+import { Aside, Steps } from '@astrojs/starlight/components';
+
+先ほどの章で、`Rippling`の概要を説明しました。
+
+実際に、チャーリーのアカウントに対して`Rippling`を許可してみましょう。
+
+## 前提
+
+このガイドは、以下の登場人物が登場する設定で進行します。
+
+- チャーリー（トークン発行者）
+
+## スクリプトを作成
+
+<Steps>
+
+1. プロジェクトディレクトリに`enabled_rippling.js`という新しいファイルを作成します。
+2. 以下のコードを`enabled_rippling.js`に貼り付けます。
+
+    ```javascript
+    const xrpl = require('xrpl');
+
+    // リップリングを有効にする関数
+    async function enableRippling(walletSecret) {
+        // テストネットワークへの接続
+        const client = new xrpl.Client('wss://s.altnet.rippletest.net:51233');
+        await client.connect();
+
+        try {
+            // ウォレット情報をシークレットキーから作成する
+            const issuerWallet = xrpl.Wallet.fromSecret(walletSecret);
+
+            // リップリングを有効にするトランザクションを送信
+            const response = await client.submitAndWait(
+                {
+                    TransactionType: 'AccountSet', // AccountSetはアカウント情報を修正するトランザクションです
+                    Account: issuerWallet.address, // チャーリーのアドレス
+                    SetFlag: xrpl.AccountSetAsfFlags.asfDefaultRipple, // Ripplingを許可する
+                    // ClearFlag: xrpl.AccountSetAsfFlags.asfDefaultRipple, // クリアする場合
+                },
+                {
+                    wallet: issuerWallet, // チャーリーのウォレットで認証
+                }
+            );
+
+            // コンソールに結果を出力します
+            console.log('Transaction result:', response);
+        } catch (error) {
+            console.error('An error occurred:', error);
+        }
+
+        // client.disconnect()メソッドを呼び出して、サーバーとの接続を切断します
+        client.disconnect();
+    }
+
+    // 関数を実行してリップリングを有効化
+    // シークレットキーを引数として渡す
+    const walletSecret = 'charlie_wallet_secret_here'; // 発行者のアドレスを設定（チャーリー）
+    enableRippling(walletSecret);
+    ```
+
+    `charlie_wallet_secret_here`には、テストネットのチャーリーのシークレットキーを入力してください。
+</Steps>
+
+## スクリプトの実行
+
+<Steps>
+
+1. コマンドラインで以下のコマンドを実行して、スクリプトを実行します。
+
+    ```bash
+    node enabled_rippling.js
+    ```
+
+2. 成功すれば、コンソールに以下が表示されます。
+    ```bash
+    Transaction result: {
+        id: 12,
+        result: {
+            Account: 'rh8xETfGs1Ktizj9EXZb5QpW4aqk8bWUSU', // 発行者のアドレス（チャーリー）
+            Fee: '12', // トランザクションの手数料: 12 drops
+            Flags: 0,
+            LastLedgerSequence: 475860,
+            Sequence: 473777,
+            SetFlag: 8, // Ripplingのフラグ番号
+            SigningPubKey: 'EDF36017DE68C9A5E24ECB129161EACE7AE303E3FF151FF71E1160B0EEA6B8074F',
+            TransactionType: 'AccountSet', // トランザクションの種別
+            TxnSignature: '50CE4E1BDE3F1D5EE10162AA5CE500261D535DB08167AB49281C8C5A41C7EEBB1FE7E5597E30CF575FE8C030B4D10AAD78CD3FC21F7BDD27285FCC138539DE04',
+            ctid: 'C00742C200010001',
+            date: 768405413,
+            hash: '953EE8B004E554C8A82D700FF017937C06ED3B42FE4F6D227803A16E83247F31', // ハッシュ値
+            inLedger: 475842,
+            ledger_index: 475842, // レジャーインデックス番号
+            meta: {
+                AffectedNodes: [Array],
+                TransactionIndex: 1,
+                TransactionResult: 'tesSUCCESS' // 成功
+            },
+            validated: true // 検証済みのトランザクション
+        },
+        type: 'response'
+    }
+    ```
+
+    これで、チャーリーのアカウントのRippling機能が許可されました。
+
+    次の章で、[こちらのガイド](/beginners/javascript/failure-payment/)にて失敗した、アリスからボブへの`DOJ`トークンの送付を再度試してみましょう！
+</Steps>
+
+
