@@ -1,5 +1,5 @@
 ---
-title: Setting Trust Lines | XRPL Development in JavaScript - Part 3
+title: Setting Trust Lines | XRPL Development in JavaScript - Level 3
 description: This page explains how to set trust lines for cross-currency payments as part of the third stage in XRPL development with JavaScript.
 sidebar:
   label: Setting Trust Lines
@@ -10,7 +10,7 @@ import { Aside, Steps } from '@astrojs/starlight/components';
 
 Setting a trust line allows an account to receive a specific currency.
 
-For a basic explanation of trust lines, please refer to [this page](/beginners/javascript/trustline/).
+For basic knowledge of trust lines, please refer to [this page](/beginners/javascript/trustline/).
 
 This guide will explain the process using A.USD issued by Issuer A and B.EUR issued by Issuer B.
 
@@ -109,7 +109,7 @@ export async function setTrustLine(client, wallet, currency, issuer, limit) {
     node setTrustLine.js
     ```
 
-2. If you see console logs like the following, the operation was successful.
+2. If you see console logs like the following, the execution should have been successful.
     ```bash
     Account flags set for rfkJ7Uz6NrNV1FdbmKB5wepoim51KFpYQp: {
       id: 12,
