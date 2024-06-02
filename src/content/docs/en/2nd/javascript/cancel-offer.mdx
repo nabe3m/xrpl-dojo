@@ -1,0 +1,117 @@
+---
+title: How to Cancel an Offer | XRPL Development with JavaScript Level 2
+description: A page introducing "How to Cancel an Offer" for the XRPL Development with JavaScript Level 2 curriculum.
+sidebar:
+  label: How to Cancel an Offer
+  order: 4
+---
+
+import { Aside, Steps } from '@astrojs/starlight/components';
+
+## Introduction
+
+The XRPL (XRP Ledger) provides native Decentralized Exchange (DEX) functionality, allowing users to create offers (orders) to buy and sell assets. In this article, we will explain how to cancel an offer created on XRPL.
+
+## Preparation
+
+Please have the wallet address used in the previous section when creating offers.
+
+## Create the Script
+
+<Steps>
+
+1. Create a new file named `cancel_offer.js` in your project directory.
+2. Paste the following code into `cancel_offer.js`.
+
+    ```javascript
+    const xrpl = require('xrpl');
+
+    async function cancelOffer() {
+        const client = new xrpl.Client('wss://s.altnet.rippletest.net:51233');
+        await client.connect();
+
+        const wallet = xrpl.Wallet.fromSeed('your_wallet_seed'); // Wallet seed
+
+        const offerSequence = 123456; // Specify the sequence number of the offer you want to cancel
+
+        const cancelTx = {
+            TransactionType: 'OfferCancel', // Cancel the offer
+            Account: wallet.address, // Wallet address
+            OfferSequence: offerSequence // 123456
+        };
+
+        const prepared = await client.autofill(cancelTx); // Automatically complete the transaction
+        const signed = wallet.sign(prepared); // Sign the transaction
+        const result = await client.submitAndWait(signed.tx_blob); // Send
+
+        console.log('Offer cancellation result:', result);
+        await client.disconnect();
+    }
+
+    cancelOffer();
+    ```
+
+</Steps>
+
+## Run the Script
+
+<Steps>
+
+1. Run the following command in the command line to execute the script.
+
+    ```bash
+    node cancel_offer.js
+    ```
+    
+2. If successful, the console will display the following.
+
+    ```bash
+    Offer cancellation result: {
+        id: 14,
+        result: {
+            Account: 'rP1WwXDZvQHvNiyenBpLvSdx3E8WuUpQc5',
+            Fee: '12',
+            Flags: 0,
+            LastLedgerSequence: 673065,
+            OfferSequence: 477853,
+            Sequence: 477854,
+            SigningPubKey: 'EDA0094F9DE33C9BBD4681C9D88407C92A93D7532775B08731572DA419C804BA27',
+            TransactionType: 'OfferCancel',
+            TxnSignature: '4F231AB487C2BFB30777841F60177E164F028BC700DC8A76845EE90FDF639B491E7C3E23EA0CF7EB7DE9D4C9139059779E0FB3BD2EF59727B6B470CA05EE7506',
+            ctid: 'C00A451700100001',
+            date: 769027381,
+            hash: '99DF4150E96163C8A22888C9C3B7E979D9FB4E1A9497199018C0648B119908F3',
+            inLedger: 673047,
+            ledger_index: 673047,
+            meta: {
+            AffectedNodes: [Array],
+            TransactionIndex: 16,
+            TransactionResult: 'tesSUCCESS' // Success
+            },
+            validated: true
+        },
+        type: 'response'
+    }
+    ```
+
+3. Check the offers again.
+
+    ```bash
+    node check_offers.js
+    ```
+    
+4. If successful, the console will display the following, confirming that the offer has been successfully canceled.
+
+    ```bash
+    Offer list: []
+    ```
+
+</Steps>
+
+## Summary
+
+In this guide, we explained the concept of XRPL's DEX, how to create offers, and how to cancel offers on the DEX.
+
+While DEXs generally have a reputation for being very complex, XRPL makes it relatively easy to interact with them using the JavaScript library.
+
+Having covered trust lines, token issuance and transfer, and offer creation, checking, and cancellation, the next step will be an explanation of "cross-currency payments."

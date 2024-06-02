@@ -1,0 +1,93 @@
+---
+title: How to Check Offers | XRPL Development with JavaScript Level 2
+description: A page introducing "How to Check Offers" for the XRPL Development with JavaScript Level 2 curriculum.
+sidebar:
+  label: How to Check Offers
+  order: 3
+---
+
+import { Aside, Steps } from '@astrojs/starlight/components';
+
+## Introduction
+
+The XRPL (XRP Ledger) provides native Decentralized Exchange (DEX) functionality, allowing users to create offers (orders) to buy and sell assets. In this article, we will explain how to check offers created on XRPL.
+
+## Preparation
+
+Please have the wallet address used in the previous section when creating offers.
+
+## Create the Script
+
+<Steps>
+
+1. Create a new file named `check_offers.js` in your project directory.
+2. Paste the following code into `check_offers.js`.
+
+    ```javascript
+    const xrpl = require('xrpl');
+
+    async function checkOffers() {
+        const client = new xrpl.Client('wss://s.altnet.rippletest.net:51233');
+        await client.connect();
+
+        const walletAddress = 'your_wallet_address'; // Enter your wallet address
+
+        const response = await client.request({
+            command: 'account_offers',
+            account: walletAddress,
+            ledger_index: 'validated'
+        });
+
+        console.log('Offer list:', response.result.offers);
+
+        await client.disconnect();
+    }
+
+    checkOffers();
+    ```
+
+</Steps>
+
+## Run the Script
+
+<Steps>
+
+1. Run the following command in the command line to execute the script.
+
+    ```bash
+    node check_offers.js
+    ```
+    
+2. If successful, the console will display the following.
+
+    ```bash
+    Offer list: [
+        {
+            flags: 0,
+            quality: '0.00001',
+            seq: 477853,
+            taker_gets: '20000000',
+            taker_pays: {
+                currency: 'USD',
+                issuer: 'rhub8VRN55s94qWKDv6jmDy1pUykJzF3wq',
+                value: '200'
+            }
+        }
+    ]
+    ```
+    
+    The offer check was successful.
+
+    In practice, the person who accepts this offer will receive `20 XRP` and pay `200 USD`.
+
+    Note the `seq` number output in this section, as it will be used in the next section.
+
+    ### Explanation of Each Field
+
+    1. flags: Indicates flags related to the offer. Used to set specific conditions or options. Here it is 0, so no special flags are set.
+    2. quality: Indicates the quality of the offer. This is the ratio of "amount of currency to pay" to "amount of currency to receive." Here, a value of 0.00001 is set, which means a ratio of 1 USD = 100,000 drops.
+    3. seq: The transaction sequence number. This number is unique for each account and indicates the order of transactions.
+    4. taker_gets: Indicates the amount of assets the taker will receive. Here, 20000000 drops (20 XRP) is set. XRP is specified in drops (1 XRP = 1,000,000 drops).
+    5. taker_pays: Indicates the assets the taker will pay.
+
+</Steps>
