@@ -71,19 +71,19 @@ export default defineConfig({
         {
           label: '入門',
           translations: { 'en-US': 'Introduction' },
-          collapsed: true,
+          // collapsed: true,
           autogenerate: { directory: 'basics' },
         },
         {
           label: '初段',
           translations: { 'en-US': 'Level 1' },
-          collapsed: true,
+          // collapsed: true,
           autogenerate: { directory: 'beginners' },
         },
         {
           label: '二段',
           translations: { 'en-US': 'Level 2' },
-          collapsed: true,
+          // collapsed: true,
           autogenerate: { directory: '2nd' },
         },
         {
