@@ -1,0 +1,119 @@
+---
+title: Allowing Token Transfers Between Users (Rippling) | XRPL Development with JavaScript Level 1
+description: Introducing the methods and mechanisms for allowing token transfers between users using trust lines as part of the Level 1 curriculum for developing XRPL with JavaScript.
+sidebar:
+  label: Allowing User Transfers
+  order: 7
+---
+
+import { Aside, Steps } from '@astrojs/starlight/components';
+
+In the previous chapter, we explained the overview of `Rippling`.
+
+Now, let's enable `Rippling` for Charlie's account.
+
+## Prerequisites
+
+This guide proceeds with the following character:
+
+- Charlie (Token Issuer)
+
+## Create the Script
+
+<Steps>
+
+1. Create a new file named enabled_rippling.js in your project directory.
+2. Paste the following code into enabled_rippling.js.
+
+    ```javascript
+    const xrpl = require('xrpl');
+
+    // Function to enable Rippling
+    async function enableRippling(walletSecret) {
+        // Connect to the Testnet
+        const client = new xrpl.Client('wss://s.altnet.rippletest.net:51233');
+        await client.connect();
+
+        try {
+            // Create wallet information from the secret key
+            const issuerWallet = xrpl.Wallet.fromSecret(walletSecret);
+
+            // Send a transaction to enable Rippling
+            const response = await client.submitAndWait(
+                {
+                    TransactionType: 'AccountSet', // AccountSet is a transaction to modify account settings
+                    Account: issuerWallet.address, // Charlie's address
+                    SetFlag: xrpl.AccountSetAsfFlags.asfDefaultRipple, // Enable Rippling
+                    // ClearFlag: xrpl.AccountSetAsfFlags.asfDefaultRipple, // To clear the flag
+                },
+                {
+                    wallet: issuerWallet, // Authenticate with Charlie's wallet
+                }
+            );
+
+            // Output the result to the console
+            console.log('Transaction result:', response);
+        } catch (error) {
+            console.error('An error occurred:', error);
+        }
+
+        // Call the client.disconnect() method to disconnect from the server
+        client.disconnect();
+    }
+
+    // Execute the function to enable Rippling
+    // Pass the secret key as an argument
+    const walletSecret = 'charlie_wallet_secret_here'; // Set the issuer's address (Charlie)
+    enableRippling(walletSecret);
+    ```
+
+    Enter Charlie's testnet secret key in `charlie_wallet_secret_here`.
+</Steps>
+
+## Run the Script
+
+<Steps>
+
+1. Run the following command in the command line to execute the script.
+
+    ```bash
+    node enabled_rippling.js
+    ```
+
+2. If successful, the console will display the following.
+
+    ```bash
+    Transaction result: {
+        id: 12,
+        result: {
+            Account: 'rh8xETfGs1Ktizj9EXZb5QpW4aqk8bWUSU', // Issuer's address (Charlie)
+            Fee: '12', // Transaction fee: 12 drops
+            Flags: 0,
+            LastLedgerSequence: 475860,
+            Sequence: 473777,
+            SetFlag: 8, // Rippling flag number
+            SigningPubKey: 'EDF36017DE68C9A5E24ECB129161EACE7AE303E3FF151FF71E1160B0EEA6B8074F',
+            TransactionType: 'AccountSet', // Transaction type
+            TxnSignature: '50CE4E1BDE3F1D5EE10162AA5CE500261D535DB08167AB49281C8C5A41C7EEBB1FE7E5597E30CF575FE8C030B4D10AAD78CD3FC21F7BDD27285FCC138539DE04',
+            ctid: 'C00742C200010001',
+            date: 768405413,
+            hash: '953EE8B004E554C8A82D700FF017937C06ED3B42FE4F6D227803A16E83247F31', // Hash value
+            inLedger: 475842,
+            ledger_index: 475842, // Ledger index number
+            meta: {
+                AffectedNodes: [Array],
+                TransactionIndex: 1,
+                TransactionResult: 'tesSUCCESS' // Success
+            },
+            validated: true // Validated transaction
+        },
+        type: 'response'
+    }
+    ```
+
+    Now, the Rippling feature for Charlie's account has been enabled.
+
+    In the next chapter, let's retry the transfer of DOJ tokens from Alice to Bob, which failed [in this guide](/beginners/javascript/failure-payment/).
+</Steps>
+
+

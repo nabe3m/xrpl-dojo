@@ -1,0 +1,134 @@
+---
+title: How to Set Up a Trust Line | XRPL Development with JavaScript Level 1
+description:  Introducing the trust line functionality as part of the Level 1 curriculum for developing XRPL with JavaScript.
+sidebar:
+  label: Overview and Setup of Trust Lines
+  order: 2
+---
+
+import { Steps } from '@astrojs/starlight/components';
+
+## What is a Trust Line?
+
+The trust line feature of XRPL (XRP Ledger) allows users to indicate their intention to accept specific currencies. This is used to handle assets other than XRP on XRPL. For example, if a user wants to accept a token from another issuer, they need to set a trust line for that currency.
+
+The trust line feature allows users to hold and trade assets issued by other users or issuers in their accounts. For example, Alice can receive tokens issued by Charlie by setting a trust line for Charlie's tokens.
+
+One benefit is that it prevents unauthorized tokens from being sent to a user's address, maintaining order among users.
+
+![](../../../../../assets/images/img-trust-set.webp)
+
+## Prerequisites
+
+This guide proceeds with the following characters:
+
+- Charlie (Token Issuer)
+- Alice (Token Recipient)
+
+## Create the Script
+
+The following is a script to set a trust line for Charlie's tokens from Alice.
+
+<Steps>
+
+1. Create a new file named `trust_set.js` in your project directory.
+2. Paste the following code into `trust_set.js`.
+
+    ```javascript
+    const xrpl = require('xrpl');
+
+    // Function to send a TrustSet transaction
+    async function trustSet(recipientSecret) {
+        // Connect to the Testnet server
+        const client = new xrpl.Client('wss://s.altnet.rippletest.net:51233');
+        await client.connect();
+
+        try {
+            // Wallet address of the token issuer (Charlie)
+            const issuerWalletAddress = 'charlie_wallet_address_here';
+
+            // Set the recipient's wallet
+            const recipientWallet = xrpl.Wallet.fromSecret(recipientSecret);
+
+            // Fixed information about the token
+            const currencyCode = 'DOJ'; // Currency code
+            const amount = '10000'; // Maximum receivable amount of tokens
+
+            // Send the TrustSet transaction
+            const response = await client.submitAndWait(
+                {
+                    TransactionType: 'TrustSet', // Set the trust line
+                    Account: recipientWallet.address, // Alice's address
+                    LimitAmount: {
+                        issuer: issuerWalletAddress, // Issuer's address (Charlie)
+                        currency: currencyCode, // DOJ
+                        value: amount, // 10000
+                    },
+                },
+                { wallet: recipientWallet } // Sign with Alice's wallet
+            );
+
+            // Output the result to the console
+            console.log('Transaction result:', response);
+        } catch (error) {
+            // Error handling
+            console.error('An error occurred:', error);
+        }
+
+        // Disconnect from the server
+        client.disconnect();
+    }
+
+    // Execute the function
+    const recipientSecret = 'alice_wallet_secret_here'; // Set Alice's secret key
+    trustSet(recipientSecret);
+    ```
+
+   1. Enter Charlie's testnet address in `charlie_wallet_address_here`.
+   2. Enter Alice's testnet secret key in `alice_wallet_secret_here`.
+</Steps>
+
+## Run the Script
+
+1. Run the following command in the command line to execute the script.
+
+    ```bash
+    node trust_set.js
+    ```
+
+    If successful, the console will display the following.
+
+    ```bash
+    Transaction result: {
+        id: 14,
+        result: {
+            Account: 'rQr8KfkCQcpqvFwmRspDoaL36reZhcdaeA', // Alice's address
+            Fee: '12',
+            Flags: 0,
+            LastLedgerSequence: 474997,
+            LimitAmount: {
+                currency: 'DOJ', // Currency code
+                issuer: 'rh8xETfGs1Ktizj9EXZb5QpW4aqk8bWUSU', // Token issuer's address (Charlie)
+                value: '10000' // Maximum amount of DOJ tokens Alice can receive
+            },
+            Sequence: 474064,
+            SigningPubKey: 'ED2924DBD08E093DD7FC9C35B8DCEBD74CA4C8349D68D7BF566AD6C2533B8BB865',
+            TransactionType: 'TrustSet',
+            TxnSignature: '8245C9412BA9E247D962B2D9B9B6B74A90D3757FDA66422527611971004F94D803607A3CC5357BA83B0FA0B7D010B10F3D0F5188EE8D4F1D72181BFA4D052B0B',
+            ctid: 'C0073F6300000001',
+            date: 768402681,
+            hash: 'A20A377A4E9D8CAAA62E5AEE7CDFB9FBC690171B1D13485AC40A6313996A98C8', // Hash value
+            inLedger: 474979,
+            ledger_index: 474979, // Ledger index number
+            meta: {
+                AffectedNodes: [Array],
+                TransactionIndex: 0,
+                TransactionResult: 'tesSUCCESS' // Success
+            },
+            validated: true // Validated transaction
+        },
+        type: 'response'
+    }
+    ```
+
+    Now Alice can receive the DOJ tokens issued by Charlie.

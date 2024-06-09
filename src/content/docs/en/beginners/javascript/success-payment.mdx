@@ -1,0 +1,147 @@
+---
+title: Token Transfer Between Users 3 | XRPL Development with JavaScript Level 1
+description: Introducing the final results of sending tokens issued through trust lines between users as part of the Level 1 curriculum for developing XRPL with JavaScript.
+sidebar:
+  label: User Token Transfer 3
+  order: 11
+---
+
+import { Aside, Steps } from '@astrojs/starlight/components';
+
+Finally, let's try sending `DOJ` tokens from Alice to Bob once again.
+
+## Prerequisites
+
+This guide proceeds with the following characters:
+
+- Charlie (Token Issuer)
+- Alice (Token Recipient 1) ※Currently holds 1000 DOJ
+- Bob (Token Recipient 2)
+
+## Create the Script
+
+The following is a script to send tokens from Alice to Bob.
+
+<Steps>
+
+1. Reuse the previously created payment_token_ab.js file in your project directory.
+2. Ensure the code is as follows.
+
+    ```javascript
+    const xrpl = require('xrpl');
+
+    async function paymentTokenAB() {
+        // Connect to the Testnet server
+        const client = new xrpl.Client('wss://s.altnet.rippletest.net:51233');
+        await client.connect();
+
+        // Set Alice's wallet
+        const senderWallet = xrpl.Wallet.fromSecret('alice_wallet_secret_here');
+
+        // Set Bob's wallet address
+        const recipientWalletAddress = 'bob_wallet_address_here';
+
+        // Set the wallet address of the token issuer (Charlie)
+        const issuerWalletAddress = 'charlie_wallet_address_here';
+
+        const currencyCode = 'DOJ'; // Token currency code
+        const amount = '100'; // Amount of tokens to send
+
+        const response = await client.submitAndWait(
+            {
+                TransactionType: 'Payment', // Payment
+                Account: senderWallet.address, // Alice's address
+                Destination: recipientWalletAddress, // Bob's address
+                Amount: {
+                    issuer: issuerWalletAddress, // Issuer's address (Charlie)
+                    currency: currencyCode, // DOJ
+                    value: amount, // 100
+                },
+            },
+            { wallet: senderWallet } // Authenticate with Alice's wallet
+        );
+
+        // Output the result to the console
+        console.log('Transaction result:', response);
+
+        // Call the client.disconnect() method to disconnect from the server
+        client.disconnect();
+    }
+
+    paymentTokenAB().catch(console.error);
+    ```
+
+    1. Enter Alice's testnet secret key in `alice_wallet_secret_here`.
+    2. Enter Bob's testnet address in `bob_wallet_address_here`.
+    3. Enter Charlie's testnet address in `charlie_wallet_address_here`.
+</Steps>
+
+## Run the Script
+
+<Steps>
+
+1. Run the following command in the command line to execute the script.
+
+    ```bash
+    node payment_token_ab.js
+    ```
+
+2. Check the console result.
+
+    ```bash
+    {
+        id: 16,
+        result: {
+            Account: 'rQr8KfkCQcpqvFwmRspDoaL36reZhcdaeA', // Sender's address (Alice)
+            Amount: {
+                currency: 'DOJ', // Currency code
+                issuer: 'rh8xETfGs1Ktizj9EXZb5QpW4aqk8bWUSU', // Issuer's address (Charlie)
+                value: '100' // Amount of tokens sent
+            },
+            DeliverMax: {
+                currency: 'DOJ',
+                issuer: 'rh8xETfGs1Ktizj9EXZb5QpW4aqk8bWUSU',
+                value: '100'
+            },
+            Destination: 'rDNVaJJSp9iQmHC8YAAwHytnLP9aXEPhDw', // Recipient's address (Bob)
+            Fee: '12',
+            Flags: 0,
+            LastLedgerSequence: 479728,
+            Sequence: 474079,
+            SigningPubKey: 'ED2924DBD08E093DD7FC9C35B8DCEBD74CA4C8349D68D7BF566AD6C2533B8BB865',
+            TransactionType: 'Payment',
+            TxnSignature: '6C7CB37EDC28F67E5E93D844946D3460830C8BBA5994AD882A7B30F487CE7C2FBFAECC3A286A638A6FD0BE00292E794BD3B7F4D3288087424BE0400E9062F80B',
+            ctid: 'C00751DF00000001',
+            date: 768417680,
+            hash: '3A30D565CFF91EF55CB29E3FB1FBC61DAFDDB6FEE7707EC6C4AE835FD57413D9', // Hash value
+            inLedger: 479711,
+            ledger_index: 479711, // Ledger index number
+            meta: {
+                AffectedNodes: [Array],
+                TransactionIndex: 0,
+                TransactionResult: 'tesSUCCESS', // Success
+                delivered_amount: [Object]
+            },
+            validated: true
+        },
+        type: 'response'
+    }
+    ```
+
+    Finally, the DOJ token transfer from Alice to Bob was successful.
+
+    Use the hash value and Alice's address displayed in the actual console to check on the testnet version of the [Explorer](https://test.bithomp.com/explorer/).
+
+</Steps>
+
+## Conclusion
+
+In the "Level 1" curriculum, we introduced scripts, concepts, and specifications related to the trust line feature.
+
+You may now understand what we meant by "understanding the Ripple protocol" as stated at the beginning of this guide.
+
+For actual development, you need to understand fields and flags displayed in the console to some extent, so we deliberately introduced them in a complex manner for your future learning.
+
+One of the major attractions of XRPL is that it provides a protocol feature based on trust for handling tokens, in addition to exchanging the native token `XRP`.
+
+Details about IOUs and Rippling are only covered briefly in this guide. For more information, please refer to the [official documentation](https://xrpl.org/ja/docs/) or [articles by experts](https://zenn.dev/tequ/articles/xrpl-rippling).

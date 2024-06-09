@@ -1,0 +1,130 @@
+---
+title: Checking Account Information | XRPL Development with JavaScript Level 1
+description: An introduction to checking account information as part of the Level 1 curriculum for developing XRPL with JavaScript.
+sidebar:
+  label: Checking Account Information
+  order: 3
+---
+
+import { Aside, Steps } from '@astrojs/starlight/components';
+
+In the previous chapter, Alice set a trust line for the token issued by Charlie.
+
+In this chapter, we aim to confirm if the trust line has been set correctly, and at the same time, learn about the `public methods` of `rippled`!
+
+To retrieve account information, use the `account methods`, which are `public methods` of `rippled`.
+
+## Prerequisites
+
+This guide proceeds with the following characters:
+
+- Charlie (Token Issuer)
+- Alice (Token Recipient)
+
+## Create the Script
+
+To check the list of currencies an account can send or receive, use the [account_currencies](https://xrpl.org/docs/references/http-websocket-apis/public-api-methods/account-methods/account_currencies/#account_currencies) command.
+
+<Steps>
+
+1. Create a new file named `check_account_currencies.js` in your project directory.
+2. Paste the following code into `check_account_currencies.js`.
+
+    This example creates a reusable method. The `checkAccountCurrencies()` method retrieves information based on the `accountAddress` passed as an argument.
+
+     <Aside>Note: The `try catch` exception handling method is incorporated within the method. It has been used in previous chapters, but beginners should also learn this method.</Aside>
+
+    ```javascript
+    const xrpl = require('xrpl');
+
+    async function checkAccountCurrencies(accountAddress) {
+        // Connect to the Testnet server
+        const client = new xrpl.Client('wss://s.altnet.rippletest.net:51233');
+
+        // Call the client.connect() method to connect to the server
+        // Use await to wait until the connection is complete
+        await client.connect();
+
+        try {
+            // Retrieve the token list using the account_currencies command
+            const response = await client.request({
+                command: 'account_currencies',
+                account: accountAddress,
+                ledger_index: 'validated' // Specify 'validated' to retrieve from a validated ledger
+            });
+
+            // Output the result to the console
+            console.log('Account Lines:', response);
+        } catch (error) {
+            console.error('Error retrieving account lines:', error);
+        }
+
+        // Call the client.disconnect() method to disconnect from the server
+        await client.disconnect();
+    }
+
+    const charlieAddress = 'charlie_wallet_address_here'; // Charlie's address
+    checkAccountCurrencies(charlieAddress); // Pass the account address as an argument to the function
+
+    const aliceAddress = 'alice_wallet_address_here'; // Alice's address
+    checkAccountCurrencies(aliceAddress);
+    ```
+
+    1. Enter Charlie's testnet address in `charlie_wallet_address_here`.
+    2. Enter Alice's testnet address in `alice_wallet_address_here`.
+</Steps>
+
+## Run the Script
+
+<Steps>
+
+1. Run the following command in the command line to execute the script.
+
+    ```bash
+    node check_account_currencies.js
+    ```
+
+2. If successful, the console will display the following.
+
+    ```bash
+    Account Lines: { // Charlie
+        id: 1,
+        result: {
+            ledger_hash: 'D05315702B8617B192FB1666BF05F588A457C30D0F493C4FA802BAABDE34209E',
+            ledger_index: 441812, // Ledger index number (source of this data)
+            receive_currencies: [], // Array of tokens that can be received
+            send_currencies: [ 'DOJ' ], // Array of tokens that can be sent
+            validated: true // Whether the data is from the latest validated ledger
+        },
+        type: 'response'
+    }
+    Account Lines: { // Alice
+        id: 1,
+        result: {
+            ledger_hash: 'D05315702B8617B192FB1666BF05F588A457C30D0F493C4FA802BAABDE34209E',
+            ledger_index: 441812,
+            receive_currencies: [ 'DOJ' ], // Array of tokens that Alice can receive
+            send_currencies: [],
+            validated: true
+        },
+        type: 'response'
+    }
+    ```
+
+    From Charlie's account information, which is the issuer of the DOJ token, `DOJ` is included in send_currencies, and from Alice's account information, `DOJ` is included in the receive_currencies array, confirming that Alice can receive the `DOJ` token.
+
+    This shows that XRPL maintains account information (state) for each wallet and transactions are strictly verified based on this information.
+</Steps>
+
+## What are ledger_index and ledger_hash?
+
+The ledger_hash displayed in the console log is a unique hash value for the ledger. In this sample, data was retrieved from the 441812th validated ledger.
+
+Let's check the [ledger](https://testnet.xrpl.org/ledgers/441812) validated at the 441812th position on the testnet.
+
+![Details of XRPL's testnet ledger index number 441812.](../../../../../assets/images/beginners/img-livenet-ledger-441812.webp)
+
+The ledger hash value for this ledger (`441812`) is `D05315702B8617B192FB1666BF05F588A457C30D0F493C4FA802BAABDE34209E`, which matches the console log above.
+Understanding the overall picture of XRPL is important, and visually confirming and understanding each meaning in this way is crucial.
+
+Additionally, [XRPL Explorer](https://livenet.xrpl.org/) offers a [testnet version](https://testnet.xrpl.org/) as well, which is one of the necessary tools for development, so be sure to bookmark it.
