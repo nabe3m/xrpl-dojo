@@ -1,18 +1,18 @@
 ---
-title: Token Transfer Between Users 2 | XRPL Development with JavaScript Level 1
-description: Introducing the second method of sending tokens issued through trust lines between users as part of the Level 1 curriculum for developing XRPL with JavaScript.
+title: Token Transfer Between Users 2 | XRPL Development in JavaScript Level 1
+description: Introducing the second method of sending tokens issued through trust lines between users as part of the Level 1 curriculum for developing XRPL in JavaScript.
 sidebar:
   label: User Token Transfer 2
-  order: 9
+  order: 8
 ---
 
 import { Aside, Steps } from '@astrojs/starlight/components';
 
 In the previous chapter, we successfully enabled the Rippling feature for Charlie's account, the issuer of the `DOJ` tokens.
 
-In XRPL, transferring tokens between users other than the issuer is usually not allowed, but if the `Rippling` feature is enabled in the issuer's account, users (Alice and Bob) should be able to transfer tokens to each other.
+In XRPL, transferring tokens between users other than the issuer is usually not permitted, but if the `Rippling` feature is enabled in the issuer's account, users (Alice and Bob) should be able to transfer tokens to each other.
 
-※ The image is not that Alice and Bob are directly interacting, but rather adjusting balances through Charlie.
+※ It is not that Alice and Bob are directly interacting with each other, but rather adjusting balances through Charlie.
 
 ## Prerequisites
 
@@ -90,7 +90,7 @@ The following is a script to send tokens from Alice to Bob.
     node payment_token_ab.js
     ```
 
-2. Check the console result.
+2. Check result in the console .
 
     ```bash
     {

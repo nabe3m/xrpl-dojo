@@ -1,6 +1,6 @@
 ---
-title: Checking Account Information | XRPL Development with JavaScript Level 1
-description: An introduction to checking account information as part of the Level 1 curriculum for developing XRPL with JavaScript.
+title: Checking Account Information | XRPL Development in JavaScript Level 1
+description: An introduction to checking account information as part of the Level 1 curriculum for developing XRPL in JavaScript.
 sidebar:
   label: Checking Account Information
   order: 3
@@ -30,9 +30,9 @@ To check the list of currencies an account can send or receive, use the [account
 1. Create a new file named `check_account_currencies.js` in your project directory.
 2. Paste the following code into `check_account_currencies.js`.
 
-    This example creates a reusable method. The `checkAccountCurrencies()` method retrieves information based on the `accountAddress` passed as an argument.
+    This example creates a reusable method. The `checkAccountCurrencies()` method retrieves information based on the `accountAddress` passed in as an argument.
 
-     <Aside>Note: The `try catch` exception handling method is incorporated within the method. It has been used in previous chapters, but beginners should also learn this method.</Aside>
+     <Aside>Note: The `try catch` exception handling method is utilized within this method. It has been used in previous chapters, but beginners should learn how to use this method.</Aside>
 
     ```javascript
     const xrpl = require('xrpl');
@@ -64,7 +64,7 @@ To check the list of currencies an account can send or receive, use the [account
     }
 
     const charlieAddress = 'charlie_wallet_address_here'; // Charlie's address
-    checkAccountCurrencies(charlieAddress); // Pass the account address as an argument to the function
+    checkAccountCurrencies(charlieAddress); // Pass in the account address as an argument to the function
 
     const aliceAddress = 'alice_wallet_address_here'; // Alice's address
     checkAccountCurrencies(aliceAddress);
@@ -125,6 +125,6 @@ Let's check the [ledger](https://testnet.xrpl.org/ledgers/441812) validated at t
 ![Details of XRPL's testnet ledger index number 441812.](../../../../../assets/images/beginners/img-livenet-ledger-441812.webp)
 
 The ledger hash value for this ledger (`441812`) is `D05315702B8617B192FB1666BF05F588A457C30D0F493C4FA802BAABDE34209E`, which matches the console log above.
-Understanding the overall picture of XRPL is important, and visually confirming and understanding each meaning in this way is crucial.
+In order to understand the overall big picture of XRPL, it is very important to confirm using your eyes and understand each of these meanings along the way.
 
-Additionally, [XRPL Explorer](https://livenet.xrpl.org/) offers a [testnet version](https://testnet.xrpl.org/) as well, which is one of the necessary tools for development, so be sure to bookmark it.
+Additionally, [XRPL Explorer](https://livenet.xrpl.org/) offers a [testnet version](https://testnet.xrpl.org/) as well, which is one of the necessary tools for development, so make sure you bookmark it.

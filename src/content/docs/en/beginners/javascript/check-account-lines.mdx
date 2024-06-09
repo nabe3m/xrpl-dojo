@@ -1,16 +1,16 @@
 ---
-title: Checking Trust Line Information Linked to an Issuer | XRPL Development with JavaScript Level 1
-description: An introduction to checking account information as part of the Level 1 curriculum for developing XRPL with JavaScript.
+title: Checking Trust Line Information Linked to an Issuer | XRPL Development in JavaScript Level 1
+description: An introduction to checking account information as part of the Level 1 curriculum for developing XRPL in JavaScript.
 sidebar:
   label: Checking Trust Line Information
-  order: 10
+  order: 9
 ---
 
 import { Aside, Steps } from '@astrojs/starlight/components';
 
 In the previous chapter, even though `Rippling` was enabled, the token transfer from Alice to Bob failed.
 
-To identify the cause, let's check the trust line information linked to Charlie.
+To identify why this happened, let's check the trust line information linked to Charlie.
 
 To retrieve trust line account information, use the account_lines command, a public method of rippled.
 
@@ -104,7 +104,7 @@ To check the list of trust lines, use the [account_lines](https://xrpl.org/docs/
     ]
     ```
 
-    From the perspective of Charlie, the issuer, the trust lines linked to the accounts are shown with `no_ripple: true`.
+    From the Charlie's perspective, the issuer, the trust lines linked to the accounts are shown as `no_ripple: true`.
 
     Additionally, the `-1000` indicates that from Charlie's perspective, there is a debt of 1000 DOJ tokens to Alice. This concept is similar to a government bond held by citizens.
 </Steps>
@@ -120,7 +120,7 @@ For more details, please refer to the [official documentation](https://xrpl.org/
 </Aside>
 
 
-The cause was that the trust line was set before enabling the `Rippling flag` on Charlie's account, the issuer of the DOJ token.
+This was caused because the trust line was set before enabling the `Rippling flag` on Charlie's account, the issuer of the DOJ token.
 
 To generally allow token transfers between users, you need to enable the issuer's account `Rippling` first, and then have users set up their trust lines.
 

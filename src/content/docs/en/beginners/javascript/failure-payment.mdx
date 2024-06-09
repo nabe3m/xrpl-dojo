@@ -1,5 +1,5 @@
 ---
-title: Sending Tokens Between Users | XRPL Development with JavaScript Level 1
+title: Sending Tokens Between Users | XRPL Development in JavaScript Level 1
 description: Introducing important points about sending tokens between users issued through trust lines as part of the Level 1 curriculum for developing XRPL with JavaScript.
 sidebar:
   label: Sending Tokens Between Users
@@ -8,7 +8,7 @@ sidebar:
 
 import { Aside, Steps } from '@astrojs/starlight/components';
 
-In the previous chapters, Alice and Bob obtained the right (trust line) to receive `DOJ` tokens issued by Charlie.
+In the previous chapters, both Alice and Bob now have the right (trust line) to receive `DOJ` tokens issued by Charlie.
 
 Alice has already received `1,000 DOJ` tokens from Charlie, so let's try sending `100 DOJ` from Alice to Bob.
 
@@ -88,7 +88,7 @@ The following is a script to send `DOJ` tokens from Alice to Bob.
     node payment_token_ab.js
     ```
 
-2. Check the console result.
+2. Check the result shown in the console.
 
     ```bash
     {
@@ -134,8 +134,8 @@ The following is a script to send `DOJ` tokens from Alice to Bob.
     The `TransactionResult` of `tecPATH_DRY` is a status (tec code) indicating a payment failure. Let's learn about status (tec codes) here.
 
     <Aside title='What is tecPATH_DRY?'>
-        It is one of the status (tec codes) indicating a payment transaction failure. This error occurs when there is insufficient asset or liquidity in the "payment path" specified in the transaction.
-        Simply put, it means that there are not enough resources required for the transaction. If this error occurs, you may resolve it by trying another payment path or adjusting conditions such as the transaction amount or counterparty.
+        It is one of the status (tec codes) indicating a payment transaction failure. This error occurs when the asset or liquidity specified in the transaction is insufficient in the "payment path" .
+        In short, this means that there are not enough resources required for the transaction. If this error occurs, you may resolve it by trying another payment path or adjusting conditions such as the transaction amount or counterparty.
         For more details about payment paths, refer to the [official documentation](https://xrpl.org/ja/docs/concepts/tokens/fungible-tokens/paths/).
     </Aside>
 
@@ -157,9 +157,9 @@ An IOU represents a claim against the issuer, who promises to provide assets equ
 
 ### How Token Transfers Work
 
-In XRPL, tokens are generally only transferable through the issuer. This is because tokens issued on XRPL are considered liabilities.
+In XRPL, tokens are generally only transferable through the issuer. This is because tokens issued on XRPL are considered as trusted assets.
 
-Thinking of a real-world example, just as it would be odd for someone to freely send points issued by a specific store to others, XRPL also generally prevents third parties from directly transferring tokens. Allowing transactions only through the issuer maintains the trust and management of the tokens (liabilities).
+Thinking of a real-world example, just as it would be strange if someone can send points issued by a specific store to others without any limitation, XRPL also generally prevents third parties from directly transferring tokens. By allowing transactions only through the issuer, the tokens become trustful and managable.
 
 ### How to Transfer Tokens?
 

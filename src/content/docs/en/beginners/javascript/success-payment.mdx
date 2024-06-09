@@ -1,6 +1,6 @@
 ---
-title: Token Transfer Between Users 3 | XRPL Development with JavaScript Level 1
-description: Introducing the final results of sending tokens issued through trust lines between users as part of the Level 1 curriculum for developing XRPL with JavaScript.
+title: Token Transfer Between Users 3 | XRPL Development in JavaScript Level 1
+description: Introducing the final results of sending tokens issued through trust lines between users as part of the Level 1 curriculum for developing XRPL in JavaScript.
 sidebar:
   label: User Token Transfer 3
   order: 11
@@ -45,7 +45,7 @@ The following is a script to send tokens from Alice to Bob.
         const issuerWalletAddress = 'charlie_wallet_address_here';
 
         const currencyCode = 'DOJ'; // Token currency code
-        const amount = '100'; // Amount of tokens to send
+        const amount = '100'; // Amount of tokens to be sent
 
         const response = await client.submitAndWait(
             {
@@ -86,7 +86,7 @@ The following is a script to send tokens from Alice to Bob.
     node payment_token_ab.js
     ```
 
-2. Check the console result.
+2. Check result in the console .
 
     ```bash
     {
@@ -130,18 +130,18 @@ The following is a script to send tokens from Alice to Bob.
 
     Finally, the DOJ token transfer from Alice to Bob was successful.
 
-    Use the hash value and Alice's address displayed in the actual console to check on the testnet version of the [Explorer](https://test.bithomp.com/explorer/).
+    Use the hash value and Alice's address displayed in the actual console to check the testnet version of the [Explorer](https://test.bithomp.com/explorer/).
 
 </Steps>
 
 ## Conclusion
 
-In the "Level 1" curriculum, we introduced scripts, concepts, and specifications related to the trust line feature.
+In the "Level 1" curriculum, we introduced scripts, concepts, and specifications related to the trust line functionality.
 
 You may now understand what we meant by "understanding the Ripple protocol" as stated at the beginning of this guide.
 
 For actual development, you need to understand fields and flags displayed in the console to some extent, so we deliberately introduced them in a complex manner for your future learning.
 
-One of the major attractions of XRPL is that it provides a protocol feature based on trust for handling tokens, in addition to exchanging the native token `XRP`.
+One of the major benefits of XRPL and the reason why it is attractive is that it provides a protocol feature based on trust for handling tokens, in addition to exchanging the native token `XRP`.
 
 Details about IOUs and Rippling are only covered briefly in this guide. For more information, please refer to the [official documentation](https://xrpl.org/ja/docs/) or [articles by experts](https://zenn.dev/tequ/articles/xrpl-rippling).
