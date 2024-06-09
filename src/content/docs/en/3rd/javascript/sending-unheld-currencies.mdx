@@ -14,9 +14,9 @@ We will continue to handle the issuer A's A.USD.
 
 ## Prerequisites
 
-Daniel does not hold `A.USD` but needs to pay `Alice` in `A.USD`.
+`Daniel` does not hold `A.USD` but needs to pay `Alice` in `A.USD`.
 
-He holds `XRP` and aims to send an amount equivalent to `5 XRP` in `A.USD` to `Alice`.
+The amount of `A.USD` to send to `Alice` should be about `5 XRP`.
 
 In cross-currency payments between different currencies, liquidity is always required, and the following process is necessary.
 
@@ -90,7 +90,7 @@ The route is quite simple; here, it will be `Daniel → Bob → Alice`. Of cours
 
 <Steps>
 
-1. Modify the previously created crossCurrencyPayment.js as follows (comment out unnecessary parts).
+1. Modify the previously created `crossCurrencyPayment.js` as follows (comment out unnecessary parts).
 
     ```javascript
     import xrpl from 'xrpl';
@@ -123,7 +123,7 @@ The route is quite simple; here, it will be `Daniel → Bob → Alice`. Of cours
 2. Run the script.
 
     ```bash
-    node createOffers.js
+    node crossCurrencyPayment.js
     ```
     
     If the following log is displayed, the transaction is successful.

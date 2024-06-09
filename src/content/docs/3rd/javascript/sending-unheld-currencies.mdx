@@ -16,7 +16,7 @@ import { Aside, Steps } from '@astrojs/starlight/components';
 
 ダニエルは`A.USD`を保有していませんが、アリスに`A.USD`の支払いを行う必要があります。
 
-`XRP`は保有しているので、アリスに送付する`A.USD`の額は`5 XRP`ほどで良さそうなので、`5 XRP`分を目処に`A.USD`を送付できればと考えました。
+アリスに送付する`A.USD`の額は`5 XRP`ほどで良さそうです。
 
 異なる通貨間のクロスカレンシー送金では、必ず流動性が必要ですので、以下のプロセスが必要です。
 
@@ -125,7 +125,7 @@ import { Aside, Steps } from '@astrojs/starlight/components';
 2. スクリプトを実行します。
 
     ```bash
-    node createOffers.js
+    node crossCurrencyPayment.js
     ```
     
     以下のようなログが表示されれば、成功です。
