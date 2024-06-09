@@ -1,0 +1,187 @@
+---
+title: Sending Unowned Currencies (Tokens) | JavaScript XRPL Development Level 3
+description: This page explains the process of "Sending Unowned Currencies (Tokens)" as part of Level 3 JavaScript XRPL development.
+sidebar:
+  label: Sending Unowned Currencies (Tokens)
+  order: 12
+---
+
+import { Aside, Steps } from '@astrojs/starlight/components';
+
+Next, we will explain the process of sending unowned currencies (tokens) as an additional topic to cross-currency payments.
+
+We will continue to handle the issuer A's A.USD.
+
+## Prerequisites
+
+Daniel does not hold `A.USD` but needs to pay Alice in A.USD.
+
+He holds XRP and aims to send an amount equivalent to 5 XRP in A.USD to Alice.
+
+In cross-currency payments between different currencies, liquidity is always required, and the following process is necessary.
+
+1. Bob creates an offer to exchange A.USD for XRP, providing liquidity.
+2. Daniel, who does not hold A.USD, will pay Alice using up to 5 XRP (assuming there is liquidity; otherwise, the payment will fail).
+3. The process is successful if Alice receives 100 A.USD.
+
+## 1. Create Offer from Bob (Provide Liquidity)
+
+For cross-currency payments to occur, liquidity must exist.
+
+Bob creates an offer to exchange his A.USD for XRP, providing liquidity.
+
+<Steps>
+
+1. Modify the previously created createOffers.js as follows (comment out unnecessary parts).
+
+    ```javascript
+    import { Client, xrpToDrops } from 'xrpl';
+    import { wallets } from './wallets.js';
+    import { createOffer } from './utils/createOffer.js';
+
+    const client = new Client('wss://s.altnet.rippletest.net:51233'); // Use the testnet
+
+    async function main() {
+        try {
+            await client.connect();
+
+            const { issuerA, issuerB, alice, bob, charlie, daniel } = wallets;
+
+            // Bob
+            await createOffer(
+                client,
+                bob,
+                { currency: 'USD', issuer: issuerA.address, value: '100' }, // TokenGets: offering 100 A.USD
+                xrpToDrops(5); // TakerPays: Bob wants to receive 5 XRP
+            );
+        } catch (error) {
+            console.error(`Error in offer creation: ${error}`);
+        } finally {
+            await client.disconnect();
+        }
+    }
+
+    main();
+    ```
+
+2. Run the script.
+
+    ```bash
+    node createOffers.js
+    ```
+
+    This completes the creation of Bob's offer to sell his `A.USD` and buy `XRP`.
+</Steps>
+
+## 2. Daniel Sends `A.USD` to Alice
+
+Daniel will send `A.USD` to Alice.
+
+Daniel wants to pay using `XRP`, but he does not want to spend more than necessary, so he wants to set a maximum limit for the payment.
+
+In such cases, you can specify the amount using `sendMax`. In XRPL, the `sendMax` field allows you to set a maximum amount for the payment. (A minimum can also be specified.)
+
+<Aside title="About sendMax">
+The `sendMax` field is used when creating a payment transaction on the XRP Ledger (XRPL) to set the maximum amount the sender can use for the payment.
+It is particularly used when the sender wants to send different assets. Additionally, if the asset is `XRP`, the amount can be specified as a string, but if it's a token, it needs to be specified as an object.
+</Aside>
+
+The route is quite simple; here, it will be `Daniel → Bob → Alice`. Of course, if the token is highly liquid, the optimal route will be selected automatically.
+
+<Steps>
+
+1. Modify the previously created crossCurrencyPayment.js as follows (comment out unnecessary parts).
+
+    ```javascript
+    import xrpl from 'xrpl';
+    import { wallets } from './wallets.js';
+    import { sendPayment } from './utils/payment.js';
+
+    const client = new xrpl.Client('wss://s.altnet.rippletest.net:51233');
+
+    const main = async () => {
+        await client.connect();
+
+        const { issuerA, issuerB, alice, bob, charlie, daniel } = wallets;
+
+        await sendPayment(
+            client,
+            daniel,
+            { currency: 'USD', issuer: issuerA.address, value: '100' }, // Currency Alice wants to receive: A.USD
+            alice.address,
+            {
+                sendMax: xrpToDrops(5), // Set the maximum payment limit to 5 XRP
+            }
+        );
+
+        await client.disconnect();
+    };
+
+    main().catch(console.error);
+    ```
+
+2. Run the script.
+
+    ```bash
+    node createOffers.js
+    ```
+    
+    If the following log is displayed, the transaction is successful.
+
+    Please check it using the [Explorer for Testnet](https://test.bithomp.com/explorer/).
+
+    ```bash
+    Payment sent from rf6R7pFgytT9JKjMVjKqeTv6MeDTrbNw3 to r3KQdHtUHUouGkLBFLZRxRYiugbW8cNwyJ: {
+        id: 14,
+        result: {
+            Account: 'rf6R7pFgytT9JKjMVjKqeTv6MeDTrbNw3', // Daniel
+            Amount: {
+                currency: 'USD',
+                issuer: 'rfkJ7Uz6NrNV1FdbmKB5wepoim51KFpYQp', // Issuer A
+                value: '100'
+            },
+            DeliverMax: {
+                currency: 'USD',
+                issuer: 'rfkJ7Uz6NrNV1FdbmKB5wepoim51KFpYQp',
+                value: '100'
+            },
+            Destination: 'r3KQdHtUHUouGkLBFLZRxRYiugbW8cNwyJ', // Alice
+            Fee: '12',
+            Flags: 0,
+            LastLedgerSequence: 1371126,
+            SendMax: '5000000', // 5 XRP
+            Sequence: 1046459,
+            SigningPubKey: 'EDEC83B1B5D761F21A9625E88C70EE68CE5D5496B513DC6295CEDA7905065DD51A',
+            TransactionType: 'Payment',
+            TxnSignature: '939CD057964FCEEA621E358B65D780B50EBC50C6D80D83F5E93B463B9365F553261E27B7420E18CFBD9524A7E57C8EF20694C39B6B677F1EDBAD0ECA88F8260F',
+            ctid: 'C014EBE500000001',
+            date: 771245761,
+            hash: '49C8ABCA168351936BE825B27F97836E68D4C49818F9664BD08447B6E4044A2A',
+            inLedger: 1371109,
+            ledger_index: 1371109,
+            meta: {
+                AffectedNodes: [Array],
+                TransactionIndex: 0,
+                TransactionResult: 'tesSUCCESS', // Success
+                delivered_amount: [Object]
+            },
+            validated: true
+        },
+        type: 'response'
+    }
+    ```
+
+    This completes the transfer of A.USD to Alice.
+
+    To recap, Daniel sent A.USD to Alice, staying within the limit of 5 XRP. 
+    Bob had placed an order to exchange 100 A.USD for 5 XRP, so ultimately, Bob received 5 XRP and Alice received the A.USD that Bob held.
+
+</Steps>
+
+## Summary
+
+As demonstrated in this guide, even unowned currencies can be delivered to the recipient on XRPL as long as there is liquidity.
+
+This functionality, natively provided by XRPL, is one of its strengths and a reason why XRPL is known as a blockchain for payments. While XRPL continues to evolve with powerful features like AMM, understanding these basics is crucial for tackling more advanced topics. We hope this knowledge will be useful in your future development and projects.
+
+Understanding this simple payment mechanism can be challenging from documentation alone, so we hope this guide helps clarify the process and proves beneficial in your future endeavors.

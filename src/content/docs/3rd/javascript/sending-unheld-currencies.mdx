@@ -1,0 +1,191 @@
+---
+title: 未保有の通貨（トークン）を送金する | JavaScriptでのXRPL開発 三段編
+description: JavaScriptでのXRPL開発 三段編として、「未保有の通貨（トークン）を送金する」プロセスついて解説しているページです。
+sidebar:
+  label: 未保有の通貨（トークン）を送金する
+  order: 12
+---
+
+import { Aside, Steps } from '@astrojs/starlight/components';
+
+次は、クロスカレンシー送金の補足事項として、未保有の通貨（トークン）の送金について解説します。
+
+引き続き、発行者Aの`A.USD`を取り扱う形で進行します。
+
+## 前提
+
+ダニエルは`A.USD`を保有していませんが、アリスに`A.USD`の支払いを行う必要があります。
+
+`XRP`は保有しているので、アリスに送付する`A.USD`の額は`5 XRP`ほどで良さそうなので、`5 XRP`分を目処に`A.USD`を送付できればと考えました。
+
+異なる通貨間のクロスカレンシー送金では、必ず流動性が必要ですので、以下のプロセスが必要です。
+
+1. ボブから、`A.USD`を`XRP`と交換したいというオファーを出し、流動性を提供します。
+2. ダニエルは`A.USD`を保有していませんが、アリスに`A.USD`を支払うために、自身の`5 XRP`を上限に支払いを行います。（流動性があることを前提にしています。なければ送金は失敗します。）
+3. この章では、アリスに`100 A.USD`送付されれば成功です。
+
+## 1. ボブからオファーを作成（流動性の提供）
+
+クロスカレンシー送金が発生する条件として、流動性が存在している必要があります。
+
+ボブから、自身の`A.USD`を`XRP`と交換したいというオファーを出し、流動性を提供します。
+
+<Steps>
+
+1. この章で作成済みの`createOffers.js`を以下に修正します。（不要な部分はコメントアウトしてください。）
+
+    ```javascript
+    import { Client, xrpToDrops } from 'xrpl';
+    import { wallets } from './wallets.js';
+    import { createOffer } from './utils/createOffer.js';
+
+    const client = new Client('wss://s.altnet.rippletest.net:51233'); // テストネットを使用
+
+    async function main() {
+        try {
+            await client.connect();
+
+            const { issuerA, issuerB, alice, bob, charlie, daniel } = wallets;
+
+            // Bob
+            await createOffer(
+                client,
+                bob,
+                { currency: 'USD', issuer: issuerA.address, value: '100' }, // TokenGets: 100 A.USD を提供する 
+                xrpToDrops(5); // TakerPays: ボブは5 XRP を受け取りたい 
+            );
+        } catch (error) {
+            console.error(`Error in offer creation: ${error}`);
+        } finally {
+            await client.disconnect();
+        }
+    }
+
+    main();
+    ```
+
+2. スクリプトを実行します。
+
+    ```bash
+    node createOffers.js
+    ```
+
+    これで、ボブから自身の`A.USD`を売り、`XRP`を買うオファーの作成が完了しました。
+</Steps>
+
+## 2. ダニエルからアリスへ`A.USD`を送付する
+
+ダニエルからアリスに`A.USD`を送付します。
+
+ダニエルは`XRP`で支払いたいのですが、必要以上に`XRP`を支払う結果になると困るため、上限を決めて送金したいと考えています。
+
+そういった場合は、`sendMax`で量を指定します。XRPLでは、`sendMax`フィールドが存在しており、上限額を指定することが可能になっています。（最小も可）
+
+これまでの章でも使用してきましたが、改めて`sendMax`について解説します。
+
+<Aside title="sendMaxについて">
+`sendMax` フィールドは、XRP Ledger（XRPL）で送金トランザクションを作成する際に、送信者が送金するために使用できる最大量を設定するために使います。
+特に、送信者が異なる資産を使って送金する際などに使用します。また、このフィールドは、`XRP`の場合は量のみの指定（stringで指定）でOKですが、トークンの場合はオブジェクトで指定する必要があります。
+</Aside>
+
+経路としては至ってシンプルで、ここでは`ダニエル → ボブ → アリス`というイメージになります。もちろん、流動性が高いトークンの場合は自動的に最適な経路が選択されます。
+
+<Steps>
+
+1. この章で作成済みの`crossCurrencyPayment.js`を以下に修正します。（不要な部分はコメントアウトしてください。）
+
+    ```javascript
+    import xrpl from 'xrpl';
+    import { wallets } from './wallets.js';
+    import { sendPayment } from './utils/payment.js';
+
+    const client = new xrpl.Client('wss://s.altnet.rippletest.net:51233');
+
+    const main = async () => {
+        await client.connect();
+
+        const { issuerA, issuerB, alice, bob, charlie, daniel } = wallets;
+
+        await sendPayment(
+            client,
+            daniel,
+            { currency: 'USD', issuer: issuerA.address, value: '100' }, // アリスが受け取りたい通貨：A.USD
+            alice.address,
+            {
+                sendMax: xrpToDrops(5), // 5 XRP までを支払い上限とする
+            }
+        );
+
+        await client.disconnect();
+    };
+
+    main().catch(console.error);
+    ```
+
+2. スクリプトを実行します。
+
+    ```bash
+    node createOffers.js
+    ```
+    
+    以下のようなログが表示されれば、成功です。
+
+    ぜひ、テストネット用の[エクスプローラ](https://test.bithomp.com/explorer/)で確認してみてください。
+
+    ```bash
+    Payment sent from rf6R7pFgytT9JKjMVjKqeTv6MeDTrbNw3 to r3KQdHtUHUouGkLBFLZRxRYiugbW8cNwyJ: {
+        id: 14,
+        result: {
+            Account: 'rf6R7pFgytT9JKjMVjKqeTv6MeDTrbNw3', // ダニエル
+            Amount: {
+                currency: 'USD',
+                issuer: 'rfkJ7Uz6NrNV1FdbmKB5wepoim51KFpYQp', // 発行者A
+                value: '100'
+            },
+            DeliverMax: {
+                currency: 'USD',
+                issuer: 'rfkJ7Uz6NrNV1FdbmKB5wepoim51KFpYQp',
+                value: '100'
+            },
+            Destination: 'r3KQdHtUHUouGkLBFLZRxRYiugbW8cNwyJ', // アリス
+            Fee: '12',
+            Flags: 0,
+            LastLedgerSequence: 1371126,
+            SendMax: '5000000', // 5 XRP
+            Sequence: 1046459,
+            SigningPubKey: 'EDEC83B1B5D761F21A9625E88C70EE68CE5D5496B513DC6295CEDA7905065DD51A',
+            TransactionType: 'Payment',
+            TxnSignature: '939CD057964FCEEA621E358B65D780B50EBC50C6D80D83F5E93B463B9365F553261E27B7420E18CFBD9524A7E57C8EF20694C39B6B677F1EDBAD0ECA88F8260F',
+            ctid: 'C014EBE500000001',
+            date: 771245761,
+            hash: '49C8ABCA168351936BE825B27F97836E68D4C49818F9664BD08447B6E4044A2A',
+            inLedger: 1371109,
+            ledger_index: 1371109,
+            meta: {
+                AffectedNodes: [Array],
+                TransactionIndex: 0,
+                TransactionResult: 'tesSUCCESS', // 成功
+                delivered_amount: [Object]
+            },
+            validated: true
+        },
+        type: 'response'
+    }
+    ```
+
+    これで、アリスへ`A.USD`の送金が完了しました。
+    
+    改めて解説すると、`5 XRP`に収まる程度の`A.USD`をアリスに送金するために、ダニエルは自身の`5 XRP`を上限として送金しました。
+    ボブは保有していた`100 A.USD`と`5 XRP`を交換するための注文を出していたので、結果としてはボブが`5 XRP`を受け取り、ボブが保有していた`A.USD`がアリスに届いたという流れとなります。
+
+</Steps>
+
+## まとめ
+
+このガイドで証明したように、XRPLでは未保有の通貨でも流動性さえあれば相手に届けることができます。
+
+このような機能が、ネイティブ機能として提供されていることがXRPLの強みであり、XRPLが元来、支払いのためブロックチェーンといわれる理由です。
+最近ではAMMなどパワフルな機能が組み込まれたりと進化を続けていますが、このような基本的なことを理解してからでないと難易度が高いと思いますので、ぜひ引き続き習得に取り組んでください。
+
+このシンプルな送金の仕組みも、なかなかドキュメントベースだと可能であること自体のイメージはとても難しいと思いますので、
+ぜひ今後の開発やプロジェクトにおいて、この知識が役立つことを願っています。
