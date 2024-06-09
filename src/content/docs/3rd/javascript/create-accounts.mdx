@@ -1,0 +1,200 @@
+---
+title: テスト用アカウントの作成 | JavaScriptでのXRPL開発 三段編
+description: JavaScriptでのXRPL開発 三段編として、クロスカレンシー送金を行うためのガイド用のテスト用アカウントの作成方法について紹介しているページです。
+sidebar:
+  label: テスト用アカウントの作成
+  order: 5
+---
+
+import { Aside, Steps } from '@astrojs/starlight/components';
+
+
+## スクリプトの作成
+
+<Steps>
+
+1. プロジェクトディレクトリに`createAccounts.js`という新しいファイルを作成します。
+2. 以下のコードを`createAccounts.js`に貼り付けます。
+
+    ```javascript
+    import { Client, Wallet } from 'xrpl';
+
+    // 作成したいアカウントリスト
+    const accountNames = [
+        'ISSUER_A',
+        'ISSUER_B',
+        'ALICE',
+        'BOB',
+        'CHARLIE',
+        'DANIEL',
+    ];
+
+    // アカウントのウォレットを格納するオブジェクト
+    const wallets = {};
+
+    // クライアントを作成
+    const client = new Client('wss://s.altnet.rippletest.net:51233');
+
+    const main = async () => {
+        await client.connect();
+
+        for (const name of accountNames) {
+            const wallet = Wallet.generate();
+            wallets[name] = wallet;
+            await fundAccount(wallet);
+            console.log(`${name}_ADDRESS: ${wallet.address}`);
+            console.log(`${name}_SEED: ${wallet.seed}`);
+        }
+
+        await client.disconnect();
+    };
+
+    // Faucetからアカウントに資金を追加する
+    const fundAccount = async (wallet) => {
+        const response = await client.fundWallet(wallet);
+        // console.log(response);
+    };
+
+    main().catch(console.error);
+    ```
+</Steps>
+
+
+## スクリプトの実行
+
+<Steps>
+
+1. コマンドラインで以下のコマンドを実行して、スクリプトを実行します。
+
+    ```bash
+    node createAccounts.js
+    ```
+
+2. 成功すれば、コンソールに以下が表示されます。
+    ```bash
+    ISSUER_A_ADDRESS: r████████████████████████████
+    ISSUER_A_SEED: s████████████████████████████
+    ISSUER_B_ADDRESS: r████████████████████████████
+    ISSUER_B_SEED: s████████████████████████████
+    ALICE_ADDRESS: r████████████████████████████
+    ALICE_SEED: s████████████████████████████
+    BOB_ADDRESS: r████████████████████████████
+    BOB_SEED: s████████████████████████████
+    CHARLIE_ADDRESS: r████████████████████████████
+    CHARLIE_SEED: s████████████████████████████
+    DANIEL_ADDRESS: r████████████████████████████
+    DANIEL_SEED: s████████████████████████████
+    ```
+
+    上記を元に、メモをしておきましょう。
+
+    ```
+    # トークン発行者A
+    Address: 
+    Secret:
+
+    # トークン発行者B
+    Address: 
+    Secret:
+
+    # アリス
+    Address: 
+    Secret:
+
+    # ボブ
+    Address: 
+    Secret:
+
+    # チャーリー
+    Address: 
+    Secret: 
+
+    # ダニエル
+    Address: 
+    Secret: 
+    ```
+</Steps>
+
+## 環境変数ファイルの作成
+
+環境変数ファイル（.env）を利用することで、効率的なソース管理ができるようになります。
+
+このテストプロジェクトでは、アカウントの秘密鍵を管理するために使用します。
+`.env`ファイルで管理することで、各ソースで共通のアカウントの呼び出しが可能になります。
+
+プロダクションレベルのプロジェクトでは必須の知識となりますので覚えておきましょう。
+
+### ライブラリのインストール
+
+`dotenv`ライブラリをインストールします。
+
+```bash
+npm install dotenv
+```
+
+### .env ファイルの作成
+
+プロジェクトのルートに`.env`というファイルを作成し、以下のように定義してください。
+
+```
+ISSUER_A_SEED=s████████████████████████████
+ISSUER_B_SEED=s████████████████████████████
+ALICE_SEED=s████████████████████████████
+BOB_SEED=s████████████████████████████
+CHARLIE_SEED=s████████████████████████████
+DANIEL_SEED=s████████████████████████████
+```
+
+※不可視ファイルのため、Finderなどでは標準で表示されません。
+
+## wallets.js の作成
+
+プロジェクトのルートに`wallets.js`というファイルを作成し、以下のソースを記述してください。
+
+上記で作成した`.env`に定義した情報からアカウント情報生成し、オブジェクトを`export`するスクリプトを作成します。
+
+```javascript
+import { Wallet } from 'xrpl';
+import { config } from 'dotenv';
+
+config(); // dotenvの設定を読み込む
+
+export const wallets = {
+  issuerA: Wallet.fromSeed(process.env.ISSUER_A_SEED),
+  issuerB: Wallet.fromSeed(process.env.ISSUER_B_SEED),
+  alice: Wallet.fromSeed(process.env.ALICE_SEED),
+  bob: Wallet.fromSeed(process.env.BOB_SEED),
+  charlie: Wallet.fromSeed(process.env.CHARLIE_SEED),
+  daniel: Wallet.fromSeed(process.env.DANIEL_SEED),
+};
+```
+
+### 使用方法
+
+以下のように使用することができます。
+
+```javascript
+import { Client} from 'xrpl';
+import { wallets } from './wallets.js';
+
+const client = new Client('wss://s.altnet.rippletest.net:51233');
+
+async function main() {
+  try {
+    await client.connect();
+
+    const { issuerA, issuerB, alice, bob, charlie, daniel } = wallets;
+
+    ...
+  }
+}
+```
+
+このように、少し工夫するだけで各ファイルで共通のアカウント情報を呼び出すことができるようになりました。
+
+効率的に学習を進めることができると思いますし、自分で考えたプロダクトなどにも応用できるかと思います。
+
+<Aside title="アカウントについて" type="danger">
+このガイドではテストネットで学習用コンテンツとしてアカウント情報を作成しています。
+実際にメインネットで利用するアカウントのシークレットキー（秘密鍵）はインターネット上には保存せず、厳重に管理してください。
+</Aside>

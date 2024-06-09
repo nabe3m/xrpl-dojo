@@ -1,0 +1,258 @@
+---
+title: トラストラインの設定 | JavaScriptでのXRPL開発 三段編
+description: JavaScriptでのXRPL開発 三段編として、クロスカレンシー送金を行うためのトラストラインの設定について解説しているページです。
+sidebar:
+  label: トラストラインの設定
+  order: 6
+---
+
+import { Aside, Steps } from '@astrojs/starlight/components';
+
+トラストラインを設定することで、アカウントは特定の通貨を受け取ることができるようになります。
+
+※トラストラインの基本的な解説については[こちら](/beginners/javascript/trustline/)を参照ください。
+
+このガイドでは、発行者Aの`A.USD`、発行者Bの`B.EUR`を取り扱う形で解説します。
+
+クロスカレンシー送金の学習を進めるために、先ほどの章で作成したアカウントに基本的な設定を行う必要がありますので、以下のスクリプトを作成・実行してください。
+
+## 使用するメソッド
+
+この章では、先ほどの章で作成した以下のメソッドを利用します。
+
+```javascript
+// utils/trustSet.js
+
+// トラストラインを設定する関数
+export async function setTrustLine(client, wallet, currency, issuer, limit) {
+  try {
+    const trustSet = {
+      TransactionType: 'TrustSet',
+      Account: wallet.classicAddress,
+      LimitAmount: {
+        currency: currency,
+        issuer: issuer,
+        value: limit,
+      },
+    };
+    const response = await client.submitAndWait(trustSet, { wallet });
+    console.log(`Trust line set for ${wallet.classicAddress}:`, response);
+    return response;
+  } catch (error) {
+    console.error(
+      `Error setting trust line for ${wallet.classicAddress}: ${error}`
+    );
+    throw error;
+  }
+}
+
+```
+
+## スクリプトの作成
+
+<Steps>
+
+1. プロジェクトディレクトリに`setTrustline.js`という新しいファイルを作成します。
+2. 以下のコードを`setTrustline.js`に貼り付けます。
+
+    ```javascript
+    // setTrustline.js
+    import { Client, AccountSetAsfFlags } from 'xrpl';
+    import { wallets } from './wallets.js';
+    import { setTrustLine } from './utils/trustSet.js';
+    import { setAccountFlags } from './utils/setAccountFlags.js';
+
+    const client = new Client('wss://s.altnet.rippletest.net:51233'); // テストネットを使用
+
+    const main = async () => {
+      try {
+        await client.connect();
+
+        const { issuerA, issuerB, alice, bob, charlie, daniel } = wallets;
+        const limitAmount = '10000';
+
+        // Ripplingを許可する
+        await setAccountFlags(client, issuerA, AccountSetAsfFlags.asfDefaultRipple);
+        await setAccountFlags(client, issuerB, AccountSetAsfFlags.asfDefaultRipple);
+
+        // AliceがissuerAのUSDとBのEURを受け取るためのトラストラインを設定
+        await setTrustLine(client, alice, 'USD', issuerA.classicAddress, limitAmount);
+        await setTrustLine(client, alice, 'EUR', issuerB.classicAddress, limitAmount);
+
+        // BobがissuerBのEURを受け取るためのトラストラインを設定
+        await setTrustLine(client, bob, 'EUR', issuerB.classicAddress, limitAmount);
+
+        // CharlieがissuerAのUSDを受け取るためのトラストラインを設定
+        await setTrustLine(client, charlie, 'USD', issuerA.classicAddress, limitAmount);
+
+        // DanielがissuerBのEURを受け取るためのトラストラインを設定
+        await setTrustLine(client, daniel, 'EUR', issuerB.classicAddress, limitAmount);
+      } catch (error) {
+        console.error(`Error in trust line setup: ${error}`);
+      } finally {
+        await client.disconnect();
+      }
+    };
+
+    main();
+    ```
+</Steps>
+
+
+## スクリプトの実行
+
+<Steps>
+
+1. コマンドラインで以下のコマンドを実行して、スクリプトを実行します。
+
+    ```bash
+    node setTrustLine.js
+    ```
+
+2. 以下のようなコンソールログがが表示されれば、成功です。
+    ```bash
+    Account flags set for rfkJ7Uz6NrNV1FdbmKB5wepoim51KFpYQp: {
+      id: 12,
+      result: {
+        Account: 'rfkJ7Uz6NrNV1FdbmKB5wepoim51KFpYQp',
+        Fee: '12',
+        Flags: 0,
+        LastLedgerSequence: 1048947,
+        Sequence: 1046418,
+        SetFlag: 8,
+        SigningPubKey: 'EDEBAB4C81CF854860D393191A001822A9B58242302710A2D3EFE5BE8620A1F8A9',
+        TransactionType: 'AccountSet',
+        TxnSignature: '0F1D6C311E50499CBF1B08D3423D83797AAE3139A444ED2461E41F0D6D2F7F61415C65C2302C6230F2EE85C55B3505FEE120C9169D2EC90754848EED663EB50A',
+        ctid: 'C010016100000001',
+        date: 770216691,
+        hash: 'FEEABF75F7220CF3CED9FB9D71CADE7C3C78F433812FCA7D3321958A07F3608F',
+        inLedger: 1048929,
+        ledger_index: 1048929,
+        meta: {
+          AffectedNodes: [Array],
+          TransactionIndex: 0,
+          TransactionResult: 'tesSUCCESS'
+        },
+        validated: true
+      },
+      type: 'response'
+    }
+    Account flags set for rstM9rxhKo4N4WEaQgQmQSPQRgZqkhHkaU: {
+      id: 24,
+      result: {
+        Account: 'rstM9rxhKo4N4WEaQgQmQSPQRgZqkhHkaU',
+        Fee: '12',
+        Flags: 0,
+        LastLedgerSequence: 1048949,
+        Sequence: 1046420,
+        SetFlag: 8,
+        SigningPubKey: 'EDBE91E21E32E1848B805B22597D87667FBC6B045B9ABADC67807DB88CD1767A97',
+        TransactionType: 'AccountSet',
+        TxnSignature: '85CD26FCCAFBB90218F7DBA03CA2807D129452BAE5001A9D13B610FFBFFA4EF9F84E98F5B91F282C022D07D14A78BE740C315A70F2003CB28DB4DAF200B78D09',
+        ctid: 'C010016300000001',
+        date: 770216701,
+        hash: '6B1CFBC84B221C0790D38961C05BB944374C5E35C4E9D0042E9A853AA6BA5618',
+        inLedger: 1048931,
+        ledger_index: 1048931,
+        meta: {
+          AffectedNodes: [Array],
+          TransactionIndex: 0,
+          TransactionResult: 'tesSUCCESS'
+        },
+        validated: true
+      },
+      type: 'response'
+    }
+    Trust line set for r3KQdHtUHUouGkLBFLZRxRYiugbW8cNwyJ: {
+      id: 36,
+      result: {
+        Account: 'r3KQdHtUHUouGkLBFLZRxRYiugbW8cNwyJ',
+        Fee: '12',
+        Flags: 0,
+        LastLedgerSequence: 1048951,
+        LimitAmount: {
+          currency: 'USD',
+          issuer: 'rfkJ7Uz6NrNV1FdbmKB5wepoim51KFpYQp',
+          value: '10000'
+        },
+        Sequence: 1046422,
+        SigningPubKey: 'ED84F179E4978F5FA3C5DDAA2305A074B954755975135D4CA3E56E2B09124A98AB',
+        TransactionType: 'TrustSet',
+        TxnSignature: 'A717516A634F6A1FC25D09EB740E3CD686EA35B3A141618C40C1454BB2E05216B1785E57E791EF1CCA95DE8655D5673FDED04A3002656DB5A1320622826A9102',
+        ctid: 'C010016500010001',
+        date: 770216710,
+        hash: 'E30668CA07772CD1A299E3FFD8FC38DE4E62C3E1ECF0518BAE86B7AF9035FDA4',
+        inLedger: 1048933,
+        ledger_index: 1048933,
+        meta: {
+          AffectedNodes: [Array],
+          TransactionIndex: 1,
+          TransactionResult: 'tesSUCCESS'
+        },
+        validated: true
+      },
+      type: 'response'
+    }
+    Trust line set for r3KQdHtUHUouGkLBFLZRxRYiugbW8cNwyJ: {
+      id: 51,
+      result: {
+        Account: 'r3KQdHtUHUouGkLBFLZRxRYiugbW8cNwyJ',
+        Fee: '12',
+        Flags: 0,
+        LastLedgerSequence: 1048953,
+        LimitAmount: {
+          currency: 'EUR',
+          issuer: 'rstM9rxhKo4N4WEaQgQmQSPQRgZqkhHkaU',
+          value: '10000'
+        },
+        Sequence: 1046423,
+        SigningPubKey: 'ED84F179E4978F5FA3C5DDAA2305A074B954755975135D4CA3E56E2B09124A98AB',
+        TransactionType: 'TrustSet',
+        TxnSignature: '34501D584CF69D79421A1328AA1D91BD65069AA143784874A95979F43AC635CEFD9425F65B2FC8CCE95690C90743A3E6B86D877DBB68FFB369D4411FAD586D07',
+        ctid: 'C0100167001E0001',
+        date: 770216712,
+        hash: '94C3B5CFB87CA96B48A77EFD3480DB88161DEF0A23FF0FC25EE9E2BAD9812084',
+        inLedger: 1048935,
+        ledger_index: 1048935,
+        meta: {
+          AffectedNodes: [Array],
+          TransactionIndex: 30,
+          TransactionResult: 'tesSUCCESS'
+        },
+        validated: true
+      },
+      type: 'response'
+    }
+    Trust line set for rn9GFEPHW5tX2CaKVc7mA4L2GyXh88JiTy: {
+      id: 63,
+      result: {
+        Account: 'rn9GFEPHW5tX2CaKVc7mA4L2GyXh88JiTy',
+        Fee: '12',
+        Flags: 0,
+        LastLedgerSequence: 1048955,
+        LimitAmount: {
+          currency: 'EUR',
+          issuer: 'rstM9rxhKo4N4WEaQgQmQSPQRgZqkhHkaU',
+          value: '10000'
+        },
+        Sequence: 1046424,
+        SigningPubKey: 'EDA33B78BB0BCE6D1E18015AE195AE3D67456F3B7A2C34ECD95D5AD8B0477EE96A',
+        TransactionType: 'TrustSet',
+        TxnSignature: '7A6EB874E4676EA1C2C6A9B37C8093214F4A30F17C9ED90ADE3F92200937131072AF9BF67AAB094540D5708155849AABB90B0F9DC0DE0FDEE9D1D7AC059FD100',
+        ctid: 'C010016900010001',
+        date: 770216721,
+        hash: '9FB732C996091FE868D9C47A0B1EE29691AA4C5CA0E6FC92D1D782C00A743DA5',
+        inLedger: 1048937,
+        ledger_index: 1048937,
+        meta: {
+          AffectedNodes: [Array],
+          TransactionIndex: 1,
+          TransactionResult: 'tesSUCCESS'
+        },
+        validated: true
+      },
+      type: 'response'
+    }
+    ...
+    ```
+</Steps>

@@ -1,0 +1,134 @@
+---
+title: Cross-Currency Payment | XRPL Development in JavaScript - Level 3
+description: This page explains how to perform "Cross-Currency Payments" as part of the third stage in XRPL development with JavaScript.
+sidebar:
+  label: Cross-Currency Payment
+  order: 10
+---
+
+import { Aside, Steps } from '@astrojs/starlight/components';
+
+This guide explains cross-currency payments by dealing with `A.USD` issued by Issuer A and `B.EUR` issued by Issuer B.
+
+In the previous section, we confirmed that Alice can place an offer to sell `A.USD` issued by Issuer A and buy `B.EUR` issued by Issuer B, allowing Daniel to send `A.USD` to Charlie (liquidity is available).
+
+In this section, let's actually send `A.USD` from Daniel to Charlie!
+
+## Prerequisites
+Alice has already placed an offer to sell `A.USD` issued by Issuer A and buy `B.EUR` issued by Issuer B, thereby providing liquidity.
+
+Daniel needs to make a payment to Charlie, who wants to receive `A.USD`. However, Daniel currently does not hold any `A.USD`; he only has XRP and `B.EUR` issued by Issuer B. Daniel is considering to exchange his `B.EUR` for `A.USD`.
+
+After searching for someone willing to exchange `B.EUR` for the desired amount of `A.USD`, Daniel confirms that such a person exists. Now, he will proceed to send `A.USD` to Charlie by exchanging his `B.EUR`.
+
+## Creating the Script
+
+<Steps>
+
+1. Create a new file named `crossCurrencyPayment.js` in your project directory.
+2. Paste the following code into `crossCurrencyPayment.js`.
+
+    ```javascript
+    // crossCurrencyPayment.js
+    import xrpl from 'xrpl';
+    import { wallets } from './wallets.js';
+    import { sendPayment } from './utils/payment.js';
+
+    const client = new xrpl.Client('wss://s.altnet.rippletest.net:51233');
+
+    const main = async () => {
+        await client.connect();
+
+        const { issuerA, issuerB, alice, bob, charlie, daniel } = wallets;
+
+        await sendPayment(
+            client, 
+            daniel, 
+            { currency: 'USD', issuer: issuerA.address, value: '100' }, // Currency Charlie wants to receive: A.USD
+            charlie.address, 
+            { 
+                sendMax: { currency: 'EUR', issuer: issuerB.address, value: '100' } // Currency Daniel wants to pay: B.EUR
+            }
+        );
+
+        await client.disconnect();
+    };
+
+    main().catch(console.error);
+    ```
+</Steps>
+
+
+## Running the Script
+
+<Steps>
+
+1. Execute the following command in the command line to run the script.
+
+    ```bash
+    node crossCurrencyPayment.js
+    ```
+
+2. If you see logs like the following, the operation was successful.
+    ```bash
+    Payment sent from rf6R7pFgytT9JKjMVjKqeTv6MeDTrbNw3 to rnP7Q6LaejYi7oaN4qJHkKhnESZYAyVQwh: {
+        id: 12,
+        result: {
+            Account: 'rf6R7pFgytT9JKjMVjKqeTv6MeDTrbNw3', // Daniel's address
+            Amount: {
+                currency: 'USD', // A.USD
+                issuer: 'rfkJ7Uz6NrNV1FdbmKB5wepoim51KFpYQp', // Issuer A's address
+                value: '100' // 100 A.USD
+            },
+            DeliverMax: {
+                currency: 'USD',
+                issuer: 'rfkJ7Uz6NrNV1FdbmKB5wepoim51KFpYQp',
+                value: '100'
+            },
+            Destination: 'rnP7Q6LaejYi7oaN4qJHkKhnESZYAyVQwh', // Charlie's address
+            Fee: '12',
+            Flags: 0,
+            LastLedgerSequence: 1053776,
+            SendMax: { // Daniel's maximum payment limit
+                currency: 'EUR', // B.EUR
+                issuer: 'rstM9rxhKo4N4WEaQgQmQSPQRgZqkhHkaU', // Issuer B's address
+                value: '100' // 100 B.EUR
+            },
+            Sequence: 1046430,
+            SigningPubKey: 'EDEC83B1B5D761F21A9625E88C70EE68CE5D5496B513DC6295CEDA7905065DD51A',
+            TransactionType: 'Payment',
+            TxnSignature: '9E691B08DC3CCE1AA91B0141AD428D04359E13A2E248CE6B3E449BF2254B302563902D224289435CF0DCDCB643169DD761D34631D44B3008C6C595DA2E7D8201',
+            ctid: 'C010143E00000001',
+            date: 770232142,
+            hash: '4B5BAE83A8D0841DC867C115B625265DDF2ACEC1954E5F8AEC097DA489761AA3',
+            inLedger: 1053758,
+            ledger_index: 1053758,
+            meta: {
+                AffectedNodes: [Array],
+                TransactionIndex: 0,
+                TransactionResult: 'tesSUCCESS', // 成功
+                delivered_amount: [Object]
+            },
+            validated: true
+        },
+        type: 'response'
+    }
+    ```
+
+    At this point, verify the following using the [Explorer](https://test.bithomp.com/explorer/):
+
+    1. Alice's balance of `A.USD` has decreased to `900`, and her balance of `B.EUR` has increased to `1,100`.
+    2. Charlie's balance of `A.USD` has increased to `1,100`.
+    3. Daniel's balance of `B.EUR` has decreased to `900`.
+
+    This demonstrates that the XRPL has a unique feature that allows for "simultaneous payment and swap (exchange)".
+
+</Steps>
+
+## Summary
+
+Cross-currency payments are a unique feature of the XRPL, which has a native DEX, and it is one of its most representative functions.
+
+In the XRPL, even if the currencies (tokens) are issued by different issuers, as long as there is liquidity, you can deliver the currency you want to pay in as the currency the recipient wants to receive.
+
+In the next section, we will delve deeper into the topic of cross-currency payments.

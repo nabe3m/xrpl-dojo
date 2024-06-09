@@ -1,0 +1,137 @@
+---
+title: クロスカレンシー送金を行う | JavaScriptでのXRPL開発 三段編
+description: JavaScriptでのXRPL開発 三段編として、実際に「クロスカレンシー送金」を行う方法について解説しているページです。
+sidebar:
+  label: クロスカレンシー送金を行う
+  order: 10
+---
+
+import { Aside, Steps } from '@astrojs/starlight/components';
+
+このガイドはクロスカレンシー送金について、発行者Aの`A.USD`、発行者Bの`B.EUR`を取り扱う形で解説しています。
+
+前章では、アリスが発行者Aの`A.USD`を売り、発行者Bの`B.EUR`を買うオファー（注文）を出したことで、ダニエルからチャーリーへ`A.USD`を送付することが可能である（流動性が存在する）ことを確認しました。
+
+この章では、実際にダニエルからチャーリーへ`A.USD`を送付してみましょう！
+
+## 前提
+アリスが発行者Aの`A.USD`を売り、発行者Bの`B.EUR`を買うオファーを出し、流動性を提供済みです。
+
+ダニエルは、チャーリーに支払いを行う必要がありますが、チャーリーは`A.USD`で受け取りたいそうです。しかし、現時点では、ダニエルは`A.USD`を保有していないため、
+`XRP`と発行者Bの`B.EUR`しか保有していないダニエルは、手持ちの`B.EUR`を交換できないかと考えました。
+
+`B.EUR`を`A.USD`に希望額分交換してくれる人が存在するかを検索したところ、交換してくれる人が存在することを確認できたので、
+`B.EUR`をチャーリーに`A.USD`として、送付する手続きを行います。
+
+## スクリプトの作成
+
+<Steps>
+
+1. プロジェクトディレクトリに`crossCurrencyPayment.js`という新しいファイルを作成します。
+2. 以下のコードを`crossCurrencyPayment.js`に貼り付けます。
+
+    ```javascript
+    // crossCurrencyPayment.js
+    import xrpl from 'xrpl';
+    import { wallets } from './wallets.js';
+    import { sendPayment } from './utils/payment.js';
+
+    const client = new xrpl.Client('wss://s.altnet.rippletest.net:51233');
+
+    const main = async () => {
+        await client.connect();
+
+        const { issuerA, issuerB, alice, bob, charlie, daniel } = wallets;
+
+        await sendPayment(
+            client, 
+            daniel, 
+            { currency: 'USD', issuer: issuerA.address, value: '100' }, // チャーリーが受け取りたい通貨：A.USD
+            charlie.address, 
+            { 
+                sendMax: { currency: 'EUR', issuer: issuerB.address, value: '100' } // ダニエルが支払いたい通貨：B.EUR
+            }
+        );
+
+        await client.disconnect();
+    };
+
+    main().catch(console.error);
+    ```
+</Steps>
+
+
+## スクリプトの実行
+
+<Steps>
+
+1. コマンドラインで以下のコマンドを実行して、スクリプトを実行します。
+
+    ```bash
+    node crossCurrencyPayment.js
+    ```
+
+2. 以下のようなログが表示されれば、成功です。
+    ```bash
+    Payment sent from rf6R7pFgytT9JKjMVjKqeTv6MeDTrbNw3 to rnP7Q6LaejYi7oaN4qJHkKhnESZYAyVQwh: {
+        id: 12,
+        result: {
+            Account: 'rf6R7pFgytT9JKjMVjKqeTv6MeDTrbNw3', // ダニエルのアドレス
+            Amount: {
+                currency: 'USD', // A.USD
+                issuer: 'rfkJ7Uz6NrNV1FdbmKB5wepoim51KFpYQp', // 発行者Aのアドレス
+                value: '100' // 100 A.USD
+            },
+            DeliverMax: {
+                currency: 'USD',
+                issuer: 'rfkJ7Uz6NrNV1FdbmKB5wepoim51KFpYQp',
+                value: '100'
+            },
+            Destination: 'rnP7Q6LaejYi7oaN4qJHkKhnESZYAyVQwh', // チャーリーのアドレス
+            Fee: '12',
+            Flags: 0,
+            LastLedgerSequence: 1053776,
+            SendMax: { // ダニエルが支払える限度額
+                currency: 'EUR', // B.EUR
+                issuer: 'rstM9rxhKo4N4WEaQgQmQSPQRgZqkhHkaU', // 発行者Bのアドレス
+                value: '100' // 100 B.EUR
+            },
+            Sequence: 1046430,
+            SigningPubKey: 'EDEC83B1B5D761F21A9625E88C70EE68CE5D5496B513DC6295CEDA7905065DD51A',
+            TransactionType: 'Payment',
+            TxnSignature: '9E691B08DC3CCE1AA91B0141AD428D04359E13A2E248CE6B3E449BF2254B302563902D224289435CF0DCDCB643169DD761D34631D44B3008C6C595DA2E7D8201',
+            ctid: 'C010143E00000001',
+            date: 770232142,
+            hash: '4B5BAE83A8D0841DC867C115B625265DDF2ACEC1954E5F8AEC097DA489761AA3',
+            inLedger: 1053758,
+            ledger_index: 1053758,
+            meta: {
+                AffectedNodes: [Array],
+                TransactionIndex: 0,
+                TransactionResult: 'tesSUCCESS', // 成功
+                delivered_amount: [Object]
+            },
+            validated: true
+        },
+        type: 'response'
+    }
+    ```
+
+    この時点で、以下のようになっていることを[エクスプローラ](https://test.bithomp.com/explorer/)で確認してください。
+
+    1. アリスは`A.USD`の残高が`900`に減少、`B.EUR`の残高が`1,100`に増加しました。
+    2. チャーリーは`A.USD`の残高が`1,100`に増加しました。
+    3. ダニエルは`B.EUR`の残高が`900`に減少しました。
+
+    このように、XRPLは「支払いと同時にスワップ（交換）ができる」ユニークな機能を備えていることがわかります。
+
+
+</Steps>
+
+## まとめ
+
+クロスカレンシー送金は、ネイティブDEXが存在するXRPL特有の機能であり、最も代表的な機能のひとつです。
+
+XRPLでは、それぞれ異なる発行者の通貨（トークン）だとしても、流動性さえ存在していれば、自分が支払いたい通貨で相手が欲しい通貨として届けることができます。
+
+次章では、クロスカレンシー送金をもう少し深掘りする内容を紹介します。

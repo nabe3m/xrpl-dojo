@@ -1,0 +1,104 @@
+---
+title: Node.js installation guide
+description: A guide in my new Starlight docs site.
+sidebar: 
+  order: 2
+---
+
+This guide explains how to install `Node.js` as a development platform.
+
+## Installation in Mac OS
+
+### Method 1: Using Homebrew 1.
+
+1. If you do not have Homebrew installed, open terminal and run the following command.
+
+   ```bash
+   /bin/bash -c “$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)”
+   ```
+
+   Once the Homebrew installation is complete, proceed as follows: 
+   
+2. To install Node.js, run the following command in terminal.
+
+   ````bash
+   brew install node
+   ````
+
+### Method 2: Using Volta
+
+Volta is a Node.js version control tool made in Rust.  
+It is officially described as “a hassle-free JavaScript tool manager”.
+
+
+#### To install it the normal way
+
+Open terminal and run the following command
+
+```bash
+curl https://get.volta.sh | bash
+```
+
+#### To install using Homebrew
+
+Open  terminal and run the following command.
+
+```bash
+brew install volta
+````
+
+#### Passing the PATH
+
+You need to pass the PATH, so execute the following command.  
+Include the following in your .zshrc.
+
+```bash
+export VOLTA_HOME=“$HOME/.volta”
+export PATH=“$VOLTA_HOME/bin:$PATH”
+```
+
+#### How to confirm installation
+
+```bash
+volta --version
+````
+
+If you see the version of Volta as follows, you are done.
+
+```bash
+1.1.1
+````
+
+#### Installing Node.js
+
+To install the latest version
+
+```bash
+volta install node
+````
+
+To install a specific version: 
+
+```bash
+volta install node@20.11.0
+```
+
+### Method 3: Download the installer from the official Node.js website
+
+1. Go to the [official Node.js website](https://nodejs.org/) 
+2. Click “Download Node.js” to download the recommended version of the installer. 
+3. Open the downloaded file and follow the instructions to complete the installation.
+The method is the same for Mac OS, Windows, and Linux.
+
+To download the installer by specifying the version, you can download it from [here](https://nodejs.org/en/download).
+
+### Confirmation after installation
+
+To check if the installation was successful, run the following command in Terminal (Mac) or Command Prompt (Windows).
+
+```bash
+node -v
+npm -v
+```
+
+These commands will show you the installed versions of Node.js and npm. If you see the output, the installation was successful.

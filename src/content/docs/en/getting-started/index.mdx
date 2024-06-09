@@ -1,0 +1,39 @@
+---
+title: Introduction
+description: A guide in my new Starlight docs site.
+sidebar: 
+  order: 1
+---
+
+import { Card, CardGrid, Aside } from '@astrojs/starlight/components';
+
+Let's get started to use `XRP Ledger` right away!
+
+It is important to understand the basics of `XRPL` as well as preparing your development environment.
+
+<Aside type="caution" title="Caution">
+  This site's contents are created under MacOS environment.  
+  For Windows users, please build the environment required by each content accordingly. 
+</Aside>
+
+## Prepare to start development
+
+<CardGrid stagger>
+  <Card title='Prepare development environment' icon='setting'>
+    Install and set up `Node.js`.
+    - [Installation Guide](./node-js/)
+  </Card>
+  <Card title='Prepare your development editor' icon='document'>
+    Prepare VS Code as your development editor.
+    - [Installation Guide](./editor/install/)
+  </Card>
+  <Card title='Development language' icon='setting'>
+    To start developing, you will need basic knowledge of programming languages such as the following.
+    - [JavaScript](https://developer.mozilla.org/ja/docs/Web/JavaScript)
+    - [TypeScript](https://www.typescriptlang.org/)
+    - [Python](https://www.python.org/)
+  </Card>
+  {/* <Card title='Libraries and frameworks' icon='open-book'>
+    - [TypeScript](https://www.typescriptlang.org/)
+  </Card> */}
+</CardGrid>

@@ -1,0 +1,102 @@
+---
+title: path_findで送金経路を確認する | JavaScriptでのXRPL開発 三段編
+description: JavaScriptでのXRPL開発 三段編のクロスカレンシー送金を行うためのステップとして、「path_findで送金経路を確認する」方法について解説しているページです。
+sidebar:
+  label: 送金経路を確認する
+  order: 9
+---
+
+import { Aside, Steps } from '@astrojs/starlight/components';
+
+このガイドはクロスカレンシー送金について、発行者Aの`A.USD`、発行者Bの`B.EUR`を取り扱う形で解説しています。
+
+前章でアリスが発行者Aの`A.USD`を売り、発行者Bの`B.EUR`を買うオファー（注文）を出し、流動性を提供しました。
+
+この章では、クロスカレンシー送金を行う前に、送金経路を検索するコマンドである`path_find`を紹介します。
+
+## 前提
+アリスが発行者Aの`A.USD`を売り、発行者Bの`B.EUR`を買うオファーを出し、流動性を提供済みです。
+
+ダニエルは、チャーリーに支払いを行う必要がありますが、チャーリーは`A.USD`で受け取りたいそうです。しかし、現時点では、ダニエルは`A.USD`を保有していません。
+
+`XRP`または発行者Bの`B.EUR`しか保有していないダニエルは、手持ちの`B.EUR`を交換できないかと考えました。
+`B.EUR`を`A.USD`に希望額分交換してくれる人がいれば、ダニエルの`B.EUR`は`A.USD`として送ることができるはずです。
+
+ダニエルは`B.EUR`をチャーリーに`A.USD`として、送付することが可能かを検索しようと考えました。
+
+## スクリプトの作成
+
+<Steps>
+
+1. プロジェクトディレクトリに`pathFinding.js`という新しいファイルを作成します。
+2. 以下のコードを`pathFinding.js`に貼り付けます。
+
+    ```javascript
+    import { Client, xrpToDrops } from 'xrpl';
+    import { wallets } from './wallets.js';
+
+    const client = new Client('wss://s.altnet.rippletest.net:51233');
+
+    const main = async () => {
+        await client.connect();
+
+        const { issuerA, issuerB, alice, bob, charlie, daniel } = wallets;
+
+        client.on('path_find', (stream) => {
+            console.log(JSON.stringify(stream.alternatives, null, '  '));
+        });
+
+        client.request({
+            command: 'path_find',
+            subcommand: 'create',
+            source_account: daniel.address, // 差出人：ダニエル
+            destination_account: charlie.address, // 受取人：チャーリー
+            destination_amount: {
+                currency: 'USD', // 通貨コード
+                issuer: issuerA.address, // 発行者Aのアドレス
+                value: '100', // ダニエルがチャーリーへ送りたいA.USDの量
+            },
+        });
+    };
+
+    main();
+    ```
+</Steps>
+
+
+## スクリプトの実行
+
+<Steps>
+
+1. コマンドラインで以下のコマンドを実行して、スクリプトを実行します。
+
+    ```bash
+    node pathFinding.js
+    ```
+
+2. 以下のようなログが表示されれば、成功です。
+    ```bash
+    [
+        {
+            "paths_computed": [
+                [
+                    {
+                        "account": "rstM9rxhKo4N4WEaQgQmQSPQRgZqkhHkaU", // 発行者Bのアドレス
+                        "type": 1
+                    },
+                    {
+                        "currency": "USD",
+                        "issuer": "rfkJ7Uz6NrNV1FdbmKB5wepoim51KFpYQp", // 発行者Aのアドレス
+                        "type": 48
+                    }
+                ]
+            ],
+            "source_amount": {
+                "currency": "EUR",
+                "issuer": "rf6R7pFgytT9JKjMVjKqeTv6MeDTrbNw3", // ダニエルのアドレス
+                "value": "100"
+            }
+        }
+    ]
+    ```
+</Steps>

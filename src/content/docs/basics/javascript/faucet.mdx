@@ -1,0 +1,97 @@
+---
+title: テスト用のXRPの取得 | JavaScript入門編
+description: Node.jsを用いたテスト用のXRPの取得方法について紹介しています。
+sidebar:
+  label: テスト用のXRPの取得
+  order: 5
+---
+
+import { Steps } from '@astrojs/starlight/components';
+
+テストネットでは開発用としての、ネイティブトークンであるXRPを取得することができます。
+
+方法は主に2種類ありますので、順に紹介します。
+
+## アドレスを指定して取得する場合
+
+以下のサイトではアドレスを指定して取得することができます。
+
+先ほどコードベースで作成したアカウントアドレスに送信したい場合は、bithomb.comのツールを使用すると良いでしょう。
+
+- [test.bithomp.com](https://test.bithomp.com/faucet/)
+
+アドレスを作成しつつ、取得したい場合は以下でアカウントを取得しましょう。
+
+- [xrpl.org](https://xrpl.org/resources/dev-tools/xrp-faucets/)
+
+## コードで取得する場合
+
+効率と利便性を考慮するとツールを使用した方が便利ですが、コードベースで発行する方法もあります。
+
+### node-fetchのインストール
+
+fetch APIはブラウザに組み込まれていますが、Node.js環境ではnode-fetchモジュールをインストールする必要があります。
+
+```bash
+npm install node-fetch
+```
+
+### スクリプトの作成
+
+```javascript
+const fetch = require('node-fetch');
+
+async function faucet() {
+  try {
+    // XRPL Testnet Faucet URL
+    const faucetUrl = 'https://faucet.altnet.rippletest.net/accounts';
+
+    // Fetch APIを使用してPOSTリクエストを送信
+    const response = await fetch(faucetUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    console.log('Wallet Address:', data.account.address);
+    console.log('Secret:', data.account.secret);
+    console.log('Balance:', data.balance); // テストネットで付与されるXRPの量を表示
+  } catch (error) {
+    console.error('Error requesting XRP:', error.message);
+  }
+}
+
+faucet();
+```
+
+## スクリプトの実行
+
+<Steps>
+
+1. コマンドラインで以下のコマンドを実行して、スクリプトを実行します。
+
+    ```bash
+    node create_wallet.js
+    ```
+
+2. 成功すれば、コンソールに以下が表示されます。
+
+    ```bash
+    data: {
+        account: {
+        xAddress: 'XVBX4Scdqqvh8WukxJjvoNCSQ5CvZPCvZUPuaXaqZ2JuxH9',
+            address: 'rDt3T3ifG96eKS4pkZyUxhYt8rTSpPDauf', // アドレス
+            classicAddress: 'rDt3T3ifG96eKS4pkZyUxhYt8rTSpPDauf'
+        },
+        amount: 100, // 100XRPが取得できました
+        transactionHash: '6FBE1C1215B8B3D0765D3CEC2FD48EE2BBC073DB8A960A92CA0485986CFE226C',
+        seed: 'sEdTYR4byoAWLJUqFCGQsZsAX6ni9tc' // シークレットキー
+    }
+    ```
+</Steps>

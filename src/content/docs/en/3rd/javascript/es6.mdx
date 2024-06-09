@@ -1,0 +1,118 @@
+---
+title: About ES6 Modules | XRPL Development in JavaScript - Level 3
+description: This page explains "ES6 Modules" as part of the third stage in XRPL development with JavaScript.
+sidebar:
+  label: About ES6 Modules
+  order: 3
+---
+
+ES6 modules are a mechanism that makes it easier to reuse code in JavaScript. Introduced as part of ECMAScript 6 (ES6) in 2015, they are the standard module system for JavaScript.
+
+Modules allow you to manage your code in separate files and import methods as needed. Most modern frameworks adopt this system, so beginners should also learn it.
+
+## Key Features
+
+### 1. Import and Export
+
+- Export: Export functions, objects, or variables from a module to make them available for use in other modules.
+- Import: Import functions or variables created in other modules into your own module.
+
+### 2. Scope Isolation
+
+Each module has its own scope (variable range), preventing variable collisions between modules.
+
+Here's an example of how scope isolation works.
+
+Create module1.js.
+
+```javascript
+// module1.js
+export const name = 'Alice';
+
+export function greet() {
+  return `Hello, ${name}!`;
+}
+```
+
+Next, create a similar code file named module2.js.
+
+```javascript
+// module2.js
+export const name = 'Bob';
+
+export function greet() {
+  return `Hi, ${name}!`;
+}
+```
+
+Let's import the above modules in `main.js`.
+
+```javascript
+// main.js
+import { name as name1, greet as greet1 } from './module1.js';
+import { name as name2, greet as greet2 } from './module2.js';
+
+console.log(name1);  // Alice
+console.log(greet1());  // Hello, Alice!
+
+console.log(name2);  // Bob
+console.log(greet2());  // Hi, Bob!
+```
+In this example, both module1.js and module2.js define a variable called name. However, since each module has its own scope, the name variable in each module does not interfere with the name variable in the other module.
+
+Additionally, in main.js, the name variables and greet functions imported from each module are used, but naming conflicts are avoided by giving them different names (name1 and name2).
+
+## Export Methods
+
+There are two ways to export in ES6: named exports and default exports.
+
+### Named Export
+
+```javascript
+// functions.js
+export function add(x, y) {
+  return x + y;
+}
+
+export function subtract(x, y) {
+  return x - y;
+}
+```
+
+### Default Export
+
+```javascript
+// multiply.js
+export default function multiply(x, y) {
+  return x * y;
+}
+```
+
+## Import Methods
+
+### Importing Named Exports
+
+```javascript
+// main.js
+import { add, subtract } from './functions.js';
+
+console.log(add(2, 3)); // 5
+console.log(subtract(5, 2)); // 3
+```
+
+### Importing Default Exports
+
+```javascript
+// main.js
+import multiply from './multiply.js';
+
+console.log(multiply(2, 3)); // 6
+```
+
+## Summary
+
+Using ES6 modules makes it easier to organize your code and increases reusability!
+
+In complex projects, dividing your code into modules makes management easier and development more efficient.
+
+Additionally, future sections will primarily be explained using ES6.

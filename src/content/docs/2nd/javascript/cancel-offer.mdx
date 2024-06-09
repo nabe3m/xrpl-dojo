@@ -1,0 +1,117 @@
+---
+title: オファーのキャンセル方法 | JavaScriptでのXRPL開発 二段編
+description: JavaScriptでのXRPL開発 二段編の「オファーのキャンセル方法」を紹介するページです。
+sidebar:
+  label: オファーのキャンセル方法
+  order: 4
+---
+
+import { Aside, Steps } from '@astrojs/starlight/components';
+
+## はじめに
+
+XRPL（XRP Ledger）は、ネイティブな分散型取引所（DEX）機能を提供しており、ユーザーはオファー（注文）を作成して資産を売買することができます。本記事では、XRPL上で作成したオファーをキャンセルする方法を解説します。
+
+## 準備
+
+先ほどの章でオファーを作成する際に使用したウォレットアドレスを用意してください。
+
+## スクリプトを作成
+
+<Steps>
+
+1. プロジェクトディレクトリに`cancel_offer.js`という新しいファイルを作成します。
+2. 以下のコードを`cancel_offer.js`に貼り付けます。
+
+    ```javascript
+    const xrpl = require('xrpl');
+
+    async function cancelOffer() {
+        const client = new xrpl.Client('wss://s.altnet.rippletest.net:51233');
+        await client.connect();
+
+        const wallet = xrpl.Wallet.fromSeed('your_wallet_seed'); // ウォレットのシークレットキー
+
+        const offerSequence = 123456; // キャンセルしたいオファーのシーケンス番号を数値で指定
+
+        const cancelTx = {
+            TransactionType: 'OfferCancel', // オファーのキャンセル
+            Account: wallet.address, // ウォレットのアドレス
+            OfferSequence: offerSequence // 123456
+        };
+
+        const prepared = await client.autofill(cancelTx); // トランザクションを自動的に補完
+        const signed = wallet.sign(prepared); // トランザクションに署名
+        const result = await client.submitAndWait(signed.tx_blob); // 送信
+
+        console.log('オファーキャンセル結果:', result);
+        await client.disconnect();
+    }
+
+    cancelOffer();
+    ```
+
+</Steps>
+
+## スクリプトの実行
+
+<Steps>
+
+1. コマンドラインで以下のコマンドを実行して、スクリプトを実行します。
+
+    ```bash
+    node cancel_offer.js
+    ```
+    
+2. 成功すれば、コンソールに以下が表示されます。
+
+    ```bash
+    オファーキャンセル結果: {
+        id: 14,
+        result: {
+            Account: 'rP1WwXDZvQHvNiyenBpLvSdx3E8WuUpQc5',
+            Fee: '12',
+            Flags: 0,
+            LastLedgerSequence: 673065,
+            OfferSequence: 477853,
+            Sequence: 477854,
+            SigningPubKey: 'EDA0094F9DE33C9BBD4681C9D88407C92A93D7532775B08731572DA419C804BA27',
+            TransactionType: 'OfferCancel',
+            TxnSignature: '4F231AB487C2BFB30777841F60177E164F028BC700DC8A76845EE90FDF639B491E7C3E23EA0CF7EB7DE9D4C9139059779E0FB3BD2EF59727B6B470CA05EE7506',
+            ctid: 'C00A451700100001',
+            date: 769027381,
+            hash: '99DF4150E96163C8A22888C9C3B7E979D9FB4E1A9497199018C0648B119908F3',
+            inLedger: 673047,
+            ledger_index: 673047,
+            meta: {
+            AffectedNodes: [Array],
+            TransactionIndex: 16,
+            TransactionResult: 'tesSUCCESS' // 成功
+            },
+            validated: true
+        },
+        type: 'response'
+    }
+    ```
+
+3. もう一度、オファーの確認を行ってみましょう。
+
+    ```bash
+    node check_offers.js
+    ```
+    
+4. 成功すれば、コンソールに以下が表示され、オファーを無事にキャンセルできたことを確認できます。
+
+    ```bash
+    オファーリスト: []
+    ```
+
+</Steps>
+
+## まとめ
+
+このガイドでは、XRPLのDEXの概念、実際にDEXにオファーを作成する方法からキャンセル方法までを解説しました。
+
+このように、一般的には非常に難しいイメージがあるDEXですが、XRPLではJavaScriptライブラリを用いることで、比較的簡単に触れることができます。
+
+これまでトラストライン〜トークン発行・送金、オファーの作成〜確認・キャンセルまで解説してきましたので、次の段階では、「クロスカレンシー送金」について解説します。

@@ -1,0 +1,72 @@
+---
+title: Connecting to the Testnet | Introduction to JavaScript
+description: Learn how to connect to the testnet using xrpl.js, XRPL's library based on JavaScript.
+sidebar:
+  label: Connecting to the testnet
+  order: 3
+---
+
+import { Steps } from '@astrojs/starlight/components';
+
+A testnet evnironment is provided in XRPL.
+
+The testnet allows developers to develop products having the mainnet in mind. The main reason for using a testnet is that the mainnet requires the developer to bear a certain amount of `XRP` as fees and account reserves.
+
+The following is one of the commonly used testnet environment.
+
+`wss://s.altnet.rippletest.net:51233`
+
+There are several other testnet environments that do exist, please refer to [here](https://xrpl.org/resources/dev-tools/xrp-faucets/).
+
+## Create Script
+
+<Steps>
+
+1. Create a new file named `connect.js` in your project directory 
+2. Paste the following code into `connect.js`.
+
+   ```javascript
+   const xrpl = require('xrpl'); // Load the xrpl library.
+
+   async function main() {
+     // async
+     // Connectting to the Testnet server, which is a test network for XRP Ledger development.
+     // Create a client to connect to XRP Ledger's Testnet server using the xrpl.Client class
+     const client = new xrpl.Client('wss://s.altnet.rippletest.net:51233');
+
+     // Connect to the server by calling the client.connect() method.
+     // Use "await" to wait for the connection to complete.
+     await client.connect();
+
+     // If the connection is successful, the message below should be shown in the console.
+     console.log('Connected to the XRP Ledger Testnet');
+
+     // Disconnect from the server by calling the client.disconnect() method.
+     client.disconnect();
+   }
+
+   main().catch(console.error);
+     // Call the main function to start the program.
+     // catch(console.error) is used to output error messages to the console if an error occurs.
+   ```
+
+   The script simply connects to XRP Ledger's Testnet, displays to the console that the connection was successful, and then closes the connection.
+
+</Steps>
+
+## Run Script
+
+<Steps>
+
+1. Run script by executing the following command in the command line.
+
+   ```bash
+   node connect.js
+   ````
+   
+2. If successful, you will see the following in the console.
+
+   ```bash
+   Connected to the XRP Ledger Testnet
+   ```
+</Steps>

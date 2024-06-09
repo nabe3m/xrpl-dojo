@@ -1,0 +1,172 @@
+---
+title: Sending Tokens Between Users | XRPL Development in JavaScript Level 1
+description: Introducing important points about sending tokens between users issued through trust lines as part of the Level 1 curriculum for developing XRPL with JavaScript.
+sidebar:
+  label: Sending Tokens Between Users
+  order: 6
+---
+
+import { Aside, Steps } from '@astrojs/starlight/components';
+
+In the previous chapters, both Alice and Bob now have the right (trust line) to receive `DOJ` tokens issued by Charlie.
+
+Alice has already received `1,000 DOJ` tokens from Charlie, so let's try sending `100 DOJ` from Alice to Bob.
+
+## Prerequisites
+
+This guide proceeds with the following characters:
+
+- Charlie (Token Issuer)
+- Alice (Sender)
+- Bob (Recipient)
+
+## Create the Script
+
+The following is a script to send `DOJ` tokens from Alice to Bob.
+
+<Steps>
+
+1. Create a new file named `payment_token_ab.js` in your project directory.
+2. Paste the following code into `payment_token_ab.js`.
+
+    ```javascript
+    const xrpl = require('xrpl');
+
+    async function paymentTokenAB() {
+        // Connect to the Testnet server
+        const client = new xrpl.Client('wss://s.altnet.rippletest.net:51233');
+        await client.connect();
+
+        // Set Alice's wallet
+        const senderWallet = xrpl.Wallet.fromSecret('alice_wallet_secret_here');
+
+        // Set Bob's wallet address
+        const recipientWalletAddress = 'bob_wallet_address_here';
+
+        // Set the wallet address of the token issuer (Charlie)
+        const issuerWalletAddress = 'charlie_wallet_address_here';
+
+        const currencyCode = 'DOJ'; // Token currency code
+        const amount = '100'; // Amount of tokens to send
+
+        const response = await client.submitAndWait(
+            {
+                TransactionType: 'Payment', // Payment
+                Account: senderWallet.address, // Alice's address
+                Destination: recipientWalletAddress, // Bob's address
+                Amount: {
+                    issuer: issuerWalletAddress, // Token issuer's address (Charlie)
+                    currency: currencyCode, // DOJ
+                    value: amount, // 100
+                },
+            },
+            { wallet: senderWallet } // Authenticate with Alice's wallet
+        );
+
+        // Output the result to the console
+        console.log('Transaction result:', response);
+
+        // Call the client.disconnect() method to disconnect from the server
+        client.disconnect();
+    }
+
+    paymentTokenAB().catch(console.error);
+    ```
+
+    1. Enter Alice's testnet secret key in `alice_wallet_secret_here`.
+    2. Enter Bob's testnet address in `bob_wallet_address_here`.
+    3. Enter Charlie's testnet address in `charlie_wallet_address_here`.
+</Steps>
+
+## Run the Script
+
+<Steps>
+
+1. Run the following command in the command line to execute the script.
+
+    ```bash
+    node payment_token_ab.js
+    ```
+
+2. Check the result shown in the console.
+
+    ```bash
+    {
+        id: 14,
+        result: {
+            Account: 'rQr8KfkCQcpqvFwmRspDoaL36reZhcdaeA', // Sender's address (Alice)
+            Amount: {
+                currency: 'DOJ',
+                issuer: 'rh8xETfGs1Ktizj9EXZb5QpW4aqk8bWUSU', // Token issuer's address (Charlie)
+                value: '100'
+            },
+            DeliverMax: {
+                currency: 'DOJ',
+                issuer: 'rh8xETfGs1Ktizj9EXZb5QpW4aqk8bWUSU',
+                value: '100'
+            },
+            Destination: 'rDNVaJJSp9iQmHC8YAAwHytnLP9aXEPhDw', // Bob's address
+            Fee: '12', // Transaction fee: 12 drops
+            Flags: 0,
+            LastLedgerSequence: 475731,
+            Sequence: 474065,
+            SigningPubKey: 'ED2924DBD08E093DD7FC9C35B8DCEBD74CA4C8349D68D7BF566AD6C2533B8BB865',
+            TransactionType: 'Payment',
+            TxnSignature: '54F6F1198988F0F446B674119D383B73629DB6602B68E740BAE8A68E60F88A9E2D305D7B0113E8906433AB26AFAC32551FB5E2A059E43CD708E71A4281D80007', // Hash value
+            ctid: 'C0074241004B0001',
+            date: 768405010,
+            hash: '9F0350EC836C5A76AF1989FE5591DD3A91AD4345601AEA1187DD67EE7E820732',
+            inLedger: 475713,
+            ledger_index: 475713, // Ledger index number
+            meta: {
+                AffectedNodes: [Array],
+                TransactionIndex: 75,
+                TransactionResult: 'tecPATH_DRY' // Failure
+            },
+            validated: true // Validated transaction
+        },
+        type: 'response'
+    }
+    ```
+
+    It seems that this Payment Transaction from Alice to Bob has failed.
+
+    The `TransactionResult` of `tecPATH_DRY` is a status (tec code) indicating a payment failure. Let's learn about status (tec codes) here.
+
+    <Aside title='What is tecPATH_DRY?'>
+        It is one of the status (tec codes) indicating a payment transaction failure. This error occurs when the asset or liquidity specified in the transaction is insufficient in the "payment path" .
+        In short, this means that there are not enough resources required for the transaction. If this error occurs, you may resolve it by trying another payment path or adjusting conditions such as the transaction amount or counterparty.
+        For more details about payment paths, refer to the [official documentation](https://xrpl.org/ja/docs/concepts/tokens/fungible-tokens/paths/).
+    </Aside>
+
+    You can also check the list of tec codes [here](https://xrpl.org/docs/references/protocol/transactions/transaction-results/tec-codes/).
+</Steps>
+
+## Token Transfers Between Users
+
+Although Alice and Bob have set up trust lines, the token transfer failed.
+
+Why did it fail?
+
+First, let's study the concept of IOU tokens!
+
+<Aside title='What is an IOU?'>
+IOU stands for "I Owe You." In XRPL, users can issue tokens representing assets other than XRP (such as USD or points), and these are called IOU tokens.
+An IOU represents a claim against the issuer, who promises to provide assets equivalent to its value in the future.
+</Aside>
+
+### How Token Transfers Work
+
+In XRPL, tokens are generally only transferable through the issuer. This is because tokens issued on XRPL are considered as trusted assets.
+
+Thinking of a real-world example, just as it would be strange if someone can send points issued by a specific store to others without any limitation, XRPL also generally prevents third parties from directly transferring tokens. By allowing transactions only through the issuer, the tokens become trustful and managable.
+
+### How to Transfer Tokens?
+
+As mentioned, tokens in XRPL are generally only transferable through the issuer. However, by changing the settings of the issuer account, it can be treated as an intermediary, allowing IOU token transfers between users other than the issuer.
+
+This balance adjustment feature is called [Rippling](https://xrpl.org/ja/docs/concepts/tokens/fungible-tokens/rippling/), which refers to the exchange between multiple users holding trust lines for the same currency.
+
+In this guide, we need to enable `Rippling` for Charlie's account.
+
+The method for enabling it will be explained in the next chapter.

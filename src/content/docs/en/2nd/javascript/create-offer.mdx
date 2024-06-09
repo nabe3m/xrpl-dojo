@@ -1,0 +1,132 @@
+---
+title: How to Create an Offer | XRPL Development with JavaScript Level 2
+description: A page introducing "How to Create an Offer" for the XRPL Development with JavaScript Level 2 curriculum.
+sidebar:
+  label: How to Create an Offer
+  order: 2
+---
+
+## Introduction
+
+The XRPL (XRP Ledger) provides native Decentralized Exchange (DEX) functionality, allowing users to create offers (orders) to buy and sell assets. In this article, we will explain how to create an offer on XRPL.
+
+import { Aside, Steps } from '@astrojs/starlight/components';
+
+## Preparation
+
+When sending tokens other than the native currency `XRP`, you need to specify the currency code and issuer.
+
+Tokens on XRPL always have an issuer, and preparing your own issuer every time is inefficient for learning purposes. Therefore, to improve efficiency, you can identify and use an existing issuer in advance.
+
+An address that has already issued the currency code `USD` exists on the testnet, so we will use this one.
+
+```
+// GateHub
+rhub8VRN55s94qWKDv6jmDy1pUykJzF3wq
+```
+
+<Aside title="Basic Knowledge">
+The testnet is a development network, so the ledger may be periodically reset due to operational reasons.
+</Aside>
+
+## Create the Script
+
+<Steps>
+
+1. Create a new file named `create_offer.js` in your project directory.
+2. Paste the following code into `create_offer.js`.
+
+   Let's create an offer to buy `200 USD` tokens for `20 XRP`.
+
+    ```javascript
+    const xrpl = require('xrpl');
+
+    async function createOffer() {
+        const client = new xrpl.Client('wss://s.altnet.rippletest.net:51233'); // Testnet
+        await client.connect();
+
+        const wallet = xrpl.Wallet.fromSeed('your_wallet_seed'); // Wallet seed
+
+        // Create the offer (order)
+        const offer = {
+            TransactionType: 'OfferCreate', // Create an offer
+            Account: wallet.address, // Source wallet address
+            TakerGets: xrpl.xrpToDrops(20) // Amount of asset to pay (here, 20 XRP)
+            TakerPays: {
+                currency: 'USD', // Currency code to receive
+                issuer: 'rhub8VRN55s94qWKDv6jmDy1pUykJzF3wq',  // USD issuer (GateHub)
+                value: '200', // Amount to receive
+            },
+        };
+
+        const prepared = await client.autofill(offer); // Automatically complete the transaction
+        const signed = wallet.sign(prepared); // Sign the transaction
+        const result = await client.submitAndWait(signed); // Send
+
+        console.log('Offer creation result:', result);
+        await client.disconnect();
+    }
+
+    createOffer();
+    ```
+
+    1. Set the asset you are offering in TakerGets and the asset you are receiving in TakerPays.
+
+    <Aside title="About submitAndWait">
+    In this guide, we use the autofill and sign methods before submitAndWait, but it is possible to send the transaction with submitAndWait alone.
+    The benefits include better code readability and easier error handling, so feel free to use it as appropriate. *For example, if signing fails.
+    </Aside>
+
+</Steps>
+
+## Run the Script
+
+<Steps>
+
+1. Run the following command in the command line to execute the script.
+
+    ```bash
+    node create_offer.js
+    ```
+    
+2. If successful, the console will display the following.
+
+    ```bash
+    Offer creation result: {
+        id: 10,
+        result: {
+            Account: 'rP1WwXDZvQHvNiyenBpLvSdx3E8WuUpQc5',
+            Fee: '12',
+            Flags: 0,
+            LastLedgerSequence: 671539,
+            Sequence: 477852,
+            SigningPubKey: 'EDA0094F9DE33C9BBD4681C9D88407C92A93D7532775B08731572DA419C804BA27',
+            TakerGets: '20000000', // 20 XRP
+            TakerPays: {
+                currency: 'USD', // Currency code
+                issuer: 'rhub8VRN55s94qWKDv6jmDy1pUykJzF3wq',
+                value: '200' // 200 USD
+            },
+            TransactionType: 'OfferCreate',
+            TxnSignature: '9499CCD90E522641E92E53836B583F80D4044C1340571FF8BE4B68EE2A7E15238A1F78418A7CCB274576622BC44EE4F2B8E38EFBCAEC10ED8442C9C3BBF31C04',
+            ctid: 'C00A3F2100010001',
+            date: 769022540,
+            hash: '19A8E96B7222B4C0C05DB2A782FEB211C28E824A73B6A17670D34D47C7694668',
+            inLedger: 671521,
+            ledger_index: 671521,
+            meta: {
+                AffectedNodes: [Array],
+                TransactionIndex: 1,
+                TransactionResult: 'tesSUCCESS' // Success
+            },
+            validated: true
+        },
+        type: 'response'
+    }
+    ```
+
+    The offer creation was successful.
+
+    If this USD were a stablecoin, it is unlikely that someone would want to exchange 20 XRP (about $10 as of 2024/05/15) for 200 USD. However, this example demonstrates how easy it is to place orders on XRPL's native DEX.
+
+</Steps>

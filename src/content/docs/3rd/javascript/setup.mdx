@@ -1,0 +1,51 @@
+---
+title: プロジェクトの開始 | JavaScriptでのXRPL開発 三段編
+description: JavaScriptでのXRPL開発 三段編の「プロジェクトの準備」についてのページです。
+sidebar:
+  label: プロジェクトの開始
+  order: 2
+---
+
+まずはプロジェクトを作成しましょう。
+
+## プロジェクトの作成
+
+今回からは少し、モダンな仕様で作成する方法で進めます。
+
+まずはこれまで通りにプロジェクトを作成してください。
+
+```bash
+// ディレクトリの作成・移動
+mkdir xrpl-cross-currency
+cd xrpl-cross-currency
+
+// プロジェクト作成
+npm init -y
+npm install xrpl
+```
+
+## ES6モジュールを有効にする
+
+次に、package.jsonに以下の設定を追加して、ES6モジュールを有効にします。
+
+位置はどこでも構いませんが、以下のように、修正を加えてください。
+
+```json
+{
+  "name": "xrpl-cross-currency",
+  "version": "1.0.0",
+  "main": "index.js",
+  "type": "module", // 追加
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "xrpl": "^3.0.0"
+  }
+}
+
+```

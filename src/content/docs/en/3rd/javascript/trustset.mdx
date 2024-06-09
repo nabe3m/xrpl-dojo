@@ -1,0 +1,258 @@
+---
+title: Setting Trust Lines | XRPL Development in JavaScript - Level 3
+description: This page explains how to set trust lines for cross-currency payments as part of the third stage in XRPL development with JavaScript.
+sidebar:
+  label: Setting Trust Lines
+  order: 6
+---
+
+import { Aside, Steps } from '@astrojs/starlight/components';
+
+Setting a trust line allows an account to receive a specific currency.
+
+For basic knowledge of trust lines, please refer to [this page](/beginners/javascript/trustline/).
+
+This guide will explain the process using A.USD issued by Issuer A and B.EUR issued by Issuer B.
+
+To proceed with learning about cross-currency payments, we need to perform some basic setups for the accounts created in the previous chapter. Please create and run the following script.
+
+## Methods to be Used
+
+In this chapter, we will use the following methods created in the previous chapter.
+
+```javascript
+// utils/trustSet.js
+
+// Function to set a trust line
+export async function setTrustLine(client, wallet, currency, issuer, limit) {
+  try {
+    const trustSet = {
+      TransactionType: 'TrustSet',
+      Account: wallet.classicAddress,
+      LimitAmount: {
+        currency: currency,
+        issuer: issuer,
+        value: limit,
+      },
+    };
+    const response = await client.submitAndWait(trustSet, { wallet });
+    console.log(`Trust line set for ${wallet.classicAddress}:`, response);
+    return response;
+  } catch (error) {
+    console.error(
+      `Error setting trust line for ${wallet.classicAddress}: ${error}`
+    );
+    throw error;
+  }
+}
+
+```
+
+## Creating the Script
+
+<Steps>
+
+1. Create a new file named `setTrustline.js` in your project directory.
+2. Paste the following code into `setTrustline.js`.
+
+    ```javascript
+    // setTrustline.js
+    import { Client, AccountSetAsfFlags } from 'xrpl';
+    import { wallets } from './wallets.js';
+    import { setTrustLine } from './utils/trustSet.js';
+    import { setAccountFlags } from './utils/setAccountFlags.js';
+
+    const client = new Client('wss://s.altnet.rippletest.net:51233'); // Using the testnet
+
+    const main = async () => {
+      try {
+        await client.connect();
+
+        const { issuerA, issuerB, alice, bob, charlie, daniel } = wallets;
+        const limitAmount = '10000';
+
+        // Allow rippling
+        await setAccountFlags(client, issuerA, AccountSetAsfFlags.asfDefaultRipple);
+        await setAccountFlags(client, issuerB, AccountSetAsfFlags.asfDefaultRipple);
+
+        // Set trust lines for Alice to receive issuerA's USD and issuerB's EUR
+        await setTrustLine(client, alice, 'USD', issuerA.classicAddress, limitAmount);
+        await setTrustLine(client, alice, 'EUR', issuerB.classicAddress, limitAmount);
+
+        // Set trust line for Bob to receive issuerB's EUR
+        await setTrustLine(client, bob, 'EUR', issuerB.classicAddress, limitAmount);
+
+        // Set trust line for Charlie to receive issuerA's USD
+        await setTrustLine(client, charlie, 'USD', issuerA.classicAddress, limitAmount);
+
+        // Set trust line for Daniel to receive issuerB's EUR
+        await setTrustLine(client, daniel, 'EUR', issuerB.classicAddress, limitAmount);
+      } catch (error) {
+        console.error(`Error in trust line setup: ${error}`);
+      } finally {
+        await client.disconnect();
+      }
+    };
+
+    main();
+    ```
+</Steps>
+
+
+## Running the Script
+
+<Steps>
+
+1. Run the following command in the command line to execute the script.
+
+    ```bash
+    node setTrustLine.js
+    ```
+
+2. If you see console logs like the following, the execution should have been successful.
+    ```bash
+    Account flags set for rfkJ7Uz6NrNV1FdbmKB5wepoim51KFpYQp: {
+      id: 12,
+      result: {
+        Account: 'rfkJ7Uz6NrNV1FdbmKB5wepoim51KFpYQp',
+        Fee: '12',
+        Flags: 0,
+        LastLedgerSequence: 1048947,
+        Sequence: 1046418,
+        SetFlag: 8,
+        SigningPubKey: 'EDEBAB4C81CF854860D393191A001822A9B58242302710A2D3EFE5BE8620A1F8A9',
+        TransactionType: 'AccountSet',
+        TxnSignature: '0F1D6C311E50499CBF1B08D3423D83797AAE3139A444ED2461E41F0D6D2F7F61415C65C2302C6230F2EE85C55B3505FEE120C9169D2EC90754848EED663EB50A',
+        ctid: 'C010016100000001',
+        date: 770216691,
+        hash: 'FEEABF75F7220CF3CED9FB9D71CADE7C3C78F433812FCA7D3321958A07F3608F',
+        inLedger: 1048929,
+        ledger_index: 1048929,
+        meta: {
+          AffectedNodes: [Array],
+          TransactionIndex: 0,
+          TransactionResult: 'tesSUCCESS'
+        },
+        validated: true
+      },
+      type: 'response'
+    }
+    Account flags set for rstM9rxhKo4N4WEaQgQmQSPQRgZqkhHkaU: {
+      id: 24,
+      result: {
+        Account: 'rstM9rxhKo4N4WEaQgQmQSPQRgZqkhHkaU',
+        Fee: '12',
+        Flags: 0,
+        LastLedgerSequence: 1048949,
+        Sequence: 1046420,
+        SetFlag: 8,
+        SigningPubKey: 'EDBE91E21E32E1848B805B22597D87667FBC6B045B9ABADC67807DB88CD1767A97',
+        TransactionType: 'AccountSet',
+        TxnSignature: '85CD26FCCAFBB90218F7DBA03CA2807D129452BAE5001A9D13B610FFBFFA4EF9F84E98F5B91F282C022D07D14A78BE740C315A70F2003CB28DB4DAF200B78D09',
+        ctid: 'C010016300000001',
+        date: 770216701,
+        hash: '6B1CFBC84B221C0790D38961C05BB944374C5E35C4E9D0042E9A853AA6BA5618',
+        inLedger: 1048931,
+        ledger_index: 1048931,
+        meta: {
+          AffectedNodes: [Array],
+          TransactionIndex: 0,
+          TransactionResult: 'tesSUCCESS'
+        },
+        validated: true
+      },
+      type: 'response'
+    }
+    Trust line set for r3KQdHtUHUouGkLBFLZRxRYiugbW8cNwyJ: {
+      id: 36,
+      result: {
+        Account: 'r3KQdHtUHUouGkLBFLZRxRYiugbW8cNwyJ',
+        Fee: '12',
+        Flags: 0,
+        LastLedgerSequence: 1048951,
+        LimitAmount: {
+          currency: 'USD',
+          issuer: 'rfkJ7Uz6NrNV1FdbmKB5wepoim51KFpYQp',
+          value: '10000'
+        },
+        Sequence: 1046422,
+        SigningPubKey: 'ED84F179E4978F5FA3C5DDAA2305A074B954755975135D4CA3E56E2B09124A98AB',
+        TransactionType: 'TrustSet',
+        TxnSignature: 'A717516A634F6A1FC25D09EB740E3CD686EA35B3A141618C40C1454BB2E05216B1785E57E791EF1CCA95DE8655D5673FDED04A3002656DB5A1320622826A9102',
+        ctid: 'C010016500010001',
+        date: 770216710,
+        hash: 'E30668CA07772CD1A299E3FFD8FC38DE4E62C3E1ECF0518BAE86B7AF9035FDA4',
+        inLedger: 1048933,
+        ledger_index: 1048933,
+        meta: {
+          AffectedNodes: [Array],
+          TransactionIndex: 1,
+          TransactionResult: 'tesSUCCESS'
+        },
+        validated: true
+      },
+      type: 'response'
+    }
+    Trust line set for r3KQdHtUHUouGkLBFLZRxRYiugbW8cNwyJ: {
+      id: 51,
+      result: {
+        Account: 'r3KQdHtUHUouGkLBFLZRxRYiugbW8cNwyJ',
+        Fee: '12',
+        Flags: 0,
+        LastLedgerSequence: 1048953,
+        LimitAmount: {
+          currency: 'EUR',
+          issuer: 'rstM9rxhKo4N4WEaQgQmQSPQRgZqkhHkaU',
+          value: '10000'
+        },
+        Sequence: 1046423,
+        SigningPubKey: 'ED84F179E4978F5FA3C5DDAA2305A074B954755975135D4CA3E56E2B09124A98AB',
+        TransactionType: 'TrustSet',
+        TxnSignature: '34501D584CF69D79421A1328AA1D91BD65069AA143784874A95979F43AC635CEFD9425F65B2FC8CCE95690C90743A3E6B86D877DBB68FFB369D4411FAD586D07',
+        ctid: 'C0100167001E0001',
+        date: 770216712,
+        hash: '94C3B5CFB87CA96B48A77EFD3480DB88161DEF0A23FF0FC25EE9E2BAD9812084',
+        inLedger: 1048935,
+        ledger_index: 1048935,
+        meta: {
+          AffectedNodes: [Array],
+          TransactionIndex: 30,
+          TransactionResult: 'tesSUCCESS'
+        },
+        validated: true
+      },
+      type: 'response'
+    }
+    Trust line set for rn9GFEPHW5tX2CaKVc7mA4L2GyXh88JiTy: {
+      id: 63,
+      result: {
+        Account: 'rn9GFEPHW5tX2CaKVc7mA4L2GyXh88JiTy',
+        Fee: '12',
+        Flags: 0,
+        LastLedgerSequence: 1048955,
+        LimitAmount: {
+          currency: 'EUR',
+          issuer: 'rstM9rxhKo4N4WEaQgQmQSPQRgZqkhHkaU',
+          value: '10000'
+        },
+        Sequence: 1046424,
+        SigningPubKey: 'EDA33B78BB0BCE6D1E18015AE195AE3D67456F3B7A2C34ECD95D5AD8B0477EE96A',
+        TransactionType: 'TrustSet',
+        TxnSignature: '7A6EB874E4676EA1C2C6A9B37C8093214F4A30F17C9ED90ADE3F92200937131072AF9BF67AAB094540D5708155849AABB90B0F9DC0DE0FDEE9D1D7AC059FD100',
+        ctid: 'C010016900010001',
+        date: 770216721,
+        hash: '9FB732C996091FE868D9C47A0B1EE29691AA4C5CA0E6FC92D1D782C00A743DA5',
+        inLedger: 1048937,
+        ledger_index: 1048937,
+        meta: {
+          AffectedNodes: [Array],
+          TransactionIndex: 1,
+          TransactionResult: 'tesSUCCESS'
+        },
+        validated: true
+      },
+      type: 'response'
+    }
+    ...
+    ```
+</Steps>

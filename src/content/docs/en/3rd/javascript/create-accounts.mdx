@@ -1,0 +1,198 @@
+---
+title: Creating Test Accounts |  XRPL Development in JavaScript - Level 3
+description: This page introduces how to create test accounts for a guide on cross-currency transactions as part of the three-part series on XRPL development in JavaScript.
+sidebar:
+  label: Creating Test Accounts
+  order: 5
+---
+
+import { Aside, Steps } from '@astrojs/starlight/components';
+
+## Creating the Script
+
+<Steps>
+
+1. Create a new file called `createAccounts.js` in your project directory.
+2. Paste the following code into `createAccounts.js`.
+
+    ```javascript
+    import { Client, Wallet } from 'xrpl';
+
+    // List of account names to create
+    const accountNames = [
+        'ISSUER_A',
+        'ISSUER_B',
+        'ALICE',
+        'BOB',
+        'CHARLIE',
+        'DANIEL',
+    ];
+
+    // Object to store account wallets
+    const wallets = {};
+
+    // Create a client
+    const client = new Client('wss://s.altnet.rippletest.net:51233');
+
+    const main = async () => {
+        await client.connect();
+
+        for (const name of accountNames) {
+            const wallet = Wallet.generate();
+            wallets[name] = wallet;
+            await fundAccount(wallet);
+            console.log(`${name}_ADDRESS: ${wallet.address}`);
+            console.log(`${name}_SEED: ${wallet.seed}`);
+        }
+
+        await client.disconnect();
+    };
+
+    // Add funds to the account from the Faucet
+    const fundAccount = async (wallet) => {
+        const response = await client.fundWallet(wallet);
+        // console.log(response);
+    };
+
+    main().catch(console.error);
+    ```
+</Steps>
+
+## Running the Script
+
+<Steps>
+
+1. Run the following command in the command line to execute the script.
+
+    ```bash
+    node createAccounts.js
+    ```
+
+2. If successful, the console will display the following.
+    ```bash
+    ISSUER_A_ADDRESS: r████████████████████████████
+    ISSUER_A_SEED: s████████████████████████████
+    ISSUER_B_ADDRESS: r████████████████████████████
+    ISSUER_B_SEED: s████████████████████████████
+    ALICE_ADDRESS: r████████████████████████████
+    ALICE_SEED: s████████████████████████████
+    BOB_ADDRESS: r████████████████████████████
+    BOB_SEED: s████████████████████████████
+    CHARLIE_ADDRESS: r████████████████████████████
+    CHARLIE_SEED: s████████████████████████████
+    DANIEL_ADDRESS: r████████████████████████████
+    DANIEL_SEED: s████████████████████████████
+    ```
+
+    Make a note of the above information.
+
+    ```
+    # Token Issuer A
+    Address: 
+    Secret:
+
+    # Token Issuer B
+    Address: 
+    Secret:
+
+    # Alice
+    Address: 
+    Secret:
+
+    # Bob
+    Address: 
+    Secret:
+
+    # Charlie
+    Address: 
+    Secret: 
+
+    # Daniel
+    Address: 
+    Secret: 
+    ```
+</Steps>
+
+## Creating an Environment Variables File
+
+Using an environment variables file (.env) allows for efficient source management.
+
+In this test project, it will be used to manage the secret keys of the accounts.
+By managing it in a `.env` file, you can call the common account information across various sources.
+
+Remember, in production-level projects, it is essential knowledge.
+
+### Installing the Library
+
+Install the `dotenv` library.
+
+```bash
+npm install dotenv
+```
+
+### Creating the .env File
+
+Create a file called .env in the root of the project and define it as follows.
+
+```
+ISSUER_A_SEED=s████████████████████████████
+ISSUER_B_SEED=s████████████████████████████
+ALICE_SEED=s████████████████████████████
+BOB_SEED=s████████████████████████████
+CHARLIE_SEED=s████████████████████████████
+DANIEL_SEED=s████████████████████████████
+```
+
+Note: It will not be visible by default in Finder or other file managers.
+
+## Creating wallets.js
+
+Create a file called wallets.js in the root of the project and write the following source.
+
+Create a script that generates account information from the `.env` defined above and exports it as an object.
+
+```javascript
+import { Wallet } from 'xrpl';
+import { config } from 'dotenv';
+
+config(); // Load dotenv settings
+
+export const wallets = {
+  issuerA: Wallet.fromSeed(process.env.ISSUER_A_SEED),
+  issuerB: Wallet.fromSeed(process.env.ISSUER_B_SEED),
+  alice: Wallet.fromSeed(process.env.ALICE_SEED),
+  bob: Wallet.fromSeed(process.env.BOB_SEED),
+  charlie: Wallet.fromSeed(process.env.CHARLIE_SEED),
+  daniel: Wallet.fromSeed(process.env.DANIEL_SEED),
+};
+```
+
+### Usage
+
+You can use it as follows.
+
+```javascript
+import { Client} from 'xrpl';
+import { wallets } from './wallets.js';
+
+const client = new Client('wss://s.altnet.rippletest.net:51233');
+
+async function main() {
+  try {
+    await client.connect();
+
+    const { issuerA, issuerB, alice, bob, charlie, daniel } = wallets;
+
+    ...
+  }
+}
+```
+
+By doing this, you can call common account information across files with little effort.
+
+I believe this will help you progress efficiently with your learning, and you can also apply this to your own product ideas.
+
+<Aside title="About Accounts" type="danger">
+In this guide, we create account information for learning purposes on the testnet.
+For actual accounts used on the mainnet, do not save the secret key (private key) on the internet, save it at a safe place offline.
+</Aside>

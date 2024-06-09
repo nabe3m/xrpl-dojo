@@ -1,0 +1,97 @@
+---
+title: Getting XRP for Development Use | Introduction to JavaScript
+description: Demonstrate how to get XRP for development use using Node.js.
+sidebar: 
+  label: Get XRP for development use
+  order: 5
+---
+
+import { Steps } from '@astrojs/starlight/components';
+
+Testnet allows you to obtain XRP, the native token, for development purposes.
+
+There are two main methods.
+
+## Obtain by specifying an address
+
+The following site allows you to acquire XRP by specifying an address.
+
+If you want to send to the account address you created earlier by code, you can use the tool at bithomb.com.
+
+- [test.bithomp.com](https://test.bithomp.com/faucet/)
+
+If you want to get XRP while creating an address, go on and create an account below.
+
+- [xrpl.org](https://xrpl.org/resources/dev-tools/xrp-faucets/)
+
+## If you want to get it by code
+
+While it is better to use a tool for efficiency and convenience, you can also get XRP using code.
+
+### Installing node-fetch
+
+The fetch API is built into the browser, but in a Node.js environment, you need to install the node-fetch module.
+
+```bash
+npm install node-fetch
+```
+
+### Create Script
+
+```javascript
+const fetch = require('node-fetch');
+
+async function faucet() {
+  try {
+    // XRPL Testnet Faucet URL
+    const faucetUrl = 'https://faucet.altnet.rippletest.net/accounts';
+
+    // Send POST request using Fetch API
+    const response = await fetch(faucetUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    console.log('Wallet Address:', data.account.address);
+    console.log('Secret:', data.account.secret); 
+    console.log('Balance:', data.balance); // display the amount of XRP granted in the test net
+  } catch (error) {
+    console.error('Error requesting XRP:', error.message); 
+  }
+}
+
+faucet(); 
+```
+
+## Run script
+
+<Steps> 
+
+1. Run script by executing the following command on the command line.
+
+    ```bash
+    node create_wallet.js
+    ````
+
+2. If successful, you will see the following in the console.
+
+    ```bash
+    data: {
+        account: {
+        xAddress: 'XVBX4Scdqqvh8WukxJjvoNCSQ5CvZPCvZUPuaXaqZ2JuxH9',
+            address: 'rDt3T3ifG96eKS4pkZyUxhYt8rTSpPDauf', // address
+            classicAddress: 'rDt3T3ifG96eKS4pkZyUxhYt8rTSpPDauf'
+        }, 
+        amount: 100, // 100XRP has been obtained
+        transactionHash: '6FBE1C1215B8B3D0765D3CEC2FD48EE2BBC073DB8A960A92CA0485986CFE226C',
+        seed: 'sEdTYR4byoAWLJUqFCGQsZsAX6ni9tc' // secret key
+    }
+    ```
+</Steps>

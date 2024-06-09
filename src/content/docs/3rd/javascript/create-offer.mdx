@@ -1,0 +1,136 @@
+---
+title: オファーの作成 | JavaScriptでのXRPL開発 三段編
+description: JavaScriptでのXRPL開発 三段編のクロスカレンシー送金を行うためのステップとして、「オファーの作成」について解説しているページです。
+sidebar:
+  label: オファーの作成
+  order: 8
+---
+
+import { Aside, Steps } from '@astrojs/starlight/components';
+
+このガイドはクロスカレンシー送金について、発行者Aの`A.USD`、発行者Bの`B.EUR`を取り扱う形で解説しています。
+
+クロスカレンシー送金の学習を進めるためには、はじめにオファーの作成をして流動性を提供する必要があります。
+
+
+
+## 前提
+ここまでのステップにて、アリスは発行者Aの`A.USD`を発行者Bの`B.EUR`を保有済みです。
+
+アリスが、発行者Aの`A.USD`を発行者Bの`B.EUR`を交換したい、という体で進めます。
+
+- アリスが`A.USD`を売り、`B.EUR`を買う場合のオファーを作成します。
+
+## 使用するメソッド
+
+冒頭で作成した以下の汎用的なメソッドを利用します。
+
+```javascript
+// utils/OfferCreate.js
+
+// オファーを作成する関数
+export async function OfferCreate(client, wallet, takerGets, takerPays) {
+  try {
+    const offerCreate = {
+      TransactionType: 'OfferCreate',
+      Account: wallet.classicAddress,
+      TakerGets: takerGets,
+      TakerPays: takerPays,
+    };
+    const response = await client.submitAndWait(offerCreate, { wallet });
+    console.log(`Offer created for ${wallet.classicAddress}:`, response);
+    return response;
+  } catch (error) {
+    console.error(`Error creating offer for ${wallet.classicAddress}: ${error}`);
+    throw error;
+  }
+}
+```
+
+## スクリプトの作成
+
+<Steps>
+
+1. プロジェクトディレクトリに`createOffer.js`という新しいファイルを作成します。
+2. 以下のコードを`createOffer.js`に貼り付けます。
+
+    ```javascript
+    import { Client, xrpToDrops } from 'xrpl';
+    import { wallets } from './wallets.js';
+    import { createOffer } from './utils/createOffer.js';
+
+    const client = new Client('wss://s.altnet.rippletest.net:51233'); // テストネットを使用
+
+    async function main() {
+        try {
+            await client.connect();
+
+            const { issuerA, issuerB, alice, bob, charlie, daniel } = wallets;
+
+            await createOffer(
+                client,
+                alice,
+                { currency: 'USD', issuer: issuerA.address, value: '100' },
+                { currency: 'EUR', issuer: issuerB.address, value: '100' }
+            );
+        } catch (error) {
+            console.error(`Error in offer creation: ${error}`);
+        } finally {
+            await client.disconnect();
+        }
+    }
+
+    main();
+    ```
+</Steps>
+
+
+## スクリプトの実行
+
+<Steps>
+
+1. コマンドラインで以下のコマンドを実行して、スクリプトを実行します。
+
+    ```bash
+    node issueCurrency.js
+    ```
+
+2. 以下のようなコンソールログが表示されれば、成功です。
+    ```bash
+    Offer created for r3KQdHtUHUouGkLBFLZRxRYiugbW8cNwyJ: {
+        id: 10,
+        result: {
+            Account: 'r3KQdHtUHUouGkLBFLZRxRYiugbW8cNwyJ',
+            Fee: '12',
+            Flags: 0,
+            LastLedgerSequence: 1050080,
+            Sequence: 1046424,
+            SigningPubKey: 'ED84F179E4978F5FA3C5DDAA2305A074B954755975135D4CA3E56E2B09124A98AB',
+            TakerGets: {
+                currency: 'USD',
+                issuer: 'rfkJ7Uz6NrNV1FdbmKB5wepoim51KFpYQp',
+                value: '100'
+            },
+            TakerPays: {
+                currency: 'EUR',
+                issuer: 'rstM9rxhKo4N4WEaQgQmQSPQRgZqkhHkaU',
+                value: '100'
+            },
+            TransactionType: 'OfferCreate',
+            TxnSignature: 'D228E9F7B39DC41B8C76B4318C1CCD7D38F6A9CC49BEAD728E75D5E4DE040A1DFEAF01185061091FC608292024F72CB36BD99E17EF06273DAC0060DEF3C18100',
+            ctid: 'C01005CE00000001',
+            date: 770220351,
+            hash: 'D6689FB0EA43663597620E9EE1B68AC852A3FD0686AA95335F9D125D32AE54DC',
+            inLedger: 1050062,
+            ledger_index: 1050062,
+            meta: {
+                AffectedNodes: [Array],
+                TransactionIndex: 0,
+                TransactionResult: 'tesSUCCESS'
+            },
+            validated: true
+        },
+        type: 'response'
+    }
+    ```
+</Steps>

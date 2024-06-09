@@ -1,0 +1,180 @@
+---
+title: トラストラインの挙動について | JavaScriptでのXRPL開発 三段編
+description: JavaScriptでのXRPL開発 三段編として、「トラストラインの挙動」について解説しているページです。
+sidebar:
+  label: トラストラインの挙動について
+  order: 11
+---
+
+import { Aside, Steps } from '@astrojs/starlight/components';
+
+次は、オファーを行った際の、トラストラインの挙動について解説します。
+
+ボブが発行者Bの`B.EUR`を売り、発行者Aの`A.USD`買うオファーを出し、その`B.EUR`が最終的にダニエルに届くような流れを試してみましょう。
+
+## 前提
+
+チャーリーは、ダニエルに支払いを行う必要がありますが、ダニエルは`B.EUR`で受け取りたいそうです。しかし、現時点では、チャーリーは`B.EUR`を保有していないため、
+`XRP`と発行者Aの`A.USD`しか保有していないチャーリーは、手持ちの`A.USD`を交換できないかと考えました。
+
+1. ボブが発行者Bの`B.EUR`を売り、発行者Aの`A.USD`を買うオファーを出して、流動性を提供しましょう。
+2. チャーリーから`A.USD`をダニエルに`B.EUR`として、送付する手続きを行います。
+
+## スクリプトの作成
+
+<Steps>
+
+1. 作成済みの`createOffers.js`で、ボブからオファーを出します。
+
+    ```javascript
+    import { Client, xrpToDrops } from 'xrpl';
+    import { wallets } from './wallets.js';
+    import { createOffer } from './utils/createOffer.js';
+
+    const client = new Client('wss://s.altnet.rippletest.net:51233'); // テストネットを使用
+
+    async function main() {
+        try {
+            await client.connect();
+
+            const { issuerA, issuerB, alice, bob, charlie, daniel } = wallets;
+
+            // await createOffer(
+            //   client,
+            //   alice,
+            //   { currency: 'USD', issuer: issuerA.address, value: '100' },
+            //   { currency: 'EUR', issuer: issuerB.address, value: '100' }
+            // );
+
+            await createOffer(
+            client,
+            bob,
+            { currency: 'EUR', issuer: issuerB.address, value: '100' },
+            { currency: 'USD', issuer: issuerA.address, value: '100' }
+            );
+        } catch (error) {
+            console.error(`Error in offer creation: ${error}`);
+        } finally {
+            await client.disconnect();
+        }
+    }
+
+    main();
+    ```
+
+2. 作成済みの`crossCurrencyPayment.js`で、チャーリーから支払いを行います。
+
+    ```javascript
+    // crossCurrencyPayment.js
+    import xrpl from 'xrpl';
+    import { wallets } from './wallets.js';
+    import { sendPayment } from './utils/payment.js';
+
+    const client = new xrpl.Client('wss://s.altnet.rippletest.net:51233');
+
+    const main = async () => {
+        await client.connect();
+
+        const { issuerA, issuerB, alice, bob, charlie, daniel } = wallets;
+
+        // await sendPayment(
+        //   client,
+        //   daniel,
+        //   { currency: 'USD', issuer: issuerA.address, value: '100' }, // チャーリーが受け取りたい通貨：A.USD
+        //   charlie.address,
+        //   {
+        //     sendMax: { currency: 'EUR', issuer: issuerB.address, value: '100' }, // ダニエルが支払いたい通貨：B.EUR
+        //   }
+        // );
+
+        // チャーリーからダニエルへの支払い
+        await sendPayment(
+            client,
+            charlie,
+            { currency: 'EUR', issuer: issuerB.address, value: '100' }, // ダニエルが受け取りたい通貨：B.EUR
+            daniel.address,
+            {
+            sendMax: { currency: 'USD', issuer: issuerA.address, value: '100' }, // チャーリーが支払いたい通貨：A.USD
+            }
+        );
+
+        await client.disconnect();
+    };
+
+    main().catch(console.error);
+    ```
+</Steps>
+
+
+## スクリプトの実行
+
+<Steps>
+
+1. コマンドラインで以下のコマンドを実行して、スクリプトを実行します。
+
+    ```bash
+    node createOffers.js
+    node crossCurrencyPayment.js
+    ```
+
+2. `crossCurrencyPayment.js`の結果として、以下のようなログが表示されれば成功です。
+    ```bash
+    Payment sent from rnP7Q6LaejYi7oaN4qJHkKhnESZYAyVQwh to rf6R7pFgytT9JKjMVjKqeTv6MeDTrbNw3: {
+        id: 14,
+        result: {
+            Account: 'rnP7Q6LaejYi7oaN4qJHkKhnESZYAyVQwh', // Charlie
+            Amount: {
+                currency: 'EUR',
+                issuer: 'rstM9rxhKo4N4WEaQgQmQSPQRgZqkhHkaU', // issuerB
+                value: '100'
+            },
+            DeliverMax: {
+                currency: 'EUR',
+                issuer: 'rstM9rxhKo4N4WEaQgQmQSPQRgZqkhHkaU',
+                value: '100'
+            },
+            Destination: 'rf6R7pFgytT9JKjMVjKqeTv6MeDTrbNw3', // Daniel
+            Fee: '12',
+            Flags: 0,
+            LastLedgerSequence: 1085862,
+            SendMax: {
+                currency: 'USD',
+                issuer: 'rfkJ7Uz6NrNV1FdbmKB5wepoim51KFpYQp', // issuerA
+                value: '100' // 限度額
+            },
+            Sequence: 1046427,
+            SigningPubKey: 'ED88C6BDCFE0FB8612FCE299211DDAB0E6E6498EEAD14D07673D7C2C0778361766',
+            TransactionType: 'Payment',
+            TxnSignature: 'CE013A27741315A5DE67B811DF4AA793F3CBF24AA80D0EED9A1148B790A6A9713B1DE457BF3F3EECC5C155A8CA81D9536F7C151239DF6BEBA13BFCA057255E02',
+            ctid: 'C010919400000001',
+            date: 770335361,
+            hash: '95CE240790C3B1AA5C59CB1C1A4747B42901B06F3F4217C5BFC3E4F07D372E07',
+            inLedger: 1085844,
+            ledger_index: 1085844,
+            meta: {
+                AffectedNodes: [Array],
+                TransactionIndex: 0,
+                TransactionResult: 'tesSUCCESS', // 成功
+                delivered_amount: [Object]
+            },
+            validated: true
+        },
+        type: 'response'
+    }
+    ```
+
+    この時点で、以下のようになっていることを[エクスプローラ](https://test.bithomp.com/explorer/)で確認してください。
+
+    1. ボブは`B.EUR`の残高が`900`に減少、`A.USD`の残高が`100`に増加しました。
+    2. チャーリーは`A.USD`の残高が`1,000`に増加しました。（初期状態に戻る）
+    3. ダニエルは`B.EUR`の残高が`1,000`に増加しました。（初期状態に戻る）
+
+</Steps>
+
+## トラストラインについて
+
+ボブは`A.USD`に対してトラストラインの設定を明示的に行っていないにも関わらず、`A.USD`の保有ができている状態になりました。
+
+これは、`OfferCreate`トランザクションが引き起こす挙動で、「`A.USD`が欲しいという注文 = トラストした」と解釈していただければ良いかと思います。
+
+次章では、クロスカレンシー送金のパターンなどについて解説します。
