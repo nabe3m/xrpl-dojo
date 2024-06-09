@@ -14,21 +14,21 @@ We will continue to handle the issuer A's A.USD.
 
 ## Prerequisites
 
-Daniel does not hold `A.USD` but needs to pay Alice in A.USD.
+Daniel does not hold `A.USD` but needs to pay `Alice` in `A.USD`.
 
-He holds XRP and aims to send an amount equivalent to 5 XRP in A.USD to Alice.
+He holds `XRP` and aims to send an amount equivalent to `5 XRP` in `A.USD` to `Alice`.
 
 In cross-currency payments between different currencies, liquidity is always required, and the following process is necessary.
 
-1. Bob creates an offer to exchange A.USD for XRP, providing liquidity.
-2. Daniel, who does not hold A.USD, will pay Alice using up to 5 XRP (assuming there is liquidity; otherwise, the payment will fail).
-3. The process is successful if Alice receives 100 A.USD.
+1. `Bob` creates an offer to exchange `A.USD` for `XRP`, providing liquidity.
+2. Daniel, who does not hold `A.USD`, will pay Alice using up to `5 XRP` (assuming there is liquidity; otherwise, the payment will fail).
+3. The process is successful if `Alice` receives `100 A.USD`.
 
 ## 1. Create Offer from Bob (Provide Liquidity)
 
 For cross-currency payments to occur, liquidity must exist.
 
-Bob creates an offer to exchange his A.USD for XRP, providing liquidity.
+Bob creates an offer to exchange his `A.USD` for `XRP`, providing liquidity.
 
 <Steps>
 
@@ -171,10 +171,10 @@ The route is quite simple; here, it will be `Daniel → Bob → Alice`. Of cours
     }
     ```
 
-    This completes the transfer of A.USD to Alice.
+    This completes the transfer of `A.USD` to Alice.
 
-    To recap, Daniel sent A.USD to Alice, staying within the limit of 5 XRP. 
-    Bob had placed an order to exchange 100 A.USD for 5 XRP, so ultimately, Bob received 5 XRP and Alice received the A.USD that Bob held.
+    To recap, `Daniel` sent `A.USD` to `Alice`, staying within the limit of `5 XRP`. 
+    Bob had placed an order to exchange `100 A.USD` for `5 XRP`, so ultimately, `Bob` received `5 XRP` and `Alice` received the `A.USD` that `Bob` held.
 
 </Steps>
 
