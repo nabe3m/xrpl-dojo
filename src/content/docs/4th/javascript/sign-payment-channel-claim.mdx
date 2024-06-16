@@ -1,0 +1,106 @@
+---
+title: オフレジャー支払いへの署名と検証 | JavaScriptでのXRPL開発 四段編
+description:  JavaScriptでのXRPL開発 四段編として、ペイメントチャネルの「オフレジャー支払いへの署名と検証」方法について解説しているページです。
+sidebar:
+  label: オフレジャー支払いへの署名と検証
+  order: 5
+---
+
+import { Aside, Steps } from '@astrojs/starlight/components';
+
+このガイドでは、1,000件のオフレジャー支払いを行い、署名と検証をする流れについて解説します。
+
+## スクリプトの作成
+
+<Steps>
+
+1. プロジェクトディレクトリに`signPaymentChannelClaimAndVerify.js`という新しいファイルを作成します。
+2. 以下のコードを`signPaymentChannelClaimAndVerify.js`に貼り付けます。
+
+    ※以下は、毎回`0.001`ずつ支払いが増えていき、最終的に最大`1 XRP`支払うループです。
+
+    ```javascript
+    import {
+        signPaymentChannelClaim,
+        verifyPaymentChannelClaim,
+        xrpToDrops,
+    } from 'xrpl';
+    import { client, bobWallet } from './config.js';
+
+    const signAndVerifyClaims = async (channel_id) => {
+        let paychanSignature = '';
+
+        console.time();
+        for (let i = 1; i <= 1000; i++) {
+            const amount = (0.001 * i).toFixed(6); // 小数点以下6桁に固定
+            const amountFormatted = parseFloat(amount).toString(); // XRP建
+
+            // 送金人: オフレジャー支払いへの署名
+            paychanSignature = signPaymentChannelClaim(
+            channel_id,
+            amountFormatted, // XRP建の量での指定
+            bobWallet.privateKey
+            );
+
+            // 受取人: オフレジャー支払い情報の検証
+            if (
+            !verifyPaymentChannelClaim(
+                channel_id,
+                amountFormatted, // XRP建の量での指定
+                paychanSignature,
+                bobWallet.publicKey
+            )
+            ) {
+            throw new Error('Invalid signature');
+            }
+        }
+        console.timeEnd();
+
+        return paychanSignature;
+    };
+
+    const main = async () => {
+        try {
+            await client.connect();
+            const channelId =
+            '0AE202C7C43765A1B70B58910AA154D3B61BD362A16521488D99121FE9AA784E'; // 事前に作成したチャンネルIDを入力
+            const signature = await signAndVerifyClaims(channelId);
+            console.log(`Generated signature: ${signature}`);
+        } catch (error) {
+            console.error('Error connecting to XRPL:', error);
+        } finally {
+            await client.disconnect();
+        }
+    };
+
+    main();
+    ```
+</Steps>
+
+
+## スクリプトの実行
+
+<Steps>
+
+1. コマンドラインで以下のコマンドを実行して、スクリプトを実行します。
+
+    ```bash
+    node signPaymentChannelClaimAndVerify.js
+    ```
+
+2. 成功すれば、コンソールに以下が表示されます。
+    ```bash
+    default: 3.100s
+    Generated signature: 7B5150FB860F10CC2C6CBBEE3A3C0B990BD4B71D2C1919E4AB4637A4E2CF02C592C8083FBEFAB6C9F5F6E369C7645255814BD39CDF9FCD93903FE672E1156E0A
+    ```
+
+    ローカル環境での結果となりますが、1,000件のオフレジャー支払いにかかった時間はたったの`3.1s`です。
+    
+    このように、オフレジャー取引を行うことで1,000件を超える支払いを数秒で処理することができます。
+
+    <Aside>
+    送金人がオフレジャー支払いに署名し、その署名を受取人が検証することで、オフレジャー支払いの有効性を確認します。このプロセスは、ペイメントチャネルを通じた支払いの一部として重要です。
+    </Aside>
+</Steps>
+
+次に、資金を請求する方法について紹介します。
