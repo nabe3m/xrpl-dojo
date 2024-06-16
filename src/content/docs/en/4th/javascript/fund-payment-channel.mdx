@@ -1,0 +1,106 @@
+---
+title: How to Add Funds to a Payment Channel | XRPL Development Level 4
+description: This page explains "How to Add Funds to a Payment Channel" as part of the XRPL Development Level 4 curriculum.
+sidebar:
+  label: Add Funds to a Channel
+  order: 7
+---
+
+import { Aside, Steps } from '@astrojs/starlight/components';
+
+## Creating the Script
+
+<Steps>
+
+1. Create a new file called `fundPaymentChannel.js` in your project directory.
+
+2. Paste the following code into `fundPaymentChannel.js`.
+
+    ```javascript
+    import { xrpToDrops } from 'xrpl';
+    import { client, bobWallet } from './config.js';
+
+    const fundPaymentChannel = async (channelId) => {
+        try {
+            const tx = {
+            TransactionType: 'PaymentChannelFund', // Transaction type: PaymentChannelFund
+            Account: bobWallet.address, // Sender (Bob)'s account address
+            Channel: channelId, // Payment channel ID
+            Amount: xrpToDrops('5'), // Amount of XRP to add to the channel (5 XRP here)
+            };
+
+            console.log('Submitting a PaymentChannelFund transaction...');
+            const fundChannelResponse = await client.submitAndWait(tx, {
+            wallet: bobWallet,
+            });
+            console.log(
+            'PaymentChannelFund transaction response:',
+            fundChannelResponse
+            );
+        } catch (error) {
+            console.error('Error funding Payment Channel:', error);
+        }
+    };
+
+    const main = async () => {
+        try {
+            await client.connect();
+            const channelId = 'channel ID'; // Enter the previously created channel ID
+            await fundPaymentChannel(channelId);
+        } catch (error) {
+            console.error('Error connecting to XRPL:', error);
+        } finally {
+            await client.disconnect();
+        }
+    };
+
+    main();
+    ```
+</Steps>
+
+
+## Running the Script
+
+<Steps>
+
+1. Run the script by executing the following command in the command line.
+
+    ```bash
+    node fundPaymentChannel.js
+    ```
+
+2. If successful, the console will display the following:
+
+   ```javascript
+    Submitting a PaymentChannelFund transaction...
+    PaymentChannelFund transaction response: {
+        id: 10,
+        result: {
+            Account: 'r9kxafhpMrUzTknHxU1CmfY2pHwLcGDfT2',
+            Amount: '5000000',
+            Channel: '0AE202C7C43765A1B70B58910AA154D3B61BD362A16521488D99121FE9AA784E',
+            Fee: '12',
+            Flags: 0,
+            LastLedgerSequence: 1564211,
+            Sequence: 1563977,
+            SigningPubKey: 'ED2D6F34B0A79023E1436F8FA0FB192719FAB3F0FEC5481270D455093157E3856A',
+            TransactionType: 'PaymentChannelFund',
+            TxnSignature: '09B1798D1BFDE9DB23C1F44F749725FC024E800A9021A4F898C9B8042713E0BDA1CABCDB97988000C1AD145F5621534B588CB6A47616C10222D7F525FA09E20F',
+            ctid: 'C017DE2100000001',
+            date: 771859111,
+            hash: '28D45BCBB615B817F5835BE0F5ED7DB191BF389A5620077312CC7DF2FDF81AC9',
+            inLedger: 1564193,
+            ledger_index: 1564193,
+            meta: {
+                AffectedNodes: [Array],
+                TransactionIndex: 0,
+                TransactionResult: 'tesSUCCESS' // Success
+            },
+            validated: true
+        },
+        type: 'response'
+    }
+    ```
+</Steps>
+
+※The next chapter is under construction.

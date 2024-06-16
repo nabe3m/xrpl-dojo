@@ -1,0 +1,106 @@
+---
+title: Signing and Verifying Off-Ledger Payments | XRPL Development Level 4
+description: This page explains "Signing and Verifying Off-Ledger Payments" as part of the XRPL Development Level 4 curriculum.
+sidebar:
+  label: Signing and Verifying Off-Ledger Payments
+  order: 5
+---
+
+import { Aside, Steps } from '@astrojs/starlight/components';
+
+In this guide, we will explain the process of conducting 1,000 off-ledger payments and signing and verifying each payment.
+
+## Creating the Script
+
+<Steps>
+
+1. Create a new file called `signPaymentChannelClaimAndVerify.js` in your project directory.
+2. Paste the following code into `signPaymentChannelClaimAndVerify.js`.
+
+    * The following script increments the payment by 0.001 each time, eventually paying up to a maximum of 1 XRP.
+
+    ```javascript
+    import {
+        signPaymentChannelClaim,
+        verifyPaymentChannelClaim,
+        xrpToDrops,
+    } from 'xrpl';
+    import { client, bobWallet } from './config.js';
+
+    const signAndVerifyClaims = async (channel_id) => {
+        let paychanSignature = '';
+
+        console.time();
+        for (let i = 1; i <= 1000; i++) {
+            const amount = (0.001 * i).toFixed(6); // Fixed to 6 decimal places
+            const amountFormatted = parseFloat(amount).toString(); // Specified in XRP
+
+            // Sender: Sign the off-ledger payment
+            paychanSignature = signPaymentChannelClaim(
+                channel_id,
+                amountFormatted, // Specified in XRP
+                bobWallet.privateKey
+            );
+
+            // Recipient: Verify the off-ledger payment information
+            if (
+                !verifyPaymentChannelClaim(
+                    channel_id,
+                    amountFormatted, // Specified in XRP
+                    paychanSignature,
+                    bobWallet.publicKey
+                )
+            ) {
+                throw new Error('Invalid signature');
+            }
+        }
+        console.timeEnd();
+
+        return paychanSignature;
+    };
+
+    const main = async () => {
+        try {
+            await client.connect();
+            const channelId = 'channel ID'; // Enter the previously created channel ID
+            const signature = await signAndVerifyClaims(channelId);
+            console.log(`Generated signature: ${signature}`);
+        } catch (error) {
+            console.error('Error connecting to XRPL:', error);
+        } finally {
+            await client.disconnect();
+        }
+    };
+
+    main();
+    ```
+</Steps>
+
+
+## Running the Script
+
+<Steps>
+
+1. Run the script by executing the following command in the command line.
+
+    ```bash
+    node signPaymentChannelClaimAndVerify.js
+    ```
+
+2. If successful, the console will display the following:
+
+    ```bash
+    default: 3.100s
+    Generated signature: 7B5150FB860F10CC2C6CBBEE3A3C0B990BD4B71D2C1919E4AB4637A4E2CF02C592C8083FBEFAB6C9F5F6E369C7645255814BD39CDF9FCD93903FE672E1156E0A
+    ```
+
+    This is a local result, showing that it took only `3.1s` to process 1,000 off-ledger payments.
+
+    As demonstrated, off-ledger transactions can process over 1,000 payments in a matter of seconds.
+
+    <Aside>
+    By having the sender sign the off-ledger payment and the recipient verify the signature, the validity of the off-ledger payment is confirmed. This process is crucial as part of payments made through a payment channel. 
+    </Aside>
+</Steps>
+
+Next, we will introduce the method to claim funds.

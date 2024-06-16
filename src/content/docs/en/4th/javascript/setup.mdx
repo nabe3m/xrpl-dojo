@@ -1,0 +1,71 @@
+---
+title: Starting the Project | XRPL Development Level 4
+description: This page explains "Starting the Project" as part of the XRPL Development Level 4 curriculum.
+sidebar:
+  label: Starting the Project
+  order: 2
+---
+
+Let's start by creating the project.
+
+## Required Tools
+
+- Text Editor([VS Code is recommended](/editor/install/))
+- [Install Node.js](/getting-started/node-js/)
+
+## Creating the Project
+
+Since there are only two characters involved, a simple project will suffice.
+
+Create the project as follows:
+
+```bash
+// Create and navigate to the directory
+mkdir xrpl-payment-functions
+cd xrpl-payment-functions
+
+// Initialize the project
+npm init -y
+npm install xrpl
+```
+
+## Enabling ES6 Modules
+
+Next, add the following setting to package.json to enable ES6 modules.
+
+The location doesn't matter, but modify it as shown below:
+
+```json
+{
+  "name": "xrpl-payment-functions",
+  "version": "1.0.0",
+  "main": "index.js",
+  "type": "module", // Add this line
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "xrpl": "^3.0.0"
+  }
+}
+```
+
+## Creating Configuration Files
+
+To enhance learning efficiency, create a config file at the root of the directory for reuse in the upcoming source code.
+
+```javascript
+// config.js
+import { Client, Wallet } from 'xrpl';
+
+// XRPL Client
+export const client = new xrpl.Client('wss://s.altnet.rippletest.net:51233'); // Testnet
+
+// Wallets
+export const aliceWallet = xrpl.Wallet.fromSeed('s████████████████████████████'); // Enter Alice's seed
+export const bobWallet = xrpl.Wallet.fromSeed('s████████████████████████████'); // Enter Bob's seed
+```
