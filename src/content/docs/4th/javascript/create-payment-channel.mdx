@@ -34,7 +34,7 @@ import { Aside, Steps } from '@astrojs/starlight/components';
                 Account: bobWallet.address, // 送金者（ボブ）のアカウントアドレス
                 Amount: xrpl.xrpToDrops('10'), // チャネルにデポジットするXRPの量（ここでは10 XRP）
                 Destination: aliceWallet.address, // 受領者（アリス）のアカウントアドレス
-                SettleDelay: 86400, // チャネルがクローズされる前に待機する秒数（ここでは1日）
+                SettleDelay: 86400, // チャネルに資金がある場合でも後に閉じることが可能になる秒数（ここでは1日）
                 PublicKey: bobWallet.publicKey, // 送金者（ボブ）の公開鍵
                 CancelAfter: Math.floor(Date.now() / 1000) + 86400 * 7, // チャネルがキャンセルされるまでの秒数（ここでは1週間）
             };
