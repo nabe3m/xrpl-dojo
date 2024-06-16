@@ -6,7 +6,7 @@ export default defineConfig({
   site: 'https://xrpldojo.dev',
   integrations: [
     starlight({
-      title: 'XRPL道場 -DOJO-',
+      title: 'XRPL Dojo',
       favicon: '/favicon.png',
       logo: {
         src: './src/assets/images/logo-xrpl-dojo.webp',
@@ -90,6 +90,11 @@ export default defineConfig({
           label: '三段',
           translations: { 'en-US': 'Level 3' },
           autogenerate: { directory: '3rd' },
+        },
+        {
+          label: '四段',
+          translations: { 'en-US': 'Level 4' },
+          autogenerate: { directory: '4th' },
         },
         // {
         //   label: 'チュートリアル',
