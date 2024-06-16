@@ -1,0 +1,107 @@
+---
+title: ペイメントチャネルへの資金の追加方法 | 四段編
+description: XRPL開発 四段編として、「ペイメントチャネルの資金の追加方法」について解説しているページです。
+sidebar:
+  label: チャネルへの資金の追加方法
+  order: 7
+---
+
+import { Aside, Steps } from '@astrojs/starlight/components';
+
+## スクリプトの作成
+
+<Steps>
+
+1. プロジェクトディレクトリに`fundPaymentChannel.js`という新しいファイルを作成します。
+
+2. 以下のコードを`fundPaymentChannel.js`に貼り付けます。
+
+    ```javascript
+    import { xrpToDrops } from 'xrpl';
+    import { client, bobWallet } from './config.js';
+
+    const fundPaymentChannel = async (channelId) => {
+        try {
+            const tx = {
+            TransactionType: 'PaymentChannelFund', // トランザクションタイプ: ペイメントチャネルの資金追加
+            Account: bobWallet.address, // 送金者（ボブ）のアカウントアドレス
+            Channel: channelId, // ペイメントチャネルのID
+            Amount: xrpToDrops('5'), // チャネルに追加するXRPの量（ここでは5 XRP）
+            };
+
+            console.log('Submitting a PaymentChannelFund transaction...');
+            const fundChannelResponse = await client.submitAndWait(tx, {
+            wallet: bobWallet,
+            });
+            console.log(
+            'PaymentChannelFund transaction response:',
+            fundChannelResponse
+            );
+        } catch (error) {
+            console.error('Error funding Payment Channel:', error);
+        }
+    };
+
+    const main = async () => {
+        try {
+            await client.connect();
+            const channelId =
+            '0AE202C7C43765A1B70B58910AA154D3B61BD362A16521488D99121FE9AA784E'; // 事前に作成したチャンネルIDを入力
+            await fundPaymentChannel(channelId);
+        } catch (error) {
+            console.error('Error connecting to XRPL:', error);
+        } finally {
+            await client.disconnect();
+        }
+    };
+
+    main();
+    ```
+</Steps>
+
+
+## スクリプトの実行
+
+<Steps>
+
+1. コマンドラインで以下のコマンドを実行して、スクリプトを実行します。
+
+    ```bash
+    node fundPaymentChannel.js
+    ```
+
+2. 成功すれば、コンソールに以下が表示されます。
+
+   ```javascript
+    Submitting a PaymentChannelFund transaction...
+    PaymentChannelFund transaction response: {
+        id: 10,
+        result: {
+            Account: 'r9kxafhpMrUzTknHxU1CmfY2pHwLcGDfT2',
+            Amount: '5000000',
+            Channel: '0AE202C7C43765A1B70B58910AA154D3B61BD362A16521488D99121FE9AA784E',
+            Fee: '12',
+            Flags: 0,
+            LastLedgerSequence: 1564211,
+            Sequence: 1563977,
+            SigningPubKey: 'ED2D6F34B0A79023E1436F8FA0FB192719FAB3F0FEC5481270D455093157E3856A',
+            TransactionType: 'PaymentChannelFund',
+            TxnSignature: '09B1798D1BFDE9DB23C1F44F749725FC024E800A9021A4F898C9B8042713E0BDA1CABCDB97988000C1AD145F5621534B588CB6A47616C10222D7F525FA09E20F',
+            ctid: 'C017DE2100000001',
+            date: 771859111,
+            hash: '28D45BCBB615B817F5835BE0F5ED7DB191BF389A5620077312CC7DF2FDF81AC9',
+            inLedger: 1564193,
+            ledger_index: 1564193,
+            meta: {
+                AffectedNodes: [Array],
+                TransactionIndex: 0,
+                TransactionResult: 'tesSUCCESS' // 成功
+            },
+            validated: true
+        },
+        type: 'response'
+    }
+    ```
+</Steps>
+
+※次章は作成中です。

@@ -1,0 +1,128 @@
+---
+title: ペイメントチャネルとは | 四段編
+description: XRPL開発 四段編として、「ペイメントチャネル」について解説しているページです。
+sidebar:
+  label: ペイメントチャネルとは
+  order: 3
+---
+
+import { Aside, Steps } from '@astrojs/starlight/components';
+
+まずはじめに、ペイメントチャネル（Payment Channel）について紹介していきます。
+
+ペイメントチャネルは、送金者と受領者がオフチェーンで取引を行うための手段です。概念としてはチェーンを問わず存在するものとなります。
+
+<Aside title="オフチェーン取引">
+オフチェーン取引とは、ブロックチェーン上に直接記録されない取引のことを指します。
+これにより、取引のスピードが向上し、手数料が削減される利点があります。
+オフチェーン取引は、後でまとめてブロックチェーンに記録されるか、最終的な残高変更だけがオンチェーンで反映されます。
+</Aside>
+
+ペイメントチャネルは本来、1トランザクションあたりの取引手数料が高いチェーンでこそより効果が高い手法となりますが、
+XRP Ledgerでは、3~5秒で取引が完了し、支払い手数料も低いため、通常であれば支払いトランザクションで問題ありません。
+
+ただし、特定の条件ではペイメントチャネルを使用するメリットがあり、必要性が出てきます。
+
+## ユースケース
+
+- 秒間数千〜数万件の送金処理を行い場合
+- マイクロペイメント（drop単位で支払いを行う場合）
+- 最終的な支払い金額が未確定の場合
+
+基本的にはこのあたりで必要になってくると思いますが、アイデア次第では様々なユースケースに対応できる可能性があるでしょう。
+
+## ライフサイクル
+
+XRPLのペイメントチャネルには、独自のライフサイクルが存在します。
+
+実際に触れていく中で理解していけば良いかと思いますが、ここで取引のイメージはつけておきましょう。
+
+![](https://xrpl.org/assets/paychan-flow.ja.d25010cb77342f8fecb9ef2f109fc3354a10702b933dcb7d625d6c45fad1c25e.ac57e6ef.svg)
+出典：[xrpl.org](https://xrpl.org/ja/docs/concepts/payment-types/payment-channels/)
+
+## 基本的なステップ
+
+ペイメントチャネルを利用するための基本的な手順は以下の通りです。
+
+※実際には、`channelId`を確認する処理や署名・検証などが必要ですが、ここでは割愛しています。
+
+このガイドでは`アリス`が`受領者`、`ボブ`が`送金人`という設定で説明します。
+
+### チャネルの作成
+
+まずはじめに、送金者がペイメントチャネルを作成し、初期資金をデポジットする必要があります。
+
+以下は、送金者（ボブ）がペイメントチャネルを作成する例です。
+
+```javascript
+const createPaymentChannel = async () => {
+  const tx = {
+    TransactionType: 'PaymentChannelCreate', // トランザクションタイプ: PaymentChannelCreate
+    Account: bobWallet.address,     // 送金者（ボブ）のアカウントアドレス
+    Amount: xrpl.xrpToDrops('10'),           // チャネルにデポジットするXRPの量（ここでは10XRP）
+    Destination: aliceWallet.address,   // 受領者（アリス）のアカウントアドレス
+    SettleDelay: 86400,                      // チャネルがクローズされる前に待機する秒数（ここでは1日）
+    PublicKey: bobWallet.publicKey,        // 送金者（ボブ）の公開鍵
+    CancelAfter: Math.floor(Date.now() / 1000) + 86400 * 7, // チャネルがキャンセルされるまでの秒数（ここでは1週間）
+  };
+
+  // トランザクションを送信
+  const result = await client.submitAndWait(tx, { wallet: bobWallet });
+
+  console.log('Payment Channel Created:', result);
+};
+```
+
+### チャネルへの資金追加
+
+作成したチャネルには、新たに資金を追加することができます。
+
+以下は、送金者（ボブ）がペイメントチャネルに追加する例です。
+
+```javascript
+const fundPaymentChannel = async (channelId) => {
+  const tx = {
+    TransactionType: 'PaymentChannelFund', // トランザクションタイプ: ペイメントチャネルの資金追加
+    Account: bobWallet.address,     // 送金者（ボブ）のアカウントアドレス
+    Channel: channelId,                    // ペイメントチャネルのID
+    Amount: xrpl.xrpToDrops('5'),          // チャネルに追加するXRPの量（ここでは5 XRP）
+  };
+
+  const result = await client.submitAndWait(tx, { wallet: bobWallet });
+
+  console.log('Payment Channel Funded:', result);
+};
+```
+
+<Aside>
+`channelId` は、XRPL（XRP Ledger）上でペイメントチャネルを一意に識別するためのIDです。
+このIDは、ペイメントチャネルを作成する際に生成され、チャネルの資金追加やクローズといった操作を行う際に必要となります。
+</Aside>
+
+### チャネルのクローズ
+
+取引が完了したら、チャネルを閉鎖して最終的な残高をオンチェーンに記録します。
+
+以下は、送金者（ボブ）がペイメントチャネルを閉じる例です。
+
+```javascript
+const closePaymentChannel = async (channelId) => {
+  const tx = {
+    TransactionType: 'PaymentChannelClaim',
+    Account: bobWallet.address,
+    Channel: channelId,
+    Flags: xrpl.PaymentChannelClaimFlags.tfClose,
+  };
+
+  const result = await client.submitAndWait(tx, { wallet: bobWallet });
+
+  console.log('Payment Channel Closed:', result);
+};
+```
+
+## まとめ
+
+ペイメントチャネル（Payment Channel）は、迅速で低コストなマイクロペイメントを実現するための強力な機能です。
+
+これにより、オフチェーンでの効率的な取引が可能になり、オンチェーンのトランザクション手数料を最小限に抑えることができます。
+ペイメントチャネルの作成〜クローズ、資金追加方法などを理解することで、より柔軟な取引を実現できます。

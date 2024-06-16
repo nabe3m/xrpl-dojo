@@ -1,0 +1,140 @@
+---
+title: ペイメントチャネルの作成方法 | 四段編
+description: XRPL開発 四段編として、「ペイメントチャネルの作成方法」について解説しているページです。
+sidebar:
+  label: チャネルの作成方法
+  order: 4
+---
+
+import { Aside, Steps } from '@astrojs/starlight/components';
+
+この章では、ペイメントチャネルの作成方法について紹介します。
+
+ペイメントチャネルは簡単にいうと、デポジットした分の`XRP`から支払いが後に発生する仕組みです。チャネルを作成し、事前にデポジットをすることで、オフチェーン支払いが可能になります。
+
+また、XRPLのペイメントチャネル機能はスマートコントラクトや外部に依存したものではなく、ネイティブに提供されている機能のため、安全に取引を行えることが事前に保証（※）されており、開発者フレンドリーな機能となっています。
+
+※XRPLのコアのバグは除きます。
+
+## スクリプトの作成
+
+<Steps>
+
+1. プロジェクトディレクトリに`createPaymentChannel.js`という新しいファイルを作成します。
+2. 以下のコードを`createAccounts.js`に貼り付けます。
+
+    ```javascript
+    import xrpl from 'xrpl';
+    import { client, aliceWallet, bobWallet } from './config.js';
+
+    const createPaymentChannel = async () => {
+        try {
+            const tx = {
+                TransactionType: 'PaymentChannelCreate', // トランザクションタイプ: PaymentChannelCreate
+                Account: bobWallet.address, // 送金者（ボブ）のアカウントアドレス
+                Amount: xrpl.xrpToDrops('10'), // チャネルにデポジットするXRPの量（ここでは10 XRP）
+                Destination: aliceWallet.address, // 受領者（アリス）のアカウントアドレス
+                SettleDelay: 86400, // チャネルがクローズされる前に待機する秒数（ここでは1日）
+                PublicKey: bobWallet.publicKey, // 送金者（ボブ）の公開鍵
+                CancelAfter: Math.floor(Date.now() / 1000) + 86400 * 7, // チャネルがキャンセルされるまでの秒数（ここでは1週間）
+            };
+
+            console.log('Submitting a PaymentChannelCreate transaction...');
+
+            const paymentChannelResponse = await client.submitAndWait(tx, {
+                wallet: bobWallet,
+            });
+
+            console.log(
+                'PaymentChannelCreate transaction response:',
+                paymentChannelResponse
+            );
+
+            // channel_idの取得
+            const response = await client.request({
+                command: 'account_channels',
+                account: bobWallet.address,
+            });
+
+            const channel_id = response.result.channels[0].channel_id;
+            console.log(`Created Payment Channel with ID: ${channel_id}`);
+
+            return channel_id;
+        } catch (error) {
+            console.error('Error creating Payment Channel:', error);
+        }
+    };
+
+    const main = async () => {
+        try {
+            await client.connect();
+            const channelId = await createPaymentChannel();
+        } catch (error) {
+            console.error('Error connecting to XRPL:', error);
+        } finally {
+            await client.disconnect();
+        }
+    };
+
+    main();
+    ```
+</Steps>
+
+
+## スクリプトの実行
+
+<Steps>
+
+1. コマンドラインで以下のコマンドを実行して、スクリプトを実行します。
+
+    ```bash
+    node createPaymentChannel.js
+    ```
+
+2. 成功すれば、コンソールに以下が表示されます。
+    ```bash
+    Submitting a PaymentChannelCreate transaction...
+    PaymentChannelCreate transaction response: {
+        id: 12,
+        result: {
+            Account: 'r9kxafhpMrUzTknHxU1CmfY2pHwLcGDfT2',
+            Amount: '10000000',
+            CancelAfter: 1719148069,
+            Destination: 'rfRN68ootyxfJncEGbrt1Pnv3uwoKingFG',
+            Fee: '12',
+            Flags: 0,
+            LastLedgerSequence: 1564003,
+            PublicKey: 'ED2D6F34B0A79023E1436F8FA0FB192719FAB3F0FEC5481270D455093157E3856A',
+            Sequence: 1563976,
+            SettleDelay: 86400,
+            SigningPubKey: 'ED2D6F34B0A79023E1436F8FA0FB192719FAB3F0FEC5481270D455093157E3856A',
+            TransactionType: 'PaymentChannelCreate',
+            TxnSignature: '4AC203F1DBBD784B2B62599379D3FA0A0D24725D27D025DCA4651918C8289A64E3D445D2874D8DA018DB5AECB1A8CF6437EE8C1AAC7945D4963B3B66E73C0108',
+            ctid: 'C017DD51008C0001',
+            date: 771858472,
+            hash: 'CA8CACB86459D57F33A36B32BD86EE817DFD0AE24825B2F0CBE3BE80CF464A08',
+            inLedger: 1563985,
+            ledger_index: 1563985,
+            meta: {
+            AffectedNodes: [Array],
+            TransactionIndex: 140,
+            TransactionResult: 'tesSUCCESS'
+            },
+            validated: true
+        },
+        type: 'response'
+    }
+    Created Payment Channel with ID: 0AE202C7C43765A1B70B58910AA154D3B61BD362A16521488D99121FE9AA784E
+    ```
+
+    ここでは、ログに出力された`0AE202C7C43765A1B70B58910AA154D3B61BD362A16521488D99121FE9AA784E`がChannel IDとなりますので、控えておきましょう。
+
+    <Aside>
+    `channelId` は、XRPL（XRP Ledger）上でペイメントチャネルを一意に識別するためのIDです。
+    このIDは、ペイメントチャネルを作成する際に生成され、チャネルの資金追加やクローズといった操作を行う際に必要となります。
+    </Aside>
+
+    ※実際の開発では取得したIDをそのまま引き継いでオフレジャー取引を行う必要があります。
+</Steps>
+
+次に、作成された`Channel ID`を使用してオフレジャー取引を行います。具体的な手順は次のセクションで解説します。  
