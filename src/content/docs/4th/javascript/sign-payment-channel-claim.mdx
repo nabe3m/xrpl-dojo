@@ -8,18 +8,21 @@ sidebar:
 
 import { Aside, Steps } from '@astrojs/starlight/components';
 
-このガイドでは、1,000件のオフレジャー支払いを行い、署名と検証をする流れについて解説します。
+このガイドでは、オフレジャー支払いと署名、検証を行う方法について紹介します。
 
 ## スクリプトの作成
 
 <Steps>
 
-1. プロジェクトディレクトリに`signPaymentChannelClaimAndVerify.js`という新しいファイルを作成します。
-2. 以下のコードを`signPaymentChannelClaimAndVerify.js`に貼り付けます。
+1. プロジェクトディレクトリに`signPaymentChannelClaim.js`という新しいファイルを作成します。
+2. 以下のコードを`signPaymentChannelClaim.js`に貼り付けます。
 
-    ※以下は、毎回`0.001`ずつ支払いが増えていき、最終的に最大`1 XRP`支払うループです。
+    This guide introduces how to perform off-ledger payments, signing, and verification.
+
+    * This code is a sample for making 1,000 payments.
 
     ```javascript
+    // signPaymentChannelClaim.js
     import {
         signPaymentChannelClaim,
         verifyPaymentChannelClaim,
@@ -37,21 +40,21 @@ import { Aside, Steps } from '@astrojs/starlight/components';
 
             // 送金人: オフレジャー支払いへの署名
             paychanSignature = signPaymentChannelClaim(
-            channel_id,
-            amountFormatted, // XRP建の量での指定
-            bobWallet.privateKey
+                channel_id,
+                amountFormatted, // XRP建の量での指定
+                bobWallet.privateKey
             );
 
             // 受取人: オフレジャー支払い情報の検証
             if (
-            !verifyPaymentChannelClaim(
-                channel_id,
-                amountFormatted, // XRP建の量での指定
-                paychanSignature,
-                bobWallet.publicKey
-            )
+                !verifyPaymentChannelClaim(
+                    channel_id,
+                    amountFormatted, // XRP建の量での指定
+                    paychanSignature,
+                    bobWallet.publicKey
+                )
             ) {
-            throw new Error('Invalid signature');
+                throw new Error('Invalid signature');
             }
         }
         console.timeEnd();
@@ -62,8 +65,7 @@ import { Aside, Steps } from '@astrojs/starlight/components';
     const main = async () => {
         try {
             await client.connect();
-            const channelId =
-            '0AE202C7C43765A1B70B58910AA154D3B61BD362A16521488D99121FE9AA784E'; // 事前に作成したチャンネルIDを入力
+            const channelId = 'チャネルID'; // 事前に作成したチャネルIDを入力
             const signature = await signAndVerifyClaims(channelId);
             console.log(`Generated signature: ${signature}`);
         } catch (error) {
