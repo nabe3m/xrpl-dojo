@@ -16,7 +16,7 @@ import { Aside, Steps } from '@astrojs/starlight/components';
 
 When sending tokens other than the native currency `XRP`, you need to specify the currency code and issuer.
 
-Tokens on XRPL always have an issuer, and preparing your own issuer every time is inefficient for learning purposes. Therefore, to improve efficiency, you can identify and use an existing issuer in advance.
+Tokens on XRPL always have an issuer, and preparing your own issuer each time is inefficient for learning purposes. Therefore, to improve efficiency, you can identify and use an existing issuer in advance.
 
 An address that has already issued the currency code `USD` exists on the testnet, so we will use this one.
 
@@ -73,8 +73,8 @@ The testnet is a development network, so the ledger may be periodically reset du
     1. Set the asset you are offering in TakerGets and the asset you are receiving in TakerPays.
 
     <Aside title="About submitAndWait">
-    In this guide, we use the autofill and sign methods before submitAndWait, but it is possible to send the transaction with submitAndWait alone.
-    The benefits include better code readability and easier error handling, so feel free to use it as appropriate. *For example, if signing fails.
+    In this guide, we use the autofill and sign methods before submitAndWait, but you may send the transaction with submitAndWait alone.
+    The benefits include better code readability and easier error handling, so feel free to use either way in each appropriate situation. *For example, if signing fails.
     </Aside>
 
 </Steps>
