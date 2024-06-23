@@ -60,9 +60,9 @@ npm install xrpl
 import { Client, Wallet } from 'xrpl';
 
 // XRPL クライアント
-export const client = new xrpl.Client('wss://s.altnet.rippletest.net:51233'); // テストネット
+export const client = new Client('wss://s.altnet.rippletest.net:51233'); // テストネット
 
 // ウォレット
-export const aliceWallet = xrpl.Wallet.fromSeed('s████████████████████████████'); // アリスのシードを入力
-export const bobWallet = xrpl.Wallet.fromSeed('s████████████████████████████'); // ボブのシードを入力
+export const aliceWallet = Wallet.fromSeed('s████████████████████████████'); // アリスのシードを入力
+export const bobWallet = Wallet.fromSeed('s████████████████████████████'); // ボブのシードを入力
 ```

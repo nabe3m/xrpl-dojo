@@ -63,9 +63,9 @@ To enhance learning efficiency, create a config file at the root of the director
 import { Client, Wallet } from 'xrpl';
 
 // XRPL Client
-export const client = new xrpl.Client('wss://s.altnet.rippletest.net:51233'); // Testnet
+export const client = new Client('wss://s.altnet.rippletest.net:51233'); // Testnet
 
 // Wallets
-export const aliceWallet = xrpl.Wallet.fromSeed('s████████████████████████████'); // Enter Alice's seed
-export const bobWallet = xrpl.Wallet.fromSeed('s████████████████████████████'); // Enter Bob's seed
+export const aliceWallet = Wallet.fromSeed('s████████████████████████████'); // Enter Alice's seed
+export const bobWallet = Wallet.fromSeed('s████████████████████████████'); // Enter Bob's seed
 ```
