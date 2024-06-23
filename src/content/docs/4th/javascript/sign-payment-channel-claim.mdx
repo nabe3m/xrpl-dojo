@@ -87,16 +87,16 @@ import { Aside, Steps } from '@astrojs/starlight/components';
 1. コマンドラインで以下のコマンドを実行して、スクリプトを実行します。
 
     ```bash
-    node signPaymentChannelClaimAndVerify.js
+    node signPaymentChannelClaim.js
     ```
 
 2. 成功すれば、コンソールに以下が表示されます。
     ```bash
-    default: 3.100s
-    Generated signature: 7B5150FB860F10CC2C6CBBEE3A3C0B990BD4B71D2C1919E4AB4637A4E2CF02C592C8083FBEFAB6C9F5F6E369C7645255814BD39CDF9FCD93903FE672E1156E0A
+    default: 1.605s
+    Generated signature: C0D5F6A9908EE8AF579912215C3B765835210194CD6183DCE9128F3E6EE0991D98068968675C7A5B3E50DEC7D52BBAC970BC2305F063E04E52B60752921CCA01
     ```
 
-    ローカル環境での結果となりますが、1,000件のオフレジャー支払いにかかった時間はたったの`3.1s`です。
+    1,000件のオフレジャー支払いにかかった時間はたったの`1.605s`です。（ローカル環境での結果となります）
     
     このように、オフレジャー取引を行うことで1,000件を超える支払いを数秒で処理することができます。
 

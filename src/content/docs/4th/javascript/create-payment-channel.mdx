@@ -24,7 +24,7 @@ import { Aside, Steps } from '@astrojs/starlight/components';
 2. 以下のコードを`createAccounts.js`に貼り付けます。
 
     ```javascript
-    import xrpl from 'xrpl';
+    import { xrpToDrops } from 'xrpl';
     import { client, aliceWallet, bobWallet } from './config.js';
 
     const createPaymentChannel = async () => {
@@ -32,7 +32,7 @@ import { Aside, Steps } from '@astrojs/starlight/components';
             const tx = {
                 TransactionType: 'PaymentChannelCreate', // トランザクションタイプ: PaymentChannelCreate
                 Account: bobWallet.address, // 送金者（ボブ）のアカウントアドレス
-                Amount: xrpl.xrpToDrops('10'), // チャネルにデポジットするXRPの量（ここでは10 XRP）
+                Amount: xrpToDrops('10'), // チャネルにデポジットするXRPの量（ここでは10 XRP）
                 Destination: aliceWallet.address, // 受領者（アリス）のアカウントアドレス
                 SettleDelay: 86400, // チャネルに資金がある場合でも後に閉じることが可能になる秒数（ここでは1日）
                 PublicKey: bobWallet.publicKey, // 送金者（ボブ）の公開鍵
@@ -95,39 +95,39 @@ import { Aside, Steps } from '@astrojs/starlight/components';
     ```bash
     Submitting a PaymentChannelCreate transaction...
     PaymentChannelCreate transaction response: {
-        id: 12,
-        result: {
-            Account: 'r9kxafhpMrUzTknHxU1CmfY2pHwLcGDfT2',
-            Amount: '10000000',
-            CancelAfter: 1719148069,
-            Destination: 'rfRN68ootyxfJncEGbrt1Pnv3uwoKingFG',
-            Fee: '12',
-            Flags: 0,
-            LastLedgerSequence: 1564003,
-            PublicKey: 'ED2D6F34B0A79023E1436F8FA0FB192719FAB3F0FEC5481270D455093157E3856A',
-            Sequence: 1563976,
-            SettleDelay: 86400,
-            SigningPubKey: 'ED2D6F34B0A79023E1436F8FA0FB192719FAB3F0FEC5481270D455093157E3856A',
-            TransactionType: 'PaymentChannelCreate',
-            TxnSignature: '4AC203F1DBBD784B2B62599379D3FA0A0D24725D27D025DCA4651918C8289A64E3D445D2874D8DA018DB5AECB1A8CF6437EE8C1AAC7945D4963B3B66E73C0108',
-            ctid: 'C017DD51008C0001',
-            date: 771858472,
-            hash: 'CA8CACB86459D57F33A36B32BD86EE817DFD0AE24825B2F0CBE3BE80CF464A08',
-            inLedger: 1563985,
-            ledger_index: 1563985,
-            meta: {
+    id: 10,
+    result: {
+        Account: 'rDBvi1AUpMGgwXJbqskC8wL3HnxwVnoCtC',
+        Amount: '10000000',
+        CancelAfter: 1719718213,
+        Destination: 'rUqzzEHmo4EJqTRjdE557N9gjynWhbYB73',
+        Fee: '12',
+        Flags: 0,
+        LastLedgerSequence: 1736663,
+        PublicKey: 'EDECF7912AB2B111751AB9F849903EBA1E0F22E3A2734F9398DAF6916C53996E83',
+        Sequence: 1724657,
+        SettleDelay: 86400,
+        SigningPubKey: 'EDECF7912AB2B111751AB9F849903EBA1E0F22E3A2734F9398DAF6916C53996E83',
+        TransactionType: 'PaymentChannelCreate',
+        TxnSignature: 'AEFC98BB2E4A78CC85D624D4562328882A763F11DEDB5448B9C3C0C06DDC33D7C515E64A9D03695F56B5F4AD978D23C70B2C4072C21477851E01D572065E9600',
+        ctid: 'C01A7FC500000001',
+        date: 772428613,
+        hash: '61998DCE11B9975B56EC1228244D78568534F7BE24D60B439C6029CAB439341D',
+        inLedger: 1736645,
+        ledger_index: 1736645,
+        meta: {
             AffectedNodes: [Array],
-            TransactionIndex: 140,
+            TransactionIndex: 0,
             TransactionResult: 'tesSUCCESS'
-            },
-            validated: true
         },
-        type: 'response'
+        validated: true
+    },
+    type: 'response'
     }
-    Created Payment Channel with ID: 0AE202C7C43765A1B70B58910AA154D3B61BD362A16521488D99121FE9AA784E
+    Created Payment Channel with ID: E965B919E140BCF98280B29F6861C23BBB753B9D5515EDD57A285391BA20CCA2
     ```
 
-    ここでは、ログに出力された`0AE202C7C43765A1B70B58910AA154D3B61BD362A16521488D99121FE9AA784E`がChannel IDとなりますので、控えておきましょう。
+    上記ログの最後に出力されたID（`E965B919E140BCF98280B29F6861C23BBB753B9D5515EDD57A285391BA20CCA2`）が`Channel ID`となりますので、控えておきましょう。
 
     <Aside>
     `channelId` は、XRPL（XRP Ledger）上でペイメントチャネルを一意に識別するためのIDです。
