@@ -1,18 +1,20 @@
 ---
-title: How to Add Funds to a Payment Channel | XRPL Development Level 4
-description: This page explains "How to Add Funds to a Payment Channel" as part of the XRPL Development Level 4 curriculum.
+title: Adding Funds to a Payment Channel | XRPL Development in JavaScript - Level 4
+description: This page explains how to add funds to a payment channel as part of the XRPL Development in JavaScript - Level 4 curriculum.
 sidebar:
-  label: Add Funds to a Channel
-  order: 7
+  label: Adding Funds to a Payment Channel
+  order: 6
 ---
 
 import { Aside, Steps } from '@astrojs/starlight/components';
+
+In this chapter, we will introduce how to add funds (deposit) to an existing payment channel.
 
 ## Creating the Script
 
 <Steps>
 
-1. Create a new file called `fundPaymentChannel.js` in your project directory.
+1. Create a new file named `fundPaymentChannel.js` in your project directory.
 
 2. Paste the following code into `fundPaymentChannel.js`.
 
@@ -23,19 +25,22 @@ import { Aside, Steps } from '@astrojs/starlight/components';
     const fundPaymentChannel = async (channelId) => {
         try {
             const tx = {
-            TransactionType: 'PaymentChannelFund', // Transaction type: PaymentChannelFund
-            Account: bobWallet.address, // Sender (Bob)'s account address
-            Channel: channelId, // Payment channel ID
-            Amount: xrpToDrops('5'), // Amount of XRP to add to the channel (5 XRP here)
+                TransactionType: 'PaymentChannelFund', // Transaction type: Adding funds to the payment channel
+                Account: bobWallet.address, // Sender (Bob)'s account address
+                Channel: channelId, // Payment channel ID
+                Amount: xrpToDrops('5'), // Amount of XRP to add to the channel (in this case, 5 XRP)
             };
 
             console.log('Submitting a PaymentChannelFund transaction...');
+
+            // Submit the transaction
             const fundChannelResponse = await client.submitAndWait(tx, {
-            wallet: bobWallet,
+                wallet: bobWallet,
             });
+
             console.log(
-            'PaymentChannelFund transaction response:',
-            fundChannelResponse
+                'PaymentChannelFund transaction response:',
+                fundChannelResponse
             );
         } catch (error) {
             console.error('Error funding Payment Channel:', error);
@@ -45,7 +50,7 @@ import { Aside, Steps } from '@astrojs/starlight/components';
     const main = async () => {
         try {
             await client.connect();
-            const channelId = 'channel ID'; // Enter the previously created channel ID
+            const channelId = 'CHANNEL_ID_HERE'; // Enter the previously created channel ID
             await fundPaymentChannel(channelId);
         } catch (error) {
             console.error('Error connecting to XRPL:', error);
@@ -63,7 +68,7 @@ import { Aside, Steps } from '@astrojs/starlight/components';
 
 <Steps>
 
-1. Run the script by executing the following command in the command line.
+1. Run the script by executing the following command in your command line:
 
     ```bash
     node fundPaymentChannel.js
@@ -74,33 +79,94 @@ import { Aside, Steps } from '@astrojs/starlight/components';
    ```javascript
     Submitting a PaymentChannelFund transaction...
     PaymentChannelFund transaction response: {
-        id: 10,
-        result: {
-            Account: 'r9kxafhpMrUzTknHxU1CmfY2pHwLcGDfT2',
-            Amount: '5000000',
-            Channel: '0AE202C7C43765A1B70B58910AA154D3B61BD362A16521488D99121FE9AA784E',
-            Fee: '12',
-            Flags: 0,
-            LastLedgerSequence: 1564211,
-            Sequence: 1563977,
-            SigningPubKey: 'ED2D6F34B0A79023E1436F8FA0FB192719FAB3F0FEC5481270D455093157E3856A',
-            TransactionType: 'PaymentChannelFund',
-            TxnSignature: '09B1798D1BFDE9DB23C1F44F749725FC024E800A9021A4F898C9B8042713E0BDA1CABCDB97988000C1AD145F5621534B588CB6A47616C10222D7F525FA09E20F',
-            ctid: 'C017DE2100000001',
-            date: 771859111,
-            hash: '28D45BCBB615B817F5835BE0F5ED7DB191BF389A5620077312CC7DF2FDF81AC9',
-            inLedger: 1564193,
-            ledger_index: 1564193,
-            meta: {
-                AffectedNodes: [Array],
-                TransactionIndex: 0,
-                TransactionResult: 'tesSUCCESS' // Success
+        id: 12,
+            result: {
+                Account: 'rDW8W3rzDFUyU4pw5Ei8QL1J9nQ947h68f',
+                Amount: '5000000',
+                Channel: '25C67138FB51F65A7015632C07E00AD0AE1C8A21F0282FD0401BAEDFDFD3423E',
+                Fee: '12',
+                Flags: 0,
+                LastLedgerSequence: 1743984,
+                Sequence: 1742741,
+                SigningPubKey: 'ED9F9B58A0A209A1D0F90832FE83F3ED49C0091259E3F67A2FCAA3D3EAAF718FFE',
+                TransactionType: 'PaymentChannelFund',
+                TxnSignature: '0BB94472B22EEC345F02E5E788DA5CBBDB3080082DD03F3B5A87D02116FC61FF36B6469002B90CF8F219BDE9CFAD4AC68B49EAE64ED96C2A58FB9F09A8DDF00D',
+                ctid: 'C01A9C5E007D0001',
+                date: 772453171,
+                hash: 'AA71F4F3163A25032BC71A07C8824C62415F33A3BD20F6B578A5236F4DED4631',
+                inLedger: 1743966,
+                ledger_index: 1743966,
+                meta: {
+                    AffectedNodes: [Array],
+                    TransactionIndex: 125,
+                    TransactionResult: 'tesSUCCESS'
+                },
+                validated: true
             },
-            validated: true
-        },
         type: 'response'
     }
     ```
 </Steps>
 
-※The next chapter is under construction.
+## Extending the Expiration Date
+
+You can extend the expiration date while adding funds.
+
+To extend the expiration date, add the `Expiration` field as shown below when submitting the transaction.  
+The `Expiration` field must specify a date later than the current date plus `SettleDelay`.
+
+```javascript
+const tx = {
+    TransactionType: 'PaymentChannelFund', // Transaction type: Adding funds to the payment channel
+    Account: bobWallet.address, // Sender (Bob)'s account address
+    Channel: channelId, // Payment channel ID
+    Amount: xrpToDrops('5'), // Amount of XRP to add to the channel (in this case, 5 XRP)
+    Expiration: Math.floor(Date.now() / 1000) + 86400 * 7, // Extend expiration date (in this case, 1 week later)
+};
+```
+
+Note: The expiration date is different from the CancelAfter option, which cannot be changed.
+
+## Checking the Channel's State
+
+To verify that the funds have been added, check the channel's state again.
+
+Use the previously created `checkChannelBalance.js`.
+
+### Running the Script
+
+<Steps>
+
+1. Run the script by executing the following command in your command line:
+
+    ```bash
+    node checkChannelBalance.js
+    ```
+
+2. If successful, the console will display the following:
+
+    ```bash
+    Channel ID: 25C67138FB51F65A7015632C07E00AD0AE1C8A21F0282FD0401BAEDFDFD3423E
+    Balance: 1000000 drops // Amount of off-ledger transactions (currently: 1 XRP)
+    Amount: 15000000 drops // Amount deposited (15 XRP)
+    ```
+
+    You can confirm that the Amount has increased to `15000000 drops (15 XRP)`.
+
+    <Aside title="About Balance">
+    The `Balance` obtained above does not represent the currently claimable amount.  
+    It indicates how much of the deposited amount has been transacted so far. Off-ledger transactions can be conducted up to the `Amount` limit.
+    </Aside>
+</Steps>
+
+## Summary
+
+In this chapter, we explained how to add funds to a payment channel.
+
+Using the `PaymentChannelFund` transaction, you can make additional deposits to the channel.
+You can refer to this sample code to generate a transaction, for example, when clicking a "Deposit" button.
+
+Additionally, you can extend the validity period of the channel, allowing for more transactions.
+
+In the next chapter, we will introduce how to close a payment channel. By going through the closing process, you can reclaim unused funds and finalize the channel's remaining balance.
+

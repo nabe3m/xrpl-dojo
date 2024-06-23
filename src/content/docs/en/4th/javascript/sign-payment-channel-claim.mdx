@@ -1,27 +1,28 @@
 ---
-title: Signing and Verifying Off-Ledger Payments | XRPL Development Level 4
-description: This page explains "Signing and Verifying Off-Ledger Payments" as part of the XRPL Development Level 4 curriculum.
+title: Signing and Verifying Off-Ledger Payments | XRPL Development in JavaScript - Level 4
+description: This page explains how to sign and verify off-ledger payments using payment channels as part of the XRPL Development in JavaScript - Level 4 curriculum.
 sidebar:
   label: Signing and Verifying Off-Ledger Payments
-  order: 5
+  order: 4
 ---
 
 import { Aside, Steps } from '@astrojs/starlight/components';
 
-In this guide, we will explain the process of conducting 1,000 off-ledger payments and signing and verifying each payment.
+In this guide, we will introduce how to sign and verify off-ledger payments.
 
 ## Creating the Script
 
 <Steps>
 
-1. Create a new file called `signPaymentChannelClaimAndVerify.js` in your project directory.
-2. Paste the following code into `signPaymentChannelClaimAndVerify.js`.
+1. Create a new file named `signPaymentChannelClaim.js` in your project directory.
+2. Paste the following code into signPaymentChannelClaim.js.
 
-    This guide introduces how to perform off-ledger payments, signing, and verification.
+    This code is a sample that performs 1,000 payments.
 
-    * This code is a sample for making 1,000 payments.
+    * In the following loop, the payment amount increases by 0.001 each time, resulting in a total payment of up to 1 XRP.
 
     ```javascript
+    // signPaymentChannelClaim.js
     import {
         signPaymentChannelClaim,
         verifyPaymentChannelClaim,
@@ -29,7 +30,7 @@ In this guide, we will explain the process of conducting 1,000 off-ledger paymen
     } from 'xrpl';
     import { client, bobWallet } from './config.js';
 
-    const signAndVerifyClaims = async (channel_id) => {
+    const signAndVerifyClaims = async (channelId) => {
         let paychanSignature = '';
 
         console.time();
@@ -39,16 +40,16 @@ In this guide, we will explain the process of conducting 1,000 off-ledger paymen
 
             // Sender: Sign the off-ledger payment
             paychanSignature = signPaymentChannelClaim(
-                channel_id,
-                amountFormatted, // Specified in XRP
+                channelId,
+                amountFormatted, // Specified amount in XRP
                 bobWallet.privateKey
             );
 
             // Recipient: Verify the off-ledger payment information
             if (
                 !verifyPaymentChannelClaim(
-                    channel_id,
-                    amountFormatted, // Specified in XRP
+                    channelId,
+                    amountFormatted, // Specified amount in XRP
                     paychanSignature,
                     bobWallet.publicKey
                 )
@@ -64,7 +65,7 @@ In this guide, we will explain the process of conducting 1,000 off-ledger paymen
     const main = async () => {
         try {
             await client.connect();
-            const channelId = 'channel ID'; // Enter the previously created channel ID
+            const channelId = 'CHANNEL_ID_HERE'; // Enter the previously created channel ID
             const signature = await signAndVerifyClaims(channelId);
             console.log(`Generated signature: ${signature}`);
         } catch (error) {
@@ -78,31 +79,123 @@ In this guide, we will explain the process of conducting 1,000 off-ledger paymen
     ```
 </Steps>
 
-
 ## Running the Script
 
 <Steps>
 
-1. Run the script by executing the following command in the command line.
+1. Run the script by executing the following command in your command line:
 
     ```bash
-    node signPaymentChannelClaimAndVerify.js
+    node signPaymentChannelClaim.js
+    ```
+
+2. If successful, the console will display the following results, so check the string displayed to the right of `Generated signature:` and make a note of it.
+    ```bash
+    default: 1.605s
+    Generated signature: 7465B7BCC66F1053D4CB8EF3785BE951A235868420F546160EF446429DA58632EEBBA90810F6714500E7B0A73E9DBABFE47307DC6BEC9D911D24DB473988BE04
+    ```
+
+    It took only `1.605s` to process 1,000 off-ledger payments (results from the author's local environment).
+
+    This demonstrates how off-ledger transactions can handle over 1,000 payments in just a few seconds.
+
+    <Aside>
+    The sender signs the off-ledger payment, and the recipient verifies the signature to confirm the validity of the off-ledger payment. This process is crucial as part of the payment channel's functionality.
+    </Aside>
+
+    The `signature` value obtained in the result above, `7465B7BCC66F1053D4CB8EF3785BE951A235868420F546160EF446429DA58632EEBBA90810F6714500E7B0A73E9DBABFE47307DC6BEC9D911D24DB473988BE04`, will be needed in the next chapter, so make a note of it.
+
+</Steps>
+
+## Checking the Channel State
+
+Let's check the state of the channel at this point.
+
+### Creating the Script
+
+<Steps>
+
+1. Create a new file named `checkChannelBalance.js` in your project directory.
+2. Paste the following code into checkChannelBalance.js.
+
+    To check the state of the channel, use the account_channels command.
+
+    ```javascript
+    // checkChannelBalance.js
+    import { client, aliceWallet, bobWallet } from './config.js';
+
+    const checkChannelBalance = async (channelId) => {
+        try {
+             // Get channel information
+            const response = await client.request({
+                command: 'account_channels',
+                account: bobWallet.address, // Sender's account of the channel
+                destination_account: aliceWallet.address, // Recipient's account of the channel
+            });
+
+            const channel = response.result.channels.find(
+                (ch) => ch.channel_id === channelId
+            );
+
+            if (channel) {
+                console.log(`Channel ID: ${channel.channel_id}`);
+                console.log(`Balance: ${channel.balance} drops`);
+                console.log(`Amount: ${channel.amount} drops`);
+            } else {
+                console.log(`Channel with ID ${channelId} not found.`);
+            }
+        } catch (error) {
+            console.error('Error checking channel balance:', error);
+        }
+    };
+
+    const main = async () => {
+        try {
+            await client.connect();
+
+            // Enter the previously created channel ID
+            const channelId = 'CHANNEL_ID_HERE';
+
+            await checkChannelBalance(channelId);
+        } catch (error) {
+            console.error('Error connecting to XRPL:', error);
+        } finally {
+            await client.disconnect();
+        }
+    };
+
+    main();
+    ```
+</Steps>
+
+### Running the Script
+
+<Steps>
+
+1. Run the script by executing the following command in your command line:
+
+    ```bash
+    node checkChannelBalance.js
     ```
 
 2. If successful, the console will display the following:
-
     ```bash
-    default: 1.605s
-    Generated signature: C0D5F6A9908EE8AF579912215C3B765835210194CD6183DCE9128F3E6EE0991D98068968675C7A5B3E50DEC7D52BBAC970BC2305F063E04E52B60752921CCA01
+    Channel ID: E965B919E140BCF98280B29F6861C23BBB753B9D5515EDD57A285391BA20CCA2
+    Balance: 1000000 drops // Total amount transacted off-ledger in the channel (currently: 1 XRP)
+    Amount: 10000000 drops // Amount deposited (10 XRP)
     ```
 
-    The time taken for 1,000 off-ledger payments was only `1.605s` (results from the local environment).
-
-    As demonstrated, off-ledger transactions can process over 1,000 payments in a matter of seconds.
-
-    <Aside>
-    By having the sender sign the off-ledger payment and the recipient verify the signature, the validity of the off-ledger payment is confirmed. This process is crucial as part of payments made through a payment channel. 
+    <Aside title="About Balance">
+    The `Balance` obtained above does not represent the current claimable amount.  
+    It indicates how much of the deposited amount has been transacted so far. (Off-ledger transactions are possible up to the `Amount` limit)
     </Aside>
 </Steps>
 
-Next, we will introduce the method to claim funds.
+## Summary
+
+In this chapter, we explained how to sign and verify off-ledger payments and how to check the state of the payment channel.
+
+Off-ledger payments enable rapid and efficient execution of multiple payments by verifying the validity through signatures.
+Additionally, checking the state of the payment channel allows you to understand the current balance and the total amount deposited in the channel.
+
+In the next chapter, we will introduce how to claim the funds. Learn the steps to claim the channel's balance using the obtained signature.

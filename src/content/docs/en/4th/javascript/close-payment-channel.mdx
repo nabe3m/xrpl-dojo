@@ -1,0 +1,276 @@
+---
+title: How to Close a Payment Channel | XRPL Development in JavaScript - Level 4
+description: This page explains how to close a payment channel as part of the XRPL Development in JavaScript - Level 4 series.
+sidebar:
+  label: Closing a Payment Channel
+  order: 7
+---
+
+import { Aside, Steps } from '@astrojs/starlight/components';
+
+In this chapter, we will explain how to close a payment channel.
+
+Closing a payment channel allows you to reclaim unused funds and finalize the channel's remaining balance.
+
+## Preparation
+
+<Steps>
+1. Create a new file named `closePaymentChannel.js` in your project directory.
+
+2. Paste the following code into `closePaymentChannel.js`.
+
+    ```javascript
+    import { PaymentChannelClaimFlags } from 'xrpl';
+    import { client, bobWallet } from './config.js';
+
+    const closePaymentChannel = async (channelId) => {
+        try {
+            // Create a PaymentChannelClaim transaction
+            const tx = {
+                TransactionType: 'PaymentChannelClaim',
+                Account: bobWallet.address, // Sender (Bob)'s account address
+                Channel: channelId, // Channel ID
+                Flags: PaymentChannelClaimFlags.tfClose, // Close flag: 131072
+            };
+
+            console.log('Submitting a PaymentChannelClaim transaction to close the channel...');
+            
+            // Submit the transaction
+            const closeChannelResponse = await client.submitAndWait(tx, {
+                wallet: bobWallet,
+            });
+
+            console.log(
+                'PaymentChannelClaim (close) transaction response:',
+                closeChannelResponse
+            );
+        } catch (error) {
+            console.error('Error closing Payment Channel:', error);
+        }
+    };
+
+    const main = async () => {
+        try {
+            await client.connect();
+            const channelId = 'CHANNEL_ID_HERE'; // Enter the previously created channel ID
+            await closePaymentChannel(channelId);
+        } catch (error) {
+            console.error('Error connecting to XRPL:', error);
+        } finally {
+            await client.disconnect();
+        }
+    };
+
+    main();
+    ```
+</Steps>
+
+## Running the Script
+
+<Steps>
+1. Execute the script by running the following command in your command line:
+
+    ```bash
+    node closePaymentChannel.js
+    ```
+
+2. If successful, the console will display the following:
+
+    ```bash
+    Submitting a PaymentChannelClaim transaction to close the channel...
+    PaymentChannelClaim (close) transaction response: {
+        id: 10,
+        result: {
+            Account: 'rDW8W3rzDFUyU4pw5Ei8QL1J9nQ947h68f',
+            Channel: '25C67138FB51F65A7015632C07E00AD0AE1C8A21F0282FD0401BAEDFDFD3423E',
+            Fee: '12',
+            Flags: 131072,
+            LastLedgerSequence: 1745129,
+            Sequence: 1742743,
+            SigningPubKey: 'ED9F9B58A0A209A1D0F90832FE83F3ED49C0091259E3F67A2FCAA3D3EAAF718FFE',
+            TransactionType: 'PaymentChannelClaim',
+            TxnSignature: '192E1D8F6A8887446A27AA54C41C226A46B3C43A4D780654696A74D9454A6E3B52EBB5D57C420F6CF597F68D6B16EE57F8DCE7F1A5653216632A9B0CA19D5601',
+            ctid: 'C01AA0D700000001',
+            date: 772457030,
+            hash: '8BF8ACC66D4B61A106CFC5A916EA8DAE621C5362D9DA6F7C08E720FEDE5733B6',
+            inLedger: 1745111,
+            ledger_index: 1745111,
+            meta: {
+                AffectedNodes: [Array],
+                TransactionIndex: 0,
+                TransactionResult: 'tesSUCCESS'
+            },
+            validated: true
+        },
+        type: 'response'
+    }
+    ```
+</Steps>
+
+## About the Channel Closing Process
+
+Although we have set the close flag from Bob's side, the channel will still exist for now.
+
+Let's review the `createPaymentChannel.js` file.
+
+```javascript
+// createPaymentChannel.js
+const tx = {
+    TransactionType: 'PaymentChannelCreate', // Transaction type: PaymentChannelCreate
+    Account: bobWallet.address, // Sender (Bob)'s account address
+    Amount: xrpToDrops('10'), // Amount of XRP to deposit into the channel (10 XRP in this case)
+    Destination: aliceWallet.address, // Receiver (Alice)'s account address
+    SettleDelay: 86400, // Grace period before the channel can be closed if there are unclaimed XRP (1 day in this case)
+    PublicKey: bobWallet.publicKey, // Sender (Bob)'s public key
+    CancelAfter: Math.floor(Date.now() / 1000) + 86400 * 30, // Seconds until the channel is canceled (1 month in this case)
+};
+```
+
+Here, SettleDelay was specified as 1 day.
+
+When the sender closes the channel, the SettleDelay period must pass before the channel is officially closed. This means that the channel will be closed 1 day after the close flag is set.
+
+<Aside title="What is SettleDelay?">
+SettleDelay is a field that specifies the number of seconds that must elapse before a payment channel can be closed. This allows for a grace period before the channel is officially closed.
+</Aside>
+
+If possible, run node checkChannelBalance.js to confirm that the channel still exists.
+
+```bash
+Channel ID: 25C67138FB51F65A7015632C07E00AD0AE1C8A21F0282FD0401BAEDFDFD3423E
+Balance: 1000000 drops
+Amount: 15000000 drops
+```
+
+## Reopening the Channel
+
+You can reopen the channel by changing the `Flags` value. Only the source address of the payment channel can use this flag.
+
+```javascript
+const tx = {
+    TransactionType: 'PaymentChannelClaim',
+    Account: bobWallet.address, // 送金人（ボブ）のアカウントアドレス
+    Channel: channelId, // チャネルID
+    Flags: PaymentChannelClaimFlags.tfRenew, // 再開フラグ: 65536
+};
+```
+
+<Aside title="About the tfRenew Flag">
+Reopening means extending the channel's validity period until the originally specified `CancelAfter` date.
+
+The `CancelAfter` field is set when the payment channel is created and cannot be changed once set.
+</Aside>
+
+## Closing the Channel from the Receiver's Side
+
+When the receiver (Alice) closes the channel, the channel is forcibly terminated.
+
+## Running the Script
+
+<Steps>
+1. Modify the `closePaymentChannel.js` code as follows:
+
+    ```javascript
+    const closePaymentChannel = async (channelId) => {
+        try {
+            // Create a PaymentChannelClaim transaction
+                const tx = {
+                TransactionType: 'PaymentChannelClaim',
+                // Account: bobWallet.address, // Sender (Bob)'s account address
+                Account: aliceWallet.address, // Receiver (Alice)'s account address
+                Channel: channelId, // Channel ID
+                Flags: PaymentChannelClaimFlags.tfClose, // Close flag: 131072
+                validated: true,
+            };
+
+            console.log(
+                'Submitting a PaymentChannelClaim transaction to close the channel...'
+            );
+
+            const closeChannelResponse = await client.submitAndWait(tx, {
+                // wallet: bobWallet,
+                wallet: aliceWallet,
+            });
+
+            console.log(
+                'PaymentChannelClaim (close) transaction response:',
+                closeChannelResponse
+            );
+        } catch (error) {
+            console.error('Error closing Payment Channel:', error);
+        }
+    };
+    ```
+
+2. Run the script by executing the following command in your command line:
+
+    ```bash
+    node closePaymentChannel.js
+    ```
+
+3. If successful, the console will display the following:
+
+    ```bash
+    Submitting a PaymentChannelClaim transaction to close the channel...
+    PaymentChannelClaim (close) transaction response: {
+        id: 10,
+        result: {
+            Account: 'rDW8W3rzDFUyU4pw5Ei8QL1J9nQ947h68f',
+            Channel: '25C67138FB51F65A7015632C07E00AD0AE1C8A21F0282FD0401BAEDFDFD3423E',
+            Fee: '12',
+            Flags: 131072,
+            LastLedgerSequence: 1745129,
+            Sequence: 1742743,
+            SigningPubKey: 'ED9F9B58A0A209A1D0F90832FE83F3ED49C0091259E3F67A2FCAA3D3EAAF718FFE',
+            TransactionType: 'PaymentChannelClaim',
+            TxnSignature: '192E1D8F6A8887446A27AA54C41C226A46B3C43A4D780654696A74D9454A6E3B52EBB5D57C420F6CF597F68D6B16EE57F8DCE7F1A5653216632A9B0CA19D5601',
+            ctid: 'C01AA0D700000001',
+            date: 772457030,
+            hash: '8BF8ACC66D4B61A106CFC5A916EA8DAE621C5362D9DA6F7C08E720FEDE5733B6',
+            inLedger: 1745111,
+            ledger_index: 1745111,
+            meta: {
+                AffectedNodes: [Array],
+                TransactionIndex: 0,
+                TransactionResult: 'tesSUCCESS'
+            },
+            validated: true
+        },
+        type: 'response'
+    }
+    ```
+
+4. Run the checkChannelBalance.js script again to check the channel's status.
+
+    ```
+    node checkChannelBalance.js
+    ```
+
+5. If the following result is displayed, the channel has been fully closed.
+
+    ```bash
+    Channel with ID 25C67138FB51F65A7015632C07E00AD0AE1C8A21F0282FD0401BAEDFDFD3423E not found.
+    ```
+
+    Let's check the balances of Alice and Bob on a test network explorer like [Bithomp](https://test.bithomp.com/explorer/).
+
+    Assuming the steps were followed correctly, the deposited XRP should be returned to Bob, resulting in the following balances:
+
+    - Alice: approximately 100 XRP
+    - Bob: approximately 89 XRP
+
+</Steps>
+
+## Summary
+
+In this chapter, we explained how to close a payment channel.
+
+By using the PaymentChannelClaim transaction to close the channel, you can reclaim unused funds and finalize the channel's remaining balance.
+
+Completing this guide should give you a solid understanding of the basic transaction flow using payment channels.
+
+Payment channels are among the more complex features of XRPL, so it can be challenging to grasp the concept from documentation alone.
+
+We hope this knowledge proves useful in your future development and projects.
+
+*The next chapter is under construction.

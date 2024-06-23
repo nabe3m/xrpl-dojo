@@ -1,8 +1,8 @@
 ---
-title: How to Create a Payment Channel | XRPL Development Level 4
-description: This page explains "How to Create a Payment Channel" as part of the XRPL Development Level 4 curriculum.
+title: How to Create a Payment Channel | XRPL Development in JavaScript - Level 4
+description: This page explains how to create a payment channel as part of the XRPL Development in JavaScript - Level 4 curriculum.
 sidebar:
-  label: How to Create a Channel
+  label: How to Create a Payment Channel
   order: 4
 ---
 
@@ -10,31 +10,33 @@ import { Aside, Steps } from '@astrojs/starlight/components';
 
 In this chapter, we will introduce how to create a payment channel.
 
-A payment channel allows for off-chain payments by pre-depositing `XRP`, and later settling the payments. By creating a channel and depositing in advance, off-chain payments become possible.
+Simply put, a payment channel allows payments to be made from a deposited amount of `XRP` at a later time. By creating a channel and making a deposit in advance, off-chain payments become possible.
 
-Moreover, XRPL's payment channel functionality is provided natively, without reliance on smart contracts or external dependencies, ensuring secure transactions and developer-friendly features.
+Additionally, XRPL's payment channel functionality is provided natively, without the need for smart contracts or external dependencies. This ensures safe transactions (*) and makes the feature developer-friendly.
+
+*Except for core bugs in XRPL.
 
 ## Creating the Script
 
 <Steps>
 
-1. Create a new file called `createPaymentChannel.js` in your project directory.
-2. Paste the following code into `createPaymentChannel.js`.
+1. Create a new file named `createPaymentChannel.js` in your project directory.
+2. Paste the following code into `createAccounts.js`.
 
     ```javascript
-    import xrpl from 'xrpl';
+    import { xrpToDrops } from 'xrpl';
     import { client, aliceWallet, bobWallet } from './config.js';
 
     const createPaymentChannel = async () => {
         try {
             const tx = {
                 TransactionType: 'PaymentChannelCreate', // Transaction type: PaymentChannelCreate
-                Account: bobWallet.address, // Sender (Bob)'s account address
-                Amount: xrpl.xrpToDrops('10'), // Amount of XRP to deposit in the channel (10 XRP here)
-                Destination: aliceWallet.address, // Recipient (Alice)'s account address
-                SettleDelay: 86400, // Seconds to wait before the channel can be closed even if there are funds in the channel (1 day here)
-                PublicKey: bobWallet.publicKey, // Sender (Bob)'s public key
-                CancelAfter: Math.floor(Date.now() / 1000) + 86400 * 7, // Seconds until the channel can be canceled (1 week here)ｓ
+                Account: bobWallet.address, // Sender's (Bob's) account address
+                Amount: xrpToDrops('10'), // Amount of XRP to deposit in the channel (10 XRP here)
+                Destination: aliceWallet.address, // Recipient's (Alice's) account address
+                SettleDelay: 86400, // Grace period before the source address can close the channel if there is unclaimed XRP. Waiting time in seconds (1 day here)
+                PublicKey: bobWallet.publicKey, // Sender's (Bob's) public key
+                CancelAfter: Math.floor(Date.now() / 1000) + 86400 * 30, // Seconds until the channel can be canceled (1 month here)
             };
 
             console.log('Submitting a PaymentChannelCreate transaction...');
@@ -48,16 +50,16 @@ Moreover, XRPL's payment channel functionality is provided natively, without rel
                 paymentChannelResponse
             );
 
-            // Obtain the channel_id
+            // Get the channel_id
             const response = await client.request({
                 command: 'account_channels',
                 account: bobWallet.address,
             });
 
-            const channel_id = response.result.channels[0].channel_id;
-            console.log(`Created Payment Channel with ID: ${channel_id}`);
+            const channelId = response.result.channels[0].channel_id;
+            console.log(`Created Payment Channel with ID: ${channelId}`);
 
-            return channel_id;
+            return channelId;
         } catch (error) {
             console.error('Error creating Payment Channel:', error);
         }
@@ -83,57 +85,57 @@ Moreover, XRPL's payment channel functionality is provided natively, without rel
 
 <Steps>
 
-1. Run the script by executing the following command in the command line.
+1. Run the script by executing the following command in your command line:
 
     ```bash
     node createPaymentChannel.js
     ```
 
 2. If successful, the console will display the following:
-
     ```bash
     Submitting a PaymentChannelCreate transaction...
     PaymentChannelCreate transaction response: {
-        id: 12,
+        id: 10,
         result: {
-            Account: 'r9kxafhpMrUzTknHxU1CmfY2pHwLcGDfT2',
+            Account: 'rDW8W3rzDFUyU4pw5Ei8QL1J9nQ947h68f',
             Amount: '10000000',
-            CancelAfter: 1719148069,
-            Destination: 'rfRN68ootyxfJncEGbrt1Pnv3uwoKingFG',
+            CancelAfter: 1719738684,
+            Destination: 'rM6Nt2E1WKJLKMN1tbkcifveAshzVuyJmj',
             Fee: '12',
             Flags: 0,
-            LastLedgerSequence: 1564003,
-            PublicKey: 'ED2D6F34B0A79023E1436F8FA0FB192719FAB3F0FEC5481270D455093157E3856A',
-            Sequence: 1563976,
+            LastLedgerSequence: 1742776,
+            PublicKey: 'ED9F9B58A0A209A1D0F90832FE83F3ED49C0091259E3F67A2FCAA3D3EAAF718FFE',
+            Sequence: 1742740,
             SettleDelay: 86400,
-            SigningPubKey: 'ED2D6F34B0A79023E1436F8FA0FB192719FAB3F0FEC5481270D455093157E3856A',
+            SigningPubKey: 'ED9F9B58A0A209A1D0F90832FE83F3ED49C0091259E3F67A2FCAA3D3EAAF718FFE',
             TransactionType: 'PaymentChannelCreate',
-            TxnSignature: '4AC203F1DBBD784B2B62599379D3FA0A0D24725D27D025DCA4651918C8289A64E3D445D2874D8DA018DB5AECB1A8CF6437EE8C1AAC7945D4963B3B66E73C0108',
-            ctid: 'C017DD51008C0001',
-            date: 771858472,
-            hash: 'CA8CACB86459D57F33A36B32BD86EE817DFD0AE24825B2F0CBE3BE80CF464A08',
-            inLedger: 1563985,
-            ledger_index: 1563985,
+            TxnSignature: '8B87011388FFED13070AFB88D936D7903D26A481036043ABD27BEC13CA5531610A667BCFE18B2F7090EB04E611EAFDC3DA0082C72937FCB9DB2EEDE6AA5F4602',
+            ctid: 'C01A97A600070001',
+            date: 772449090,
+            hash: '860DD9F668836971343AE84BE111D451A3F0C4BBE4BD92E36D3BCAC5E2571BB4',
+            inLedger: 1742758,
+            ledger_index: 1742758,
             meta: {
-            AffectedNodes: [Array],
-            TransactionIndex: 140,
-            TransactionResult: 'tesSUCCESS'
+                AffectedNodes: [Array],
+                TransactionIndex: 7,
+                TransactionResult: 'tesSUCCESS'
             },
             validated: true
         },
         type: 'response'
     }
-    Created Payment Channel with ID: 0AE202C7C43765A1B70B58910AA154D3B61BD362A16521488D99121FE9AA784E
+    Created Payment Channel with ID: 25C67138FB51F65A7015632C07E00AD0AE1C8A21F0282FD0401BAEDFDFD3423E
     ```
 
-    The ID output at the end of the above log (`0AE202C7C43765A1B70B58910AA154D3B61BD362A16521488D99121FE9AA784E`) is the `Channel ID`, so please make a note of it.
+    The ID displayed at the end of the log (`25C67138FB51F65A7015632C07E00AD0AE1C8A21F0282FD0401BAEDFDFD3423E`) is the `Channel ID`, so make a note of it.
 
     <Aside>
-    `channelId` is the ID that uniquely identifies the payment channel on the XRPL (XRP Ledger). This ID is generated when the payment channel is created and is required for operations such as adding funds to or closing the channel.
+    The `channelId` is a unique identifier for the payment channel on the XRPL (XRP Ledger).
+    This ID is generated when the payment channel is created and is needed for operations such as adding funds, claiming, and closing the channel.
     </Aside>
 
-    ※In actual development, you need to carry out off-ledger transactions using the obtained ID.
+    In actual development, you will need to carry forward this ID to perform off-chain transactions and other operations.
 
 </Steps>
 
-Next, we will use the created Channel ID for off-ledger transactions. The detailed procedure will be explained in the next section.
+Next, we will perform off-chain transactions using the created Channel ID. The specific steps will be explained in the next section.

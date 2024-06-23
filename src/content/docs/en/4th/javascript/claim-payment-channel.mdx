@@ -1,0 +1,180 @@
+---
+title: Claiming Funds from a Payment Channel | XRPL Development in JavaScript - Level 4
+description: This page explains how to claim funds from a payment channel as part of the XRPL Development in JavaScript - Level 4 curriculum.
+sidebar:
+    label: Claiming Funds from a Payment Channel
+    order: 5
+---
+
+import { Aside, Steps } from '@astrojs/starlight/components';
+
+In this chapter, we will introduce how to claim funds from the balance of a created payment channel.
+
+## Prerequisites
+
+Bob has already performed the following actions for Alice:
+
+- Created a channel and deposited `10 XRP`.
+- Completed a total of `1 XRP` worth of off-ledger transactions.
+
+## Creating the Script
+
+<Steps>
+
+1. Create a new file named `claimPaymentChannel.js` in your project directory.
+
+2. Paste the following code into `claimPaymentChannel.js`.
+
+   This code is a sample for claiming transactions for a specified channel ID, payment amount, and signature.
+
+   ```javascript
+    // claimPaymentChannel.js
+    import { xrpToDrops, signPaymentChannelClaim } from 'xrpl';
+    import { client, aliceWallet, bobWallet } from './config.js';
+
+    const claimPaymentChannel = async (channelId, amount, paychanSignature) => {
+        try {
+            // Create the PaymentChannelClaim transaction
+            const tx = {
+                TransactionType: 'PaymentChannelClaim',
+                Account: aliceWallet.address, // Recipient (Alice's) address
+                Channel: channelId, // Channel ID
+                Balance: xrpToDrops(amount), // Amount to claim (in drops)
+                Amount: xrpToDrops(amount), // Amount to pay (in drops)
+                Signature: paychanSignature, // Off-ledger transaction signature string
+                PublicKey: bobWallet.publicKey, // Sender's public key
+            };
+
+            console.log('Submitting a PaymentChannelClaim transaction...');
+            const response = await client.submitAndWait(tx, { wallet: aliceWallet }); // Alice signs the transaction
+            console.log('PaymentChannelClaim transaction response:', response);
+        } catch (error) {
+            console.error('Error claiming Payment Channel:', error);
+        }
+    };
+
+    const main = async () => {
+        try {
+            await client.connect();
+
+            const channelId = 'CHANNEL_ID_HERE'; // Enter the previously created channel ID
+            const amount = '1'; // Enter the amount in XRP
+
+            // Specify the previously created off-ledger payment signature
+            const paychanSignature = 'SIGNATURE_HERE';
+
+            // 実行
+            await claimPaymentChannel(channelId, amount, paychanSignature);
+        } catch (error) {
+            console.error('Error connecting to XRPL:', error);
+        } finally {
+            await client.disconnect();
+        }
+    };
+
+    main();
+    ```
+</Steps>
+
+### Running the Script
+
+<Steps>
+1. Run the script by executing the following command in your command line:
+
+    ```bash
+    node claimPaymentChannel.js
+    ```
+
+2. If successful, the console will display the following:
+
+    ```bash
+    Submitting a PaymentChannelClaim transaction...
+    PaymentChannelClaim transaction response: {
+        id: 12,
+        result: {
+            Account: 'rM6Nt2E1WKJLKMN1tbkcifveAshzVuyJmj', // Alice&quot;s address
+            Amount: '1000000',
+            Balance: '1000000',
+            Channel: '25C67138FB51F65A7015632C07E00AD0AE1C8A21F0282FD0401BAEDFDFD3423E',
+            Fee: '12',
+            Flags: 0,
+            LastLedgerSequence: 1743094,
+            PublicKey: 'ED9F9B58A0A209A1D0F90832FE83F3ED49C0091259E3F67A2FCAA3D3EAAF718FFE',
+            Sequence: 1742737,
+            Signature: '7465B7BCC66F1053D4CB8EF3785BE951A235868420F546160EF446429DA58632EEBBA90810F6714500E7B0A73E9DBABFE47307DC6BEC9D911D24DB473988BE04',
+            SigningPubKey: 'EDE80DD6F71A48928EC70B22912D6E9B4005D1D9666939C658F931186CC9DA80B7',
+            TransactionType: 'PaymentChannelClaim',
+            TxnSignature: 'A9CC66C22C9000CE5B939E828FDB621419A8EE7180604B3844D52D32D27BD4F00CCB93D8AF85C0E7F08EA7DD27D5E475F8CA00FEA1EF2B6BB826EB6DA95A4902',
+            ctid: 'C01A98E400000001',
+            date: 772450171,
+            hash: '885C753CDE40000A7452F31FB120293EFDCE39F3A442B1C5E6E924440FD32381',
+            inLedger: 1743076,
+            ledger_index: 1743076,
+            meta: {
+                AffectedNodes: [Array],
+                TransactionIndex: 0,
+                TransactionResult: 'tesSUCCESS' // Success
+            },
+            validated: true
+        },
+        type: 'response'
+    }
+    ```
+
+   Alice has successfully claimed the specified channel ID.
+
+3. Attempting to claim the same amount again will naturally fail.
+
+    ```bash
+    Submitting a PaymentChannelClaim transaction...
+    PaymentChannelClaim transaction response: {
+        id: 12,
+        result: {
+            Account: 'rM6Nt2E1WKJLKMN1tbkcifveAshzVuyJmj',
+            Amount: '1000000',
+            Balance: '1000000',
+            Channel: '25C67138FB51F65A7015632C07E00AD0AE1C8A21F0282FD0401BAEDFDFD3423E',
+            Fee: '12',
+            Flags: 0,
+            LastLedgerSequence: 1744099,
+            PublicKey: 'ED9F9B58A0A209A1D0F90832FE83F3ED49C0091259E3F67A2FCAA3D3EAAF718FFE',
+            Sequence: 1742738,
+            Signature: '7465B7BCC66F1053D4CB8EF3785BE951A235868420F546160EF446429DA58632EEBBA90810F6714500E7B0A73E9DBABFE47307DC6BEC9D911D24DB473988BE04',
+            SigningPubKey: 'EDE80DD6F71A48928EC70B22912D6E9B4005D1D9666939C658F931186CC9DA80B7',
+            TransactionType: 'PaymentChannelClaim',
+            TxnSignature: 'A95B769AC9AD834D4798C1409B3B6708D1D4DFF79DF2F59AA185B358810930A925B948D7BD3E83EF20308FDE75275AFC5B75C164A4D70F8CB49BCDC9148A8D01',
+            ctid: 'C01A9CD100330001',
+            date: 772453560,
+            hash: 'D3F6D62CAE3A3B8C2DAD0DEE314A55145AA1EBF2544C8B09CDD1F698EDE6621E',
+            inLedger: 1744081,
+            ledger_index: 1744081,
+            meta: {
+                AffectedNodes: [Array],
+                TransactionIndex: 51,
+                TransactionResult: 'tecUNFUNDED_PAYMENT' // Failure
+            },
+            validated: true
+        },
+        type: 'response'
+    }
+    ```
+
+    <Aside title="What is tecUNFUNDED_PAYMENT?">
+    The tec code `104` is `tecUNFUNDED_PAYMENT`. This typically means that the transaction failed because the sending account attempted to send an amount exceeding its XRP balance without considering the reserve.  
+    Here, it means "There is no balance to claim on the payment channel."
+    </Aside>
+</Steps>
+
+## Summary
+
+If the balances are as follows, the process has been successful.
+
+- Alice: 100.999988 XRP
+- Bob: 89.999988 XRP
+
+Check Alice and Bob's addresses using the [explorer](https://test.bithomp.com/explorer/) for the testnet.
+
+- Alice claimed `1 XRP` from the payment channel created by Bob, but since she bore the transaction fee, she actually received `0.999988 XRP`.
+- Bob initially deposited `10 XRP` with the PaymentChannelCreate transaction, paying the deposit and fees upfront, so his balance should be `89.999988 XRP`.
+
+Additionally, it is beneficial to examine the transaction data for more detailed insights.
