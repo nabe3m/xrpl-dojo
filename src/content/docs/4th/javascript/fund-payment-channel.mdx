@@ -3,10 +3,12 @@ title: ペイメントチャネルへの資金の追加方法 | JavaScriptでの
 description: JavaScriptでのXRPL開発 四段編として、「ペイメントチャネルの資金の追加方法」について解説しているページです。
 sidebar:
   label: チャネルへの資金の追加方法
-  order: 7
+  order: 6
 ---
 
 import { Aside, Steps } from '@astrojs/starlight/components';
+
+この章では、作成したペイメントチャネルの資金（デポジット）を追加する方法について紹介します。
 
 ## スクリプトの作成
 
@@ -23,19 +25,22 @@ import { Aside, Steps } from '@astrojs/starlight/components';
     const fundPaymentChannel = async (channelId) => {
         try {
             const tx = {
-            TransactionType: 'PaymentChannelFund', // トランザクションタイプ: ペイメントチャネルの資金追加
-            Account: bobWallet.address, // 送金者（ボブ）のアカウントアドレス
-            Channel: channelId, // ペイメントチャネルのID
-            Amount: xrpToDrops('5'), // チャネルに追加するXRPの量（ここでは5 XRP）
+                TransactionType: 'PaymentChannelFund', // トランザクションタイプ: ペイメントチャネルの資金追加
+                Account: bobWallet.address, // 送金者（ボブ）のアカウントアドレス
+                Channel: channelId, // ペイメントチャネルのID
+                Amount: xrpToDrops('5'), // チャネルに追加するXRPの量（ここでは5 XRP）
             };
 
             console.log('Submitting a PaymentChannelFund transaction...');
+
+            // トランザクションの送信
             const fundChannelResponse = await client.submitAndWait(tx, {
-            wallet: bobWallet,
+                wallet: bobWallet,
             });
+
             console.log(
-            'PaymentChannelFund transaction response:',
-            fundChannelResponse
+                'PaymentChannelFund transaction response:',
+                fundChannelResponse
             );
         } catch (error) {
             console.error('Error funding Payment Channel:', error);
@@ -45,8 +50,7 @@ import { Aside, Steps } from '@astrojs/starlight/components';
     const main = async () => {
         try {
             await client.connect();
-            const channelId =
-            '0AE202C7C43765A1B70B58910AA154D3B61BD362A16521488D99121FE9AA784E'; // 事前に作成したチャンネルIDを入力
+            const channelId = 'CHANNEL_ID_HERE'; // 事前に作成したチャンネルIDを入力
             await fundPaymentChannel(channelId);
         } catch (error) {
             console.error('Error connecting to XRPL:', error);
@@ -75,33 +79,92 @@ import { Aside, Steps } from '@astrojs/starlight/components';
    ```javascript
     Submitting a PaymentChannelFund transaction...
     PaymentChannelFund transaction response: {
-        id: 10,
-        result: {
-            Account: 'r9kxafhpMrUzTknHxU1CmfY2pHwLcGDfT2',
-            Amount: '5000000',
-            Channel: '0AE202C7C43765A1B70B58910AA154D3B61BD362A16521488D99121FE9AA784E',
-            Fee: '12',
-            Flags: 0,
-            LastLedgerSequence: 1564211,
-            Sequence: 1563977,
-            SigningPubKey: 'ED2D6F34B0A79023E1436F8FA0FB192719FAB3F0FEC5481270D455093157E3856A',
-            TransactionType: 'PaymentChannelFund',
-            TxnSignature: '09B1798D1BFDE9DB23C1F44F749725FC024E800A9021A4F898C9B8042713E0BDA1CABCDB97988000C1AD145F5621534B588CB6A47616C10222D7F525FA09E20F',
-            ctid: 'C017DE2100000001',
-            date: 771859111,
-            hash: '28D45BCBB615B817F5835BE0F5ED7DB191BF389A5620077312CC7DF2FDF81AC9',
-            inLedger: 1564193,
-            ledger_index: 1564193,
-            meta: {
-                AffectedNodes: [Array],
-                TransactionIndex: 0,
-                TransactionResult: 'tesSUCCESS' // 成功
+        id: 12,
+            result: {
+                Account: 'rDW8W3rzDFUyU4pw5Ei8QL1J9nQ947h68f',
+                Amount: '5000000',
+                Channel: '25C67138FB51F65A7015632C07E00AD0AE1C8A21F0282FD0401BAEDFDFD3423E',
+                Fee: '12',
+                Flags: 0,
+                LastLedgerSequence: 1743984,
+                Sequence: 1742741,
+                SigningPubKey: 'ED9F9B58A0A209A1D0F90832FE83F3ED49C0091259E3F67A2FCAA3D3EAAF718FFE',
+                TransactionType: 'PaymentChannelFund',
+                TxnSignature: '0BB94472B22EEC345F02E5E788DA5CBBDB3080082DD03F3B5A87D02116FC61FF36B6469002B90CF8F219BDE9CFAD4AC68B49EAE64ED96C2A58FB9F09A8DDF00D',
+                ctid: 'C01A9C5E007D0001',
+                date: 772453171,
+                hash: 'AA71F4F3163A25032BC71A07C8824C62415F33A3BD20F6B578A5236F4DED4631',
+                inLedger: 1743966,
+                ledger_index: 1743966,
+                meta: {
+                    AffectedNodes: [Array],
+                    TransactionIndex: 125,
+                    TransactionResult: 'tesSUCCESS'
+                },
+                validated: true
             },
-            validated: true
-        },
         type: 'response'
     }
     ```
 </Steps>
 
-※次章は作成中です。
+## 同時に期限を延長する場合
+
+資金の追加と同時に、期限の延長を行うことができます。
+
+期限の延長を行う場合は、以下のように`Expiration`フィールドを追加してトランザクションを送信してください。  
+また、`Expiration`フィールドは、現在から`SettleDelay`を足した期限以上を指定する必要があります。
+
+```javascript
+const tx = {
+    TransactionType: 'PaymentChannelFund', // トランザクションタイプ: ペイメントチャネルの資金追加
+    Account: bobWallet.address, // 送金者（ボブ）のアカウントアドレス
+    Channel: channelId, // ペイメントチャネルのID
+    Amount: xrpToDrops('5'), // チャネルに追加するXRPの量（ここでは5 XRP）
+    Expiration: Math.floor(Date.now() / 1000) + 86400 * 7, // 期限を延長（ここでは1週間後）
+};
+```
+
+※有効期限は、チャネルの変更不可であるオプションの`CancelAfter`とは別です。
+
+## チャネルの状態を確認する
+
+資金の追加ができているか確認するために、ここでもう一度、チャネルの状態を確認してみましょう。
+
+前章で作成済みの`checkChannelBalance.js`を使用します。
+
+### スクリプトの実行
+
+<Steps>
+
+1. コマンドラインで以下のコマンドを実行して、スクリプトを実行します。
+
+    ```bash
+    node checkChannelBalance.js
+    ```
+
+2. 成功すれば、コンソールに以下が表示されます。
+    ```bash
+    Channel ID: 25C67138FB51F65A7015632C07E00AD0AE1C8A21F0282FD0401BAEDFDFD3423E
+    Balance: 1000000 drops // オフレジャー取引した総量（現在: 1 XRP）
+    Amount: 15000000 drops // デポジットした量（15 XRP）
+    ```
+
+    `Amount`が`15000000 drops (15 XRP)`に増えたことを確認できました。
+
+    <Aside title="Balanceについて">
+    上記で取得した`Balance`については、現在の請求可能金額ではありません。  
+    「デポジットした量に対して、現在どれくらいの取引が完了しているか」という意味になりますのでご注意ください。（Amountの上限までオフレジャー取引が可能）
+    </Aside>
+</Steps>
+
+## まとめ
+
+この章では、ペイメントチャネルに資金を追加する方法について解説しました。
+
+`PaymentChannelFund`トランザクションを使用して、チャネルに追加のデポジットを行うことができます。  
+このサンプルコードを参考にすれば、例えば「入金」ボタンなどをクリックした際に、トランザクションを発生させることができるでしょう。
+
+また、資金の追加により、チャネルの有効期間を延長し、さらなる取引を可能にすることもできます。
+
+次章では、ペイメントチャネルをクローズする方法について紹介します。クローズプロセスを通じて、未使用の資金を回収し、チャネルの最終残高を確定させる手順を学びましょう。

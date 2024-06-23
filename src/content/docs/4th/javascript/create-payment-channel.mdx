@@ -34,9 +34,9 @@ import { Aside, Steps } from '@astrojs/starlight/components';
                 Account: bobWallet.address, // 送金者（ボブ）のアカウントアドレス
                 Amount: xrpToDrops('10'), // チャネルにデポジットするXRPの量（ここでは10 XRP）
                 Destination: aliceWallet.address, // 受領者（アリス）のアカウントアドレス
-                SettleDelay: 86400, // チャネルに資金がある場合でも後に閉じることが可能になる秒数（ここでは1日）
+                SettleDelay: 86400, // 未請求のXRPがある場合に、ソースアドレスがチャネルを閉じる前の猶予時間。待機秒数（ここでは1日）
                 PublicKey: bobWallet.publicKey, // 送金者（ボブ）の公開鍵
-                CancelAfter: Math.floor(Date.now() / 1000) + 86400 * 7, // チャネルがキャンセルされるまでの秒数（ここでは1週間）
+                CancelAfter: Math.floor(Date.now() / 1000) + 86400 * 30, // チャネルがキャンセルされるまでの秒数（ここでは1ヶ月）
             };
 
             console.log('Submitting a PaymentChannelCreate transaction...');
@@ -56,10 +56,10 @@ import { Aside, Steps } from '@astrojs/starlight/components';
                 account: bobWallet.address,
             });
 
-            const channel_id = response.result.channels[0].channel_id;
-            console.log(`Created Payment Channel with ID: ${channel_id}`);
+            const channelId = response.result.channels[0].channel_id;
+            console.log(`Created Payment Channel with ID: ${channelId}`);
 
-            return channel_id;
+            return channelId;
         } catch (error) {
             console.error('Error creating Payment Channel:', error);
         }
@@ -95,46 +95,46 @@ import { Aside, Steps } from '@astrojs/starlight/components';
     ```bash
     Submitting a PaymentChannelCreate transaction...
     PaymentChannelCreate transaction response: {
-    id: 10,
-    result: {
-        Account: 'rDBvi1AUpMGgwXJbqskC8wL3HnxwVnoCtC',
-        Amount: '10000000',
-        CancelAfter: 1719718213,
-        Destination: 'rUqzzEHmo4EJqTRjdE557N9gjynWhbYB73',
-        Fee: '12',
-        Flags: 0,
-        LastLedgerSequence: 1736663,
-        PublicKey: 'EDECF7912AB2B111751AB9F849903EBA1E0F22E3A2734F9398DAF6916C53996E83',
-        Sequence: 1724657,
-        SettleDelay: 86400,
-        SigningPubKey: 'EDECF7912AB2B111751AB9F849903EBA1E0F22E3A2734F9398DAF6916C53996E83',
-        TransactionType: 'PaymentChannelCreate',
-        TxnSignature: 'AEFC98BB2E4A78CC85D624D4562328882A763F11DEDB5448B9C3C0C06DDC33D7C515E64A9D03695F56B5F4AD978D23C70B2C4072C21477851E01D572065E9600',
-        ctid: 'C01A7FC500000001',
-        date: 772428613,
-        hash: '61998DCE11B9975B56EC1228244D78568534F7BE24D60B439C6029CAB439341D',
-        inLedger: 1736645,
-        ledger_index: 1736645,
-        meta: {
-            AffectedNodes: [Array],
-            TransactionIndex: 0,
-            TransactionResult: 'tesSUCCESS'
+        id: 10,
+        result: {
+            Account: 'rDW8W3rzDFUyU4pw5Ei8QL1J9nQ947h68f',
+            Amount: '10000000',
+            CancelAfter: 1719738684,
+            Destination: 'rM6Nt2E1WKJLKMN1tbkcifveAshzVuyJmj',
+            Fee: '12',
+            Flags: 0,
+            LastLedgerSequence: 1742776,
+            PublicKey: 'ED9F9B58A0A209A1D0F90832FE83F3ED49C0091259E3F67A2FCAA3D3EAAF718FFE',
+            Sequence: 1742740,
+            SettleDelay: 86400,
+            SigningPubKey: 'ED9F9B58A0A209A1D0F90832FE83F3ED49C0091259E3F67A2FCAA3D3EAAF718FFE',
+            TransactionType: 'PaymentChannelCreate',
+            TxnSignature: '8B87011388FFED13070AFB88D936D7903D26A481036043ABD27BEC13CA5531610A667BCFE18B2F7090EB04E611EAFDC3DA0082C72937FCB9DB2EEDE6AA5F4602',
+            ctid: 'C01A97A600070001',
+            date: 772449090,
+            hash: '860DD9F668836971343AE84BE111D451A3F0C4BBE4BD92E36D3BCAC5E2571BB4',
+            inLedger: 1742758,
+            ledger_index: 1742758,
+            meta: {
+                AffectedNodes: [Array],
+                TransactionIndex: 7,
+                TransactionResult: 'tesSUCCESS'
+            },
+            validated: true
         },
-        validated: true
-    },
-    type: 'response'
+        type: 'response'
     }
-    Created Payment Channel with ID: E965B919E140BCF98280B29F6861C23BBB753B9D5515EDD57A285391BA20CCA2
+    Created Payment Channel with ID: 25C67138FB51F65A7015632C07E00AD0AE1C8A21F0282FD0401BAEDFDFD3423E
     ```
 
-    上記ログの最後に出力されたID（`E965B919E140BCF98280B29F6861C23BBB753B9D5515EDD57A285391BA20CCA2`）が`Channel ID`となりますので、控えておきましょう。
+    上記ログの最後に出力されたID（`25C67138FB51F65A7015632C07E00AD0AE1C8A21F0282FD0401BAEDFDFD3423E`）が`Channel ID`となりますので、メモしておきましょう。
 
     <Aside>
     `channelId` は、XRPL（XRP Ledger）上でペイメントチャネルを一意に識別するためのIDです。
-    このIDは、ペイメントチャネルを作成する際に生成され、チャネルの資金追加やクローズといった操作を行う際に必要となります。
+    このIDは、ペイメントチャネルを作成する際に生成され、チャネルの資金追加や請求、クローズといった操作を行う際に必要となります。
     </Aside>
 
-    ※実際の開発では取得したIDをそのまま引き継いでオフレジャー取引を行う必要があります。
+    ※実際の開発では、取得したIDをそのまま引き継いでオフレジャー取引などを行う必要があります。
 </Steps>
 
 次に、作成された`Channel ID`を使用してオフレジャー取引を行います。具体的な手順は次のセクションで解説します。  

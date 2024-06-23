@@ -1,0 +1,275 @@
+---
+title: ペイメントチャネルをクローズする方法 | JavaScriptでのXRPL開発 四段編
+description: JavaScriptでのXRPL開発 四段編として、「ペイメントチャネルをクローズする方法」について解説しているページです。
+sidebar:
+  label: チャネルをクローズする
+  order: 7
+---
+
+import { Aside, Steps } from '@astrojs/starlight/components';
+
+この章では、ペイメントチャネルをクローズする方法について紹介します。
+
+ペイメントチャネルをクローズすることで、未使用の資金を回収し、チャネルの最終残高を確定させることができます。
+
+## 事前準備
+
+<Steps>
+1. プロジェクトディレクトリに`closePaymentChannel.js`という新しいファイルを作成します。
+
+2. 以下のコードを`closePaymentChannel.js`に貼り付けます。
+
+    ```javascript
+    import { PaymentChannelClaimFlags } from 'xrpl';
+    import { client, bobWallet } from './config.js';
+
+    const closePaymentChannel = async (channelId) => {
+        try {
+            // PaymentChannelClaimトランザクションを作成
+            const tx = {
+                TransactionType: 'PaymentChannelClaim',
+                Account: bobWallet.address, // 送金人（ボブ）のアカウントアドレス
+                Channel: channelId, // チャネルID
+                Flags: PaymentChannelClaimFlags.tfClose, // クローズフラグ: 131072
+            };
+
+            console.log('Submitting a PaymentChannelClaim transaction to close the channel...');
+            
+            // トランザクションの送信
+            const closeChannelResponse = await client.submitAndWait(tx, {
+                wallet: bobWallet,
+            });
+
+            console.log(
+                'PaymentChannelClaim (close) transaction response:',
+                closeChannelResponse
+            );
+        } catch (error) {
+            console.error('Error closing Payment Channel:', error);
+        }
+    };
+
+    const main = async () => {
+        try {
+            await client.connect();
+            const channelId = 'CHANNEL_ID_HERE'; // 事前に作成したチャネルIDを入力
+            await closePaymentChannel(channelId);
+        } catch (error) {
+            console.error('Error connecting to XRPL:', error);
+        } finally {
+            await client.disconnect();
+        }
+    };
+
+    main();
+    ```
+</Steps>
+
+## スクリプトの実行
+
+<Steps>
+1. コマンドラインで以下のコマンドを実行して、スクリプトを実行します。
+
+    ```bash
+    node closePaymentChannel.js
+    ```
+
+2. 成功すれば、コンソールに以下が表示されます。
+
+    ```bash
+    Submitting a PaymentChannelClaim transaction to close the channel...
+    PaymentChannelClaim (close) transaction response: {
+        id: 10,
+        result: {
+            Account: 'rDW8W3rzDFUyU4pw5Ei8QL1J9nQ947h68f',
+            Channel: '25C67138FB51F65A7015632C07E00AD0AE1C8A21F0282FD0401BAEDFDFD3423E',
+            Fee: '12',
+            Flags: 131072,
+            LastLedgerSequence: 1745129,
+            Sequence: 1742743,
+            SigningPubKey: 'ED9F9B58A0A209A1D0F90832FE83F3ED49C0091259E3F67A2FCAA3D3EAAF718FFE',
+            TransactionType: 'PaymentChannelClaim',
+            TxnSignature: '192E1D8F6A8887446A27AA54C41C226A46B3C43A4D780654696A74D9454A6E3B52EBB5D57C420F6CF597F68D6B16EE57F8DCE7F1A5653216632A9B0CA19D5601',
+            ctid: 'C01AA0D700000001',
+            date: 772457030,
+            hash: '8BF8ACC66D4B61A106CFC5A916EA8DAE621C5362D9DA6F7C08E720FEDE5733B6',
+            inLedger: 1745111,
+            ledger_index: 1745111,
+            meta: {
+                AffectedNodes: [Array],
+                TransactionIndex: 0,
+                TransactionResult: 'tesSUCCESS'
+            },
+            validated: true
+        },
+        type: 'response'
+    }
+    ```
+</Steps>
+
+## チャネルクローズの仕様について
+
+送金人であるボブからチャネルを閉じるフラグを設定しましたが、実は現時点でもチャネルは存在したままとなります。
+
+ここで一度、`createPaymentChannel.js`を確認してみましょう。
+
+```javascript
+// createPaymentChannel.js
+const tx = {
+    TransactionType: 'PaymentChannelCreate', // トランザクションタイプ: PaymentChannelCreate
+    Account: bobWallet.address, // 送金者（ボブ）のアカウントアドレス
+    Amount: xrpToDrops('10'), // チャネルにデポジットするXRPの量（ここでは10 XRP）
+    Destination: aliceWallet.address, // 受領者（アリス）のアカウントアドレス
+    SettleDelay: 86400, // 未請求のXRPがある場合に、ソースアドレスがチャネルを閉じる前の猶予時間。待機秒数（ここでは1日）
+    PublicKey: bobWallet.publicKey, // 送金者（ボブ）の公開鍵
+    CancelAfter: Math.floor(Date.now() / 1000) + 86400 * 30, // チャネルがキャンセルされるまでの秒数（ここでは1ヶ月）
+};
+```
+
+ここで、`SettleDelay`に`1日後`を指定していましたね。
+
+仕様として、送金人からチャネルクローズを行った場合は、`SettleDelay`が発生します。つまり、クローズフラグをセットしたタイミングから、`1日後`にチャネルがクローズされることになります。
+
+<Aside title="SettleDelayとは？">
+SettleDelay は、ペイメントチャネルがクローズされる前に待機する必要がある秒数を指定するフィールドです。これにより、チャネルがクローズされるまでの一定期間を設けることができます。
+</Aside>
+
+可能であれば、`node checkChannelBalance.js`を実行し、以下がまだ表示されることを確認してください。
+
+```bash
+Channel ID: 25C67138FB51F65A7015632C07E00AD0AE1C8A21F0282FD0401BAEDFDFD3423E
+Balance: 1000000 drops
+Amount: 15000000 drops
+```
+
+## 再開する場合
+
+`Flags`を変更することで、チャネルを再開することが可能です。支払いチャネルのソースアドレスのみがこのフラグを使用できます。
+
+```javascript
+const tx = {
+    TransactionType: 'PaymentChannelClaim',
+    Account: bobWallet.address, // 送金人（ボブ）のアカウントアドレス
+    Channel: channelId, // チャネルID
+    Flags: PaymentChannelClaimFlags.tfRenew, // 再開フラグ: 65536
+};
+```
+
+<Aside title="tfRenewフラグについて">
+ここでいう「再開」とは、あくまでもはじめに指定した`CancelAfter`の有効期限までという意味となります。  
+※`CancelAfter`はオプションなので、期限を指定していない場合除きます。  
+
+CancelAfter フィールドは、ペイメントチャネルの作成時に設定されるものであり、一度設定された後に変更することはできません。
+</Aside>
+
+## 受領人（アリス）からチャネルを閉じる場合
+
+受領人（アリス）からチャネルクローズを行う場合は、少し挙動が異なり、受領人がチャネルの`Flags`を変更すると、チャネルが強制的に終了します。
+
+## スクリプトの実行
+
+<Steps>
+1. 以下のように、`closePaymentChannel.js`のコードを修正します。
+
+    ```javascript
+    const closePaymentChannel = async (channelId) => {
+        try {
+            // PaymentChannelClaimトランザクションを作成
+                const tx = {
+                TransactionType: 'PaymentChannelClaim',
+                // Account: bobWallet.address, // 送金人（ボブ）のアカウントアドレス
+                Account: aliceWallet.address, // 受領人（アリス）のアカウントアドレス
+                Channel: channelId, // チャネルID
+                Flags: PaymentChannelClaimFlags.tfClose, // クローズフラグ: 131072
+                validated: true,
+            };
+
+            console.log(
+                'Submitting a PaymentChannelClaim transaction to close the channel...'
+            );
+
+            const closeChannelResponse = await client.submitAndWait(tx, {
+                // wallet: bobWallet,
+                wallet: aliceWallet,
+            });
+
+            console.log(
+                'PaymentChannelClaim (close) transaction response:',
+                closeChannelResponse
+            );
+        } catch (error) {
+            console.error('Error closing Payment Channel:', error);
+        }
+    };
+    ```
+
+2. コマンドラインで以下のコマンドを実行して、スクリプトを実行します。
+
+    ```bash
+    node closePaymentChannel.js
+    ```
+
+3. 成功すれば、コンソールに以下が表示されます。
+
+    ```bash
+    Submitting a PaymentChannelClaim transaction to close the channel...
+    PaymentChannelClaim (close) transaction response: {
+        id: 10,
+        result: {
+            Account: 'rDW8W3rzDFUyU4pw5Ei8QL1J9nQ947h68f',
+            Channel: '25C67138FB51F65A7015632C07E00AD0AE1C8A21F0282FD0401BAEDFDFD3423E',
+            Fee: '12',
+            Flags: 131072,
+            LastLedgerSequence: 1745129,
+            Sequence: 1742743,
+            SigningPubKey: 'ED9F9B58A0A209A1D0F90832FE83F3ED49C0091259E3F67A2FCAA3D3EAAF718FFE',
+            TransactionType: 'PaymentChannelClaim',
+            TxnSignature: '192E1D8F6A8887446A27AA54C41C226A46B3C43A4D780654696A74D9454A6E3B52EBB5D57C420F6CF597F68D6B16EE57F8DCE7F1A5653216632A9B0CA19D5601',
+            ctid: 'C01AA0D700000001',
+            date: 772457030,
+            hash: '8BF8ACC66D4B61A106CFC5A916EA8DAE621C5362D9DA6F7C08E720FEDE5733B6',
+            inLedger: 1745111,
+            ledger_index: 1745111,
+            meta: {
+                AffectedNodes: [Array],
+                TransactionIndex: 0,
+                TransactionResult: 'tesSUCCESS'
+            },
+            validated: true
+        },
+        type: 'response'
+    }
+    ```
+
+4. コマンドラインで以下のコマンドを実行して、チャネルの状態を再確認します。
+
+    ```
+    node checkChannelBalance.js
+    ```
+
+5. 以下のような結果が出力されれば、完全にチャネルのクローズが完了したことになります。
+
+    ```bash
+    Channel with ID 25C67138FB51F65A7015632C07E00AD0AE1C8A21F0282FD0401BAEDFDFD3423E not found.
+    ```
+
+    ここでもう一度、アリスとボブのアドレスを、テストネット用の[エクスプローラ](https://test.bithomp.com/explorer/)にて確認してみましょう。
+
+    ここまで手順通りに進めた場合となりますが、デポジットしたXRPがボブの元に返還され、以下の残高になっているかと思います。
+
+    - アリス: 約100 XRP
+    - ボブ: 約89 XRP
+
+</Steps>
+
+## まとめ
+
+この章では、ペイメントチャネルをクローズする方法について解説しました。
+
+`PaymentChannelClaim`トランザクションを使用してチャネルをクローズすることで、未使用の資金を回収し、チャネルの最終残高を確定させることができます。
+
+ここまでガイドを完了することができれば、基本的なペイメントチャネルを使用した取引の流れを理解することができたといえるかと思います。
+
+ペイメントチャネル（PaymentChannel）はXRPLの高度な支払い機能の中でも実装難易度が高い部類に入りますので、なかなかドキュメントベースだとイメージしづらいかと思います。
+
+今後の開発やプロジェクトにおいて、この知識が役立つことを願っています。

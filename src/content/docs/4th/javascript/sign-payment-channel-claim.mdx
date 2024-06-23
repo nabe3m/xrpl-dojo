@@ -3,7 +3,7 @@ title: オフレジャー支払いへの署名と検証 | JavaScriptでのXRPL�
 description: JavaScriptでのXRPL開発 四段編として、ペイメントチャネルの「オフレジャー支払いへの署名と検証」方法について解説しているページです。
 sidebar:
   label: オフレジャー支払いへの署名と検証
-  order: 5
+  order: 4
 ---
 
 import { Aside, Steps } from '@astrojs/starlight/components';
@@ -30,7 +30,7 @@ import { Aside, Steps } from '@astrojs/starlight/components';
     } from 'xrpl';
     import { client, bobWallet } from './config.js';
 
-    const signAndVerifyClaims = async (channel_id) => {
+    const signAndVerifyClaims = async (channelId) => {
         let paychanSignature = '';
 
         console.time();
@@ -40,7 +40,7 @@ import { Aside, Steps } from '@astrojs/starlight/components';
 
             // 送金人: オフレジャー支払いへの署名
             paychanSignature = signPaymentChannelClaim(
-                channel_id,
+                channelId,
                 amountFormatted, // XRP建の量での指定
                 bobWallet.privateKey
             );
@@ -48,7 +48,7 @@ import { Aside, Steps } from '@astrojs/starlight/components';
             // 受取人: オフレジャー支払い情報の検証
             if (
                 !verifyPaymentChannelClaim(
-                    channel_id,
+                    channelId,
                     amountFormatted, // XRP建の量での指定
                     paychanSignature,
                     bobWallet.publicKey
@@ -65,7 +65,7 @@ import { Aside, Steps } from '@astrojs/starlight/components';
     const main = async () => {
         try {
             await client.connect();
-            const channelId = 'チャネルID'; // 事前に作成したチャネルIDを入力
+            const channelId = 'CHANNEL_ID_HERE'; // 事前に作成したチャネルIDを入力
             const signature = await signAndVerifyClaims(channelId);
             console.log(`Generated signature: ${signature}`);
         } catch (error) {
@@ -79,7 +79,6 @@ import { Aside, Steps } from '@astrojs/starlight/components';
     ```
 </Steps>
 
-
 ## スクリプトの実行
 
 <Steps>
@@ -90,19 +89,115 @@ import { Aside, Steps } from '@astrojs/starlight/components';
     node signPaymentChannelClaim.js
     ```
 
-2. 成功すれば、コンソールに以下が表示されます。
+2. 成功すれば、以下のような結果がコンソールに表示されますので、`Generated signature:`の右側に表示された文字列を確認し、メモしてください。
     ```bash
     default: 1.605s
-    Generated signature: C0D5F6A9908EE8AF579912215C3B765835210194CD6183DCE9128F3E6EE0991D98068968675C7A5B3E50DEC7D52BBAC970BC2305F063E04E52B60752921CCA01
+    Generated signature: 7465B7BCC66F1053D4CB8EF3785BE951A235868420F546160EF446429DA58632EEBBA90810F6714500E7B0A73E9DBABFE47307DC6BEC9D911D24DB473988BE04
     ```
 
-    1,000件のオフレジャー支払いにかかった時間はたったの`1.605s`です。（ローカル環境での結果となります）
+    1,000件のオフレジャー支払いにかかった時間はたったの`1.605s`でした。（筆者のローカル環境での結果となります。）
     
-    このように、オフレジャー取引を行うことで1,000件を超える支払いを数秒で処理することができます。
+    このように、オフレジャー取引を行うことで1,000件を超える支払いを数秒で完了させることができます。
 
     <Aside>
     送金人がオフレジャー支払いに署名し、その署名を受取人が検証することで、オフレジャー支払いの有効性を確認します。このプロセスは、ペイメントチャネルを通じた支払いの一部として重要です。
     </Aside>
+
+    上記結果の`signature`の値、`7465B7BCC66F1053D4CB8EF3785BE951A235868420F546160EF446429DA58632EEBBA90810F6714500E7B0A73E9DBABFE47307DC6BEC9D911D24DB473988BE04`
+    に当たる文字列は次章で必要になりますので、メモしておいてください。
 </Steps>
 
-次に、資金を請求する方法について紹介します。
+## チャネルの状態を確認する
+
+ここで一度、チャネルの状態を確認してみましょう。
+
+### スクリプトの作成
+
+<Steps>
+
+1. プロジェクトディレクトリに`checkChannelBalance.js`という新しいファイルを作成します。
+2. 以下のコードを`checkChannelBalance.js`に貼り付けます。
+
+    このコードは、1,000件の支払いを行うサンプルコードです。
+
+    ※以下は、毎回`0.001`ずつ支払いが増えていき、最終的に最大`1 XRP`支払うループです。
+
+    ```javascript
+    // checkChannelBalance.js
+    import { client, aliceWallet, bobWallet } from './config.js';
+
+    const checkChannelBalance = async (channelId) => {
+        try {
+            // チャネル情報を取得
+            const response = await client.request({
+                command: 'account_channels',
+                account: bobWallet.address, // チャネルの送金人のアカウント
+                destination_account: aliceWallet.address, // チャネルの受領人のアカウント
+            });
+
+            const channel = response.result.channels.find(
+                (ch) => ch.channel_id === channelId
+            );
+
+            if (channel) {
+                console.log(`Channel ID: ${channel.channel_id}`);
+                console.log(`Balance: ${channel.balance} drops`);
+                console.log(`Amount: ${channel.amount} drops`);
+            } else {
+                console.log(`Channel with ID ${channelId} not found.`);
+            }
+        } catch (error) {
+            console.error('Error checking channel balance:', error);
+        }
+    };
+
+    const main = async () => {
+        try {
+            await client.connect();
+
+            // 事前に作成したチャネルIDを入力
+            const channelId = 'CHANNEL_ID_HERE';
+
+            await checkChannelBalance(channelId);
+        } catch (error) {
+            console.error('Error connecting to XRPL:', error);
+        } finally {
+            await client.disconnect();
+        }
+    };
+
+    main();
+    ```
+</Steps>
+
+### スクリプトの実行
+
+<Steps>
+
+1. コマンドラインで以下のコマンドを実行して、スクリプトを実行します。
+
+    ```bash
+    node checkChannelBalance.js
+    ```
+
+2. 成功すれば、コンソールに以下が表示されます。
+    ```bash
+    Channel ID: E965B919E140BCF98280B29F6861C23BBB753B9D5515EDD57A285391BA20CCA2
+    Balance: 1000000 drops // チャネルに対してオフレジャー取引を行った総量（現在: 1 XRP）
+    Amount: 10000000 drops // デポジットした量（10 XRP）
+    ```
+
+    <Aside title="Balanceについて">
+    上記で取得した`Balance`については、現在の請求可能金額ではありません。  
+    「デポジットした量に対して、現在どれくらいの取引が完了しているか」という意味になりますのでご注意ください。（Amountの上限までオフレジャー取引が可能）
+    </Aside>
+</Steps>
+
+## まとめ
+
+この章では、オフレジャー支払いの署名と検証、およびペイメントチャネルの状態を確認する方法について解説しました。
+
+オフレジャー支払いは、署名と検証を通じてその有効性を確認することで、迅速かつ効率的に複数の支払いを行うことができます。  
+また、ペイメントチャネルの状態を確認することで、チャネル内の現在の残高やデポジットされた総額を把握することができました。
+
+次章では、実際に資金を請求する方法について紹介します。取得した署名を使用して、チャネルの残高を請求する手順を学びましょう。
