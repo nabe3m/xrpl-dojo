@@ -24,7 +24,7 @@ Additionally, XRPL's payment channel functionality is provided natively, without
 2. Paste the following code into `createAccounts.js`.
 
     ```javascript
-    import { xrpToDrops } from 'xrpl';
+    import { xrpToDrops, unixTimeToRippleTime } from 'xrpl';
     import { client, aliceWallet, bobWallet } from './config.js';
 
     const createPaymentChannel = async () => {
@@ -36,7 +36,7 @@ Additionally, XRPL's payment channel functionality is provided natively, without
                 Destination: aliceWallet.address, // Recipient's (Alice's) account address
                 SettleDelay: 86400, // Grace period before the source address can close the channel if there is unclaimed XRP. Waiting time in seconds (1 day here)
                 PublicKey: bobWallet.publicKey, // Sender's (Bob's) public key
-                CancelAfter: Math.floor(Date.now() / 1000) + 86400 * 30, // Seconds until the channel can be canceled (1 month here)
+                CancelAfter: CancelAfter: unixTimeToRippleTime(Math.floor(Date.now() / 1000) + 86400 * 7), // Seconds until the channel can be canceled (1 month here)
             };
 
             console.log('Submitting a PaymentChannelCreate transaction...');
@@ -78,6 +78,19 @@ Additionally, XRPL's payment channel functionality is provided natively, without
 
     main();
     ```
+
+    <Aside title="About Ripple Epoch">
+    The `CancelAfter` field must be specified in Ripple Epoch.
+    
+    Ripple Epoch is a specification unique to the `rippled` server.
+    The start time of the Ripple Epoch is January 1, 2000, 00:00:00 UTC, which is 946684800 seconds behind the UNIX timestamp.
+
+    Since the standard UNIX timestamp is based on January 1, 1970, 00:00:00 UTC, there is a time difference between it and the Ripple Epoch.
+
+    In xrpl.js, a `unixTimeToRippleTime` method is provided, allowing you to easily convert UNIX timestamps.
+
+    Additionally, please note that there are fields specified in Ripple Epoch for each function in XRPL.
+    </Aside>
 </Steps>
 
 

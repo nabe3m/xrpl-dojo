@@ -24,7 +24,7 @@ import { Aside, Steps } from '@astrojs/starlight/components';
 2. 以下のコードを`createAccounts.js`に貼り付けます。
 
     ```javascript
-    import { xrpToDrops } from 'xrpl';
+    import { xrpToDrops, unixTimeToRippleTime } from 'xrpl';
     import { client, aliceWallet, bobWallet } from './config.js';
 
     const createPaymentChannel = async () => {
@@ -36,7 +36,7 @@ import { Aside, Steps } from '@astrojs/starlight/components';
                 Destination: aliceWallet.address, // 受領者（アリス）のアカウントアドレス
                 SettleDelay: 86400, // 未請求のXRPがある場合に、ソースアドレスがチャネルを閉じる前の猶予時間。待機秒数（ここでは1日）
                 PublicKey: bobWallet.publicKey, // 送金者（ボブ）の公開鍵
-                CancelAfter: Math.floor(Date.now() / 1000) + 86400 * 30, // チャネルがキャンセルされるまでの秒数（ここでは1ヶ月）
+                CancelAfter: unixTimeToRippleTime(Math.floor(Date.now() / 1000) + 86400 * 7), // チャネルがキャンセルされるまでの秒数（ここでは1ヶ月）
             };
 
             console.log('Submitting a PaymentChannelCreate transaction...');
@@ -78,6 +78,19 @@ import { Aside, Steps } from '@astrojs/starlight/components';
 
     main();
     ```
+
+    <Aside title="Rippleエポックについて">
+    `CancelAfter`フィールドはRippleエポックで指定する必要があります。
+
+    Rippleエポックは、`rippled`サーバ特有の仕様です。  
+    Rippleエポックの開始時刻は、2000年1月1日00:00:00 UTCで、UNIXタイムスタンプでいうと946684800秒遅れています。
+
+    一般的なUNIXタイムスタンプは1970年1月1日00:00:00 UTCを基準としているため、リップルエポックとの間には時間のずれがあります。
+
+    xrpl.jsでは、`unixTimeToRippleTime`メソッドが提供されていますので、UNIXタイムスタンプを簡単に変換することができます。
+
+    また、XRPLではRippleエポックで指定するフィールドが機能ごとに存在していますので、ご注意ください。
+    </Aside>
 </Steps>
 
 
