@@ -122,7 +122,7 @@ const tx = {
     Destination: aliceWallet.address, // Receiver (Alice)'s account address
     SettleDelay: 86400, // Grace period before the channel can be closed if there are unclaimed XRP (1 day in this case)
     PublicKey: bobWallet.publicKey, // Sender (Bob)'s public key
-    CancelAfter: unixTimeToRippleTime(Math.floor(Date.now() / 1000) + 86400 * 7), // Seconds until the channel is canceled (1 month in this case)
+    CancelAfter: unixTimeToRippleTime(Math.floor(Date.now() / 1000) + 86400 * 30), // Seconds until the channel is canceled (1 month in this case)
 };
 ```
 

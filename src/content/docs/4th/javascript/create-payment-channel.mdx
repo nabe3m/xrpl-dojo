@@ -36,7 +36,7 @@ import { Aside, Steps } from '@astrojs/starlight/components';
                 Destination: aliceWallet.address, // 受領者（アリス）のアカウントアドレス
                 SettleDelay: 86400, // 未請求のXRPがある場合に、ソースアドレスがチャネルを閉じる前の猶予時間。待機秒数（ここでは1日）
                 PublicKey: bobWallet.publicKey, // 送金者（ボブ）の公開鍵
-                CancelAfter: unixTimeToRippleTime(Math.floor(Date.now() / 1000) + 86400 * 7), // チャネルがキャンセルされるまでの秒数（ここでは1ヶ月）
+                CancelAfter: unixTimeToRippleTime(Math.floor(Date.now() / 1000) + 86400 * 30), // チャネルがキャンセルされるまでの秒数（ここでは1ヶ月）
             };
 
             console.log('Submitting a PaymentChannelCreate transaction...');
