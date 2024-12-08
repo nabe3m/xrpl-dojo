@@ -10,10 +10,12 @@
     "astro": "astro"
   },
   "dependencies": {
+    "@astrojs/check": "^0.5.10",
     "@astrojs/starlight": "^0.21.5",
+    "@jop-software/astro-cookieconsent": "^3.0.1",
     "astro": "^4.3.5",
     "sharp": "^0.32.5",
-    "@astrojs/check": "^0.5.10",
-    "typescript": "^5.4.5"
+    "typescript": "^5.4.5",
+    "vanilla-cookieconsent": "^3.0.1"
   }
 }

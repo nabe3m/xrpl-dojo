@@ -1,6 +1,8 @@
 import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
 
+import jopSoftwarecookieconsent from '@jop-software/astro-cookieconsent';
+
 // https://astro.build/config
 export default defineConfig({
   site: 'https://xrpldojo.dev',
@@ -102,6 +104,50 @@ export default defineConfig({
         //   autogenerate: { directory: 'tutorials' },
         // },
       ],
+    }),
+    jopSoftwarecookieconsent({
+      mode: 'opt-in',
+      autoShow: true,
+      categories: {
+        necessary: {
+          enabled: true,
+          readOnly: true,
+        },
+        analytics: {
+          enabled: false,
+        },
+      },
+      language: {
+        default: 'en',
+        translations: {
+          en: {
+            consentModal: {
+              title: 'We value your privacy',
+              description: 'We use cookies to enhance your experience.',
+              acceptAllBtn: 'Accept All',
+              acceptNecessaryBtn: 'Accept Necessary',
+              showPreferencesBtn: 'Manage Preferences',
+            },
+            preferencesModal: {
+              title: 'Cookie Preferences',
+              sections: [
+                {
+                  title: 'Necessary Cookies',
+                  description:
+                    'These cookies are essential for the website to function properly.',
+                  linkedCategory: 'necessary',
+                },
+                {
+                  title: 'Analytics Cookies',
+                  description:
+                    'These cookies help us understand how visitors interact with the website.',
+                  linkedCategory: 'analytics',
+                },
+              ],
+            },
+          },
+        },
+      },
     }),
   ],
 });
