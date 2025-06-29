@@ -24,10 +24,18 @@ export default defineConfig({
           lang: 'en-US',
         },
       },
-      social: {
-        github: 'https://github.com/Nabe3m/',
-        'x.com': 'https://twitter.com/nabe3_m',
-      },
+      social: [
+        {
+          icon: 'github',
+          label: 'GitHub',
+          href: 'https://github.com/nabe3m/',
+        },
+        {
+          icon: 'x.com',
+          label: 'X (Twitter)',
+          href: 'https://twitter.com/nabe3_m',
+        },
+      ],
       head: [
         {
           tag: 'script',
