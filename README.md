@@ -28,7 +28,7 @@ XRPL Dojo is a comprehensive learning platform for XRPL (XRP Ledger) development
 - **English**: Full English translation available
 
 ### 💻 Interactive Code Examples
-- JavaScript/TypeScript examples for all concepts
+- JavaScript examples for all concepts
 - Step-by-step tutorials with executable code
 - Real-world use cases and best practices
 
@@ -50,7 +50,7 @@ XRPL Dojo is a comprehensive learning platform for XRPL (XRP Ledger) development
 ### Prerequisites
 
 - Node.js 20.0.0 or higher
-- npm or yarn package manager
+- npm package manager
 
 ### Installation
 
@@ -144,7 +144,8 @@ We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.
 ### Content Guidelines
 
 - Follow the existing structure and formatting
-- Provide both Japanese and English versions for new content
+- Provide both Japanese and English versions for new content (a draft or provisional Japanese version is acceptable)
+- You are also welcome to propose new content ideas.
 - Include working code examples
 - Test all code snippets before submission
 - Use clear, beginner-friendly explanations
@@ -181,9 +182,8 @@ For questions about content usage or collaboration, please [open an issue](https
 
 ## Support
 
-- 📖 [Documentation](https://xrpldojo.dev)
-- 🐛 [Issues](https://github.com/yourusername/xrpldojo/issues)
-- 💬 [Discussions](https://github.com/yourusername/xrpldojo/discussions)
+- [X - @nabe3_m](https://x.com/nabe3_m)
+- [GitHub - @nabe3m](https://github.com/nabe3m)
 
 ---
 
