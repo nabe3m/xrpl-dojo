@@ -181,13 +181,13 @@ import { Aside, Steps } from '@astrojs/starlight/components';
 2. 成功すれば、コンソールに以下が表示されます。
     ```bash
     Channel ID: E965B919E140BCF98280B29F6861C23BBB753B9D5515EDD57A285391BA20CCA2
-    Balance: 1000000 drops // チャネルに対してオフレジャー取引を行った総量（現在: 1 XRP）
+    Balance: 0 drops // すでに受領者が請求済の残高（現在: 0 XRP）
     Amount: 10000000 drops // デポジットした量（10 XRP）
     ```
 
     <Aside title="Balanceについて">
     上記で取得した`Balance`については、現在の請求可能金額ではありません。  
-    「デポジットした量に対して、現在どれくらいの取引が完了しているか」という意味になりますのでご注意ください。（Amountの上限までオフレジャー取引が可能）
+    「デポジットした量に対して、現在どれくらいの取引が完了（請求済）しているか」という意味になりますのでご注意ください。（AmountからBalanceを引いた金額が現在の取引上限となる）
     </Aside>
 </Steps>
 

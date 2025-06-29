@@ -63,7 +63,7 @@ const createPaymentChannel = async () => {
     Destination: aliceWallet.address,   // 受領者（アリス）のアカウントアドレス
     SettleDelay: 86400,                      // チャネルがクローズされる前に待機する秒数（ここでは1日）
     PublicKey: bobWallet.publicKey,        // 送金者（ボブ）の公開鍵
-    CancelAfter: Math.floor(Date.now() / 1000) + 86400 * 7, // チャネルがキャンセルされるまでの秒数（ここでは1週間）
+    CancelAfter: unixTimeToRippleTime(Date.now() + 86400 * 7 * 1000), // チャネルがキャンセルされるまでの秒数（ここでは1週間）
   };
 
   // トランザクションを送信
@@ -84,8 +84,8 @@ const fundPaymentChannel = async (channelId) => {
   const tx = {
     TransactionType: 'PaymentChannelFund', // トランザクションタイプ: ペイメントチャネルの資金追加
     Account: bobWallet.address,     // 送金者（ボブ）のアカウントアドレス
-    Channel: channelId,                    // ペイメントチャネルのID
-    Amount: xrpl.xrpToDrops('5'),          // チャネルに追加するXRPの量（ここでは5 XRP）
+    Channel: channelId,             // ペイメントチャネルのID
+    Amount: xrpl.xrpToDrops('5'),   // チャネルに追加するXRPの量（ここでは5 XRP）
   };
 
   const result = await client.submitAndWait(tx, { wallet: bobWallet });

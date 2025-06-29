@@ -181,13 +181,13 @@ Let's check the state of the channel at this point.
 2. If successful, the console will display the following:
     ```bash
     Channel ID: E965B919E140BCF98280B29F6861C23BBB753B9D5515EDD57A285391BA20CCA2
-    Balance: 1000000 drops // Total amount transacted off-ledger in the channel (currently: 1 XRP)
+    Balance: 0 drops // Balance already claimed by the recipient (currently: 0 XRP)
     Amount: 10000000 drops // Amount deposited (10 XRP)
     ```
 
     <Aside title="About Balance">
     The `Balance` obtained above does not represent the current claimable amount.  
-    It indicates how much of the deposited amount has been transacted so far. (Off-ledger transactions are possible up to the `Amount` limit)
+    It indicates "how much of the deposited amount has been completed (claimed) in transactions so far." (The current transaction limit is the Amount minus the Balance)
     </Aside>
 </Steps>
 

@@ -59,7 +59,7 @@ const createPaymentChannel = async () => {
     Destination: aliceWallet.address, // Recipient (Alice)'s account address
     SettleDelay: 86400, // Seconds to wait before the channel can be closed (1 day here)
     PublicKey: bobWallet.publicKey, // Sender (Bob)'s public key
-    CancelAfter: Math.floor(Date.now() / 1000) + 86400 * 7, // Seconds until the channel can be canceled (1 week here)
+    CancelAfter: unixTimeToRippleTime(Date.now() + 86400 * 7 * 1000), // Seconds until the channel can be canceled (1 week here)
   };
 
   // Submit the transaction

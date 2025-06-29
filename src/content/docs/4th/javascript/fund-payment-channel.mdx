@@ -121,7 +121,7 @@ const tx = {
     Account: bobWallet.address, // 送金者（ボブ）のアカウントアドレス
     Channel: channelId, // ペイメントチャネルのID
     Amount: xrpToDrops('5'), // チャネルに追加するXRPの量（ここでは5 XRP）
-    Expiration: Math.floor(Date.now() / 1000) + 86400 * 7, // 期限を延長（ここでは1週間後）
+    Expiration: unixTimeToRippleTime(Date.now() + 86400 * 7 * 1000), // 期限を延長（ここでは1週間後）
 };
 ```
 

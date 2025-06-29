@@ -163,11 +163,19 @@ import { Aside, Steps } from '@astrojs/starlight/components';
     tecコード`104`が`tecUNFUNDED_PAYMENT`です。基本的には、送信側アカウントが準備金を考慮せずに、保有するXRPを超える額の送信を試みたため、トランザクションが失敗したことを意味しますが、
     ここでは、「ペイメントチャネル上に請求する残高は存在していません。」という意味となります。  
     </Aside>
+
+    ここでもう一度、`node checkChannelBalance.js`を実行し、`Balance`を確認すると、以下のようになっているはずです。
+
+    ```bash
+    Channel ID: E965B919E140BCF98280B29F6861C23BBB753B9D5515EDD57A285391BA20CCA2
+    Balance: 1000000 drops // すでに受領者が請求済の残高（現在: 1 XRP）
+    Amount: 10000000 drops // デポジットした量（10 XRP）
+    ```
 </Steps>
 
 ## まとめ
 
-この時点で以下の残高になっていれば、成功していると言えるでしょう。
+この時点でおおよそ以下の残高になっていれば、成功していると言えるでしょう。
 
 - アリス: 100.999988 XRP
 - ボブ: 89.999988 XRP

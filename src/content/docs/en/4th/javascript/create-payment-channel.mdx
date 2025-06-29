@@ -36,7 +36,7 @@ Additionally, XRPL's payment channel functionality is provided natively, without
                 Destination: aliceWallet.address, // Recipient's (Alice's) account address
                 SettleDelay: 86400, // Grace period before the source address can close the channel if there is unclaimed XRP. Waiting time in seconds (1 day here)
                 PublicKey: bobWallet.publicKey, // Sender's (Bob's) public key
-                CancelAfter: CancelAfter: unixTimeToRippleTime(Math.floor(Date.now() / 1000) + 86400 * 30), // Seconds until the channel can be canceled (1 month here)
+                CancelAfter: unixTimeToRippleTime(Date.now() + 86400 * 30 * 1000), // Seconds until the channel can be canceled (1 month later)
             };
 
             console.log('Submitting a PaymentChannelCreate transaction...');
@@ -90,6 +90,11 @@ Additionally, XRPL's payment channel functionality is provided natively, without
     In xrpl.js, a `unixTimeToRippleTime` method is provided, allowing you to easily convert UNIX timestamps.
 
     Additionally, please note that there are fields specified in Ripple Epoch for each function in XRPL.
+    </Aside>
+
+    <Aside title="About Expiration and CancelAfter">
+    `Expiration` is a modifiable expiration date, while the `CancelAfter` field is an immutable expiration date.
+    Since `CancelAfter` can only be set at the time of `PaymentChannelCreate`, it's good to use `Expiration` and `CancelAfter` according to your purpose.
     </Aside>
 </Steps>
 

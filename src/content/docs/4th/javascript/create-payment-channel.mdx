@@ -36,7 +36,7 @@ import { Aside, Steps } from '@astrojs/starlight/components';
                 Destination: aliceWallet.address, // 受領者（アリス）のアカウントアドレス
                 SettleDelay: 86400, // 未請求のXRPがある場合に、ソースアドレスがチャネルを閉じる前の猶予時間。待機秒数（ここでは1日）
                 PublicKey: bobWallet.publicKey, // 送金者（ボブ）の公開鍵
-                CancelAfter: unixTimeToRippleTime(Math.floor(Date.now() / 1000) + 86400 * 30), // チャネルがキャンセルされるまでの秒数（ここでは1ヶ月）
+                CancelAfter: unixTimeToRippleTime(Date.now() + 86400 * 30 * 1000), // チャネルがキャンセルされるまでの秒数（ここでは1ヶ月後）
             };
 
             console.log('Submitting a PaymentChannelCreate transaction...');
@@ -90,6 +90,11 @@ import { Aside, Steps } from '@astrojs/starlight/components';
     xrpl.jsでは、`unixTimeToRippleTime`メソッドが提供されていますので、UNIXタイムスタンプを簡単に変換することができます。
 
     また、XRPLではRippleエポックで指定するフィールドが機能ごとに存在していますので、ご注意ください。
+    </Aside>
+
+    <Aside title="ExpirationとCancelAfterについて">
+    `Expiration`が変更可能な有効期限、`CancelAfter`フィールドは変更不可な有効期限となります。
+    `CancelAfter`は`PaymentChannelCreate`のタイミングでしか設定できないため、`Expiration`と目的によって使い分けると良いでしょう。
     </Aside>
 </Steps>
 

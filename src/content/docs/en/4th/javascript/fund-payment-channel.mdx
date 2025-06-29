@@ -121,7 +121,7 @@ const tx = {
     Account: bobWallet.address, // Sender (Bob)'s account address
     Channel: channelId, // Payment channel ID
     Amount: xrpToDrops('5'), // Amount of XRP to add to the channel (in this case, 5 XRP)
-    Expiration: Math.floor(Date.now() / 1000) + 86400 * 7, // Extend expiration date (in this case, 1 week later)
+    Expiration: unixTimeToRippleTime(Date.now() + 86400 * 7 * 1000), // Extend expiration date (in this case, 1 week later)
 };
 ```
 

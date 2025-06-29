@@ -163,11 +163,19 @@ Bob has already performed the following actions for Alice:
     The tec code `104` is `tecUNFUNDED_PAYMENT`. This typically means that the transaction failed because the sending account attempted to send an amount exceeding its XRP balance without considering the reserve.  
     Here, it means "There is no balance to claim on the payment channel."
     </Aside>
+
+    Run `node checkChannelBalance.js` again to check the `Balance`, and it should look like this:
+
+    ```bash
+    Channel ID: E965B919E140BCF98280B29F6861C23BBB753B9D5515EDD57A285391BA20CCA2
+    Balance: 1000000 drops // Balance already claimed by the recipient (currently: 1 XRP)
+    Amount: 10000000 drops // Amount deposited (10 XRP)
+    ```
 </Steps>
 
 ## Summary
 
-If the balances are as follows, the process has been successful.
+If the balances are approximately as follows, the process has been successful.
 
 - Alice: 100.999988 XRP
 - Bob: 89.999988 XRP
