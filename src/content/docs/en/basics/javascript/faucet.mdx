@@ -28,40 +28,47 @@ If you want to get XRP while creating an address, go on and create an account be
 
 While it is better to use a tool for efficiency and convenience, you can also get XRP using code.
 
+### Installing node-fetch
+
+The fetch API is built into the browser, but in a Node.js environment, you need to install the node-fetch module.
+
+```bash
+npm install node-fetch
+```
+
 ### Create Script
 
-1. Create a new file called `faucet.js` in your project directory.
-2. Paste the following code into `faucet.js`.
+```javascript
+const fetch = require('node-fetch');
 
-    ```javascript
-    async function faucet() {
-      try {
-        // XRPL Testnet Faucet URL
-        const faucetUrl = 'https://faucet.altnet.rippletest.net/accounts';
+async function faucet() {
+  try {
+    // XRPL Testnet Faucet URL
+    const faucetUrl = 'https://faucet.altnet.rippletest.net/accounts';
 
-        // Send POST request using Fetch API
-        const response = await fetch(faucetUrl, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        });
-
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        const data = await response.json();
-        console.log('Wallet Address:', data.account.address);
-        console.log('Secret:', data.account.secret); 
-        console.log('Balance:', data.balance); // display the amount of XRP granted in the test net
-      } catch (error) {
-        console.error('Error requesting XRP:', error.message); 
+    // Send POST request using Fetch API
+    const response = await fetch(faucetUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
       }
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
 
-    faucet(); 
-    ```
+    const data = await response.json();
+    console.log('Wallet Address:', data.account.address);
+    console.log('Secret:', data.account.secret); 
+    console.log('Balance:', data.balance); // display the amount of XRP granted in the test net
+  } catch (error) {
+    console.error('Error requesting XRP:', error.message); 
+  }
+}
+
+faucet(); 
+```
 
 ## Run script
 
@@ -70,14 +77,12 @@ While it is better to use a tool for efficiency and convenience, you can also ge
 1. Run script by executing the following command on the command line.
 
     ```bash
-    node faucet.js
+    node create_wallet.js
     ````
 
 2. If successful, you will see the following in the console.
 
     ```bash
-    Wallet Address: rDt3T3ifG96eKS4pkZyUxhYt8rTSpPDauf
-    Secret: sEdTYR4byoAWLJUqFCGQsZsAX6ni9tc
     data: {
         account: {
         xAddress: 'XVBX4Scdqqvh8WukxJjvoNCSQ5CvZPCvZUPuaXaqZ2JuxH9',
