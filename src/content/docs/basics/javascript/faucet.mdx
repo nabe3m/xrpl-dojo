@@ -16,7 +16,7 @@ import { Steps } from '@astrojs/starlight/components';
 
 以下のサイトではアドレスを指定して取得することができます。
 
-先ほどコードベースで作成したアカウントアドレスに送信したい場合は、bithomb.comのツールを使用すると良いでしょう。
+先ほどコードベースで作成したアカウントアドレスに送信したい場合は、bithomp.comのツールを使用すると良いでしょう。
 
 - [test.bithomp.com](https://test.bithomp.com/faucet/)
 
@@ -39,8 +39,6 @@ npm install node-fetch
 ### スクリプトの作成
 
 ```javascript
-const fetch = require('node-fetch');
-
 async function faucet() {
   try {
     // XRPL Testnet Faucet URL
@@ -59,9 +57,10 @@ async function faucet() {
     }
 
     const data = await response.json();
-    console.log('Wallet Address:', data.account.address);
-    console.log('Secret:', data.account.secret);
-    console.log('Balance:', data.balance); // テストネットで付与されるXRPの量を表示
+    console.log('Wallet Address:', data.account.address); //アドレスを表示
+    console.log('Secret:', data.seed); //シークレットキーを表示
+    console.log('Amount:', data.amount); // テストネットで付与されるXRPの量を表示
+    console.log('data:', data); //取得データを表示
   } catch (error) {
     console.error('Error requesting XRP:', error.message);
   }
@@ -83,13 +82,16 @@ faucet();
 2. 成功すれば、コンソールに以下が表示されます。
 
     ```bash
+    Wallet Address: rDt3T3ifG96eKS4pkZyUxhYt8rTSpPDauf
+    Secret: sEdTYR4byoAWLJUqFCGQsZsAX6ni9tc
+    Amount: 10
     data: {
         account: {
         xAddress: 'XVBX4Scdqqvh8WukxJjvoNCSQ5CvZPCvZUPuaXaqZ2JuxH9',
             address: 'rDt3T3ifG96eKS4pkZyUxhYt8rTSpPDauf', // アドレス
             classicAddress: 'rDt3T3ifG96eKS4pkZyUxhYt8rTSpPDauf'
         },
-        amount: 100, // 100XRPが取得できました
+        amount: 10, // 10XRPが取得できました
         transactionHash: '6FBE1C1215B8B3D0765D3CEC2FD48EE2BBC073DB8A960A92CA0485986CFE226C',
         seed: 'sEdTYR4byoAWLJUqFCGQsZsAX6ni9tc' // シークレットキー
     }
