@@ -28,46 +28,44 @@ import { Steps } from '@astrojs/starlight/components';
 
 効率と利便性を考慮するとツールを使用した方が便利ですが、コードベースで発行する方法もあります。
 
-### node-fetchのインストール
-
-fetch APIはブラウザに組み込まれていますが、Node.js環境ではnode-fetchモジュールをインストールする必要があります。
-
-```bash
-npm install node-fetch
-```
-
 ### スクリプトの作成
 
-```javascript
-async function faucet() {
-  try {
-    // XRPL Testnet Faucet URL
-    const faucetUrl = 'https://faucet.altnet.rippletest.net/accounts';
+<Steps>
 
-    // Fetch APIを使用してPOSTリクエストを送信
-    const response = await fetch(faucetUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
+1. プロジェクトディレクトリに`faucet.js`という新しいファイルを作成します。
+2. 以下のコードを`faucet.js`に貼り付けます。
+
+    ```javascript
+    async function faucet() {
+      try {
+        // XRPL Testnet Faucet URL
+        const faucetUrl = 'https://faucet.altnet.rippletest.net/accounts';
+
+        // Fetch APIを使用してPOSTリクエストを送信
+        const response = await fetch(faucetUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        console.log('Wallet Address:', data.account.address); //アドレスを表示
+        console.log('Secret:', data.seed); //シークレットキーを表示
+        console.log('Amount:', data.amount); // テストネットで付与されるXRPの量を表示
+        console.log('data:', data); //取得データを表示
+      } catch (error) {
+        console.error('Error requesting XRP:', error.message);
       }
-    });
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
     }
 
-    const data = await response.json();
-    console.log('Wallet Address:', data.account.address); //アドレスを表示
-    console.log('Secret:', data.seed); //シークレットキーを表示
-    console.log('Amount:', data.amount); // テストネットで付与されるXRPの量を表示
-    console.log('data:', data); //取得データを表示
-  } catch (error) {
-    console.error('Error requesting XRP:', error.message);
-  }
-}
-
-faucet();
-```
+    faucet();
+    ```
+</Steps>
 
 ## スクリプトの実行
 
@@ -76,7 +74,7 @@ faucet();
 1. コマンドラインで以下のコマンドを実行して、スクリプトを実行します。
 
     ```bash
-    node create_wallet.js
+    node faucet.js
     ```
 
 2. 成功すれば、コンソールに以下が表示されます。
