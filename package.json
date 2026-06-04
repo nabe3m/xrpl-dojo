@@ -10,15 +10,17 @@
     "astro": "astro"
   },
   "engines": {
-    "node": ">=20.0.0"
+    "node": ">=22.12.0"
   },
   "dependencies": {
-    "@astrojs/check": "^0.9.4",
-    "@astrojs/starlight": "^0.34.4",
+    "@astrojs/check": "^0.9.9",
+    "@astrojs/starlight": "^0.39.3",
     "@jop-software/astro-cookieconsent": "^3.0.1",
-    "astro": "^5.10.1",
-    "sharp": "^0.32.5",
-    "typescript": "^5.4.5",
-    "vanilla-cookieconsent": "^3.0.1"
+    "astro": "^6.4.3",
+    "astro-mermaid": "^2.0.2",
+    "sharp": "^0.34.5",
+    "starlight-sidebar-topics": "^0.7.1",
+    "typescript": "^5.9.3",
+    "vanilla-cookieconsent": "^3.1.0"
   }
 }

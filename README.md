@@ -4,7 +4,7 @@
   <img src="./src/assets/images/logo-xrpl-dojo.webp" alt="XRPL Dojo Logo" width="200" height="200">
   
   [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-  [![Node.js Version](https://img.shields.io/badge/node-%3E%3D20.0.0-green.svg)](https://nodejs.org/)
+  [![Node.js Version](https://img.shields.io/badge/node-%3E%3D22.12.0-green.svg)](https://nodejs.org/)
   [![Built with Astro](https://img.shields.io/badge/built%20with-astro-ff5a5f.svg)](https://astro.build/)
 </div>
 
@@ -49,7 +49,7 @@ XRPL Dojo is a comprehensive learning platform for XRPL (XRP Ledger) development
 
 ### Prerequisites
 
-- Node.js 20.0.0 or higher
+- Node.js 22.12.0 or higher
 - npm package manager
 
 ### Installation
