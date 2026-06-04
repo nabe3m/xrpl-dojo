@@ -89,6 +89,9 @@ Thumbs.db
 *.pid
 *.seed
 
+# 参照用に clone した外部リポジトリ
+temp/
+
 # その他
 .env
 .secret
