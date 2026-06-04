@@ -1,0 +1,21 @@
+---
+const { head, entry } = Astro.locals.starlightRoute;
+
+const isXrpldPage = Astro.url.pathname.startsWith('/xrpld/');
+const titleWithoutStep = entry.data.title.replace(/^\d+-\d+\.\s*/, '');
+const xrpldTitle = `${titleWithoutStep} | xrpld | XRPL Dojo`;
+
+const resolvedHead = isXrpldPage
+	? head.map((item) => {
+			if (item.tag === 'title') {
+				return { ...item, content: xrpldTitle };
+			}
+			if (item.tag === 'meta' && item.attrs?.property === 'og:title') {
+				return { ...item, attrs: { ...item.attrs, content: xrpldTitle } };
+			}
+			return item;
+		})
+	: head;
+---
+
+{resolvedHead.map(({ tag: Tag, attrs, content }) => <Tag {...attrs} set:html={content} />)}
