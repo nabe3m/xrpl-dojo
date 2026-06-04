@@ -8,13 +8,29 @@ hero:
   image:
     file: ../../assets/images/logo-xrpl-dojo.webp
   actions:
-    - text: 入門してみよう
+    - text: XRPL Dojo
       link: /getting-started/
       icon: right-arrow
       variant: primary
-    - text: XRPL docs
-      link: https://xrpl.org/docs/
-      icon: external
+    - text: xrpld Dojo
+      link: /xrpld/intro/about/
+      icon: right-arrow
+      variant: secondary
 ---
 
-import { Card, CardGrid } from '@astrojs/starlight/components';
+import { Card, CardGrid, LinkCard } from '@astrojs/starlight/components';
+
+## 学習コースを選ぶ
+
+<CardGrid>
+  <Card title="XRPL Dojo" icon="open-book">
+    JavaScript/TypeScript を使って XRP Ledger の開発を学ぶコースです。ウォレット作成・送金・DEX・Payment Channel などを段階的に習得できます。
+
+    [入門してみよう →](/getting-started/)
+  </Card>
+  <Card title="xrpld Dojo" icon="seti:cpp">
+    rippled（XRP Ledger の参照実装）のコントリビューターを目指すコースです。C++ コードベースの読み方からプルリクエストまでを学びます。
+
+    [学習をはじめる →](/xrpld/intro/about/)
+  </Card>
+</CardGrid>
