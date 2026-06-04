@@ -44,6 +44,7 @@ Level 3ではPRの作法を先に学びますが、初めてのC++実装PRを急
 
 学習中の質問や情報共有には、以下のコミュニティを活用してください。
 
-- [XRPL Discord](https://discord.gg/sfX3ERAMjH) - `#dev-general` チャンネル
+- [XRPL Discord](https://discord.gg/sfX3ERAMjH) - `#rippled` チャンネル
 - [GitHub Discussions](https://github.com/XRPLF/rippled/discussions)
-- [XRPL Dev Blog](https://dev.to/xrplfoundation)
+
+また、X（SNS）を活用することも方法のひとつです。
